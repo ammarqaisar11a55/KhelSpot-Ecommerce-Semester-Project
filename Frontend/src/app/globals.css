@@ -1,0 +1,202 @@
+/* KhelSpot design tokens and base styles. Brand reference: ../../brand/BRAND.md */
+
+:root {
+  --night: #0f1f18;
+  --night-2: #172c23;
+  --night-line: #2a4337;
+  --turf: #17804f;
+  --turf-dark: #106640;
+  --chalk: #f6f3ea;
+  --sand: #ede9dd;
+  --line: #d9d3c3;
+  --flood: #ffd43b;
+  --flood-dark: #f2c200;
+  --ink-2: #3b4a42;
+  --muted-dark: #a9b8af;
+  --error-on-dark: #ff9c82;
+
+  --head: var(--font-archivo), "Arial Narrow", sans-serif;
+  --body: var(--font-instrument-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  --radius: 16px;
+  --radius-lg: 22px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 76px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--chalk);
+  color: var(--night);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--head);
+  font-stretch: 125%;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+}
+
+h2 {
+  font-size: clamp(32px, 4.6vw, 52px);
+  max-width: 18ch;
+}
+
+h3 {
+  font-size: 20px;
+  font-stretch: 112%;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+p {
+  margin: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+@media (max-width: 600px) {
+  .wrap {
+    padding: 0 16px;
+  }
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--flood);
+  margin-bottom: 16px;
+}
+
+.eyebrow--dark {
+  color: var(--turf-dark);
+}
+
+.lead {
+  font-size: 19px;
+  color: var(--muted-dark);
+  max-width: 52ch;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+  font-family: var(--body);
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.btn--accent {
+  background: var(--flood);
+  color: var(--night);
+}
+
+.btn--accent:hover {
+  background: var(--flood-dark);
+}
+
+.btn--ghost {
+  border-color: var(--night-line);
+  color: var(--chalk);
+}
+
+.btn--ghost:hover {
+  border-color: var(--chalk);
+}
+
+.btn--small {
+  min-height: 44px;
+  padding: 0 18px;
+  font-size: 15px;
+}
+
+.btn--block {
+  width: 100%;
+}
+
+:is(a, button, summary, input, select):focus-visible {
+  outline: 3px solid var(--flood);
+  outline-offset: 2px;
+}
+
+/* Brand lockup */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--chalk);
+  font-family: var(--head);
+  font-stretch: 125%;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.03em;
+}
+
+.brand em {
+  font-style: normal;
+  color: var(--flood);
+}

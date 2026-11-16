@@ -1,0 +1,327 @@
+/* Shared app primitives. Colour tokens come from globals.css. */
+
+/* padding-block only: these classes sit on .wrap, which owns the side padding */
+.page {
+  padding-block: 40px 80px;
+}
+
+.pageHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.title {
+  font-family: var(--head);
+  font-stretch: 125%;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.05;
+  margin: 0;
+  max-width: none;
+}
+
+.subtitle {
+  color: var(--ink-2);
+  margin-top: 8px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.cardTitle {
+  font-family: var(--head);
+  font-stretch: 112%;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+}
+
+.muted {
+  color: var(--ink-2);
+}
+
+.small {
+  font-size: 14px;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-size: 14px;
+}
+
+/* Chips (filters, toggles) */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--night);
+  font: 600 14px var(--body);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.chip:hover {
+  border-color: var(--night);
+}
+
+.chipOn,
+.chipOn:hover {
+  background: var(--night);
+  border-color: var(--night);
+  color: var(--chalk);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font: 700 12px var(--body);
+  background: var(--sand);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.badgeGreen {
+  background: #dcefe3;
+  color: #0c5233;
+}
+
+.badgeYellow {
+  background: #fff1bf;
+  color: #6b5200;
+}
+
+.badgeRed {
+  background: #fbe0d9;
+  color: #8f2a12;
+}
+
+.badgeDark {
+  background: var(--night);
+  color: var(--chalk);
+}
+
+/* Form fields */
+.field {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.field > span {
+  color: var(--ink-2);
+}
+
+.input,
+.select {
+  min-height: 46px;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--night);
+  font: 500 16px var(--body);
+  padding: 0 12px;
+}
+
+.input[aria-invalid="true"],
+.select[aria-invalid="true"] {
+  border-color: #c2410c;
+}
+
+.hint {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.error {
+  color: #a3330f;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Secondary button on light backgrounds */
+.btnLight {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--night);
+  font: 700 15px var(--body);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btnLight:hover {
+  border-color: var(--night);
+}
+
+.btnDanger {
+  composes: btnLight;
+  color: #a3330f;
+  border-color: #efc2b5;
+}
+
+.btnDanger:hover {
+  border-color: #a3330f;
+}
+
+.btnDark {
+  composes: btnLight;
+  background: var(--night);
+  border-color: var(--night);
+  color: var(--chalk);
+}
+
+.btnDark:hover {
+  background: #000;
+}
+
+.btnLight:disabled,
+.btnDark:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Skeletons */
+.skeleton {
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, var(--sand) 0%, #f2eee3 50%, var(--sand) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+/* Empty states */
+.empty {
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  padding: 32px 20px;
+  text-align: center;
+  color: var(--ink-2);
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+}
+
+/* Modal (native <dialog>) */
+.dialog {
+  border: 0;
+  border-radius: 20px;
+  padding: 0;
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  color: var(--night);
+  background: var(--chalk);
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.5);
+}
+
+.dialog::backdrop {
+  background: rgba(15, 31, 24, 0.55);
+}
+
+.dialogHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.dialogTitle {
+  font-family: var(--head);
+  font-stretch: 112%;
+  font-weight: 800;
+  font-size: 20px;
+  margin: 0;
+  max-width: none;
+}
+
+.dialogBody {
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.iconBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--night);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconBtn:hover {
+  background: var(--sand);
+}
+
+/* Definition list for booking details */
+.details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 16px;
+  margin: 0;
+  font-size: 15px;
+}
+
+.details dt {
+  color: var(--ink-2);
+}
+
+.details dd {
+  margin: 0;
+  font-weight: 600;
+}
