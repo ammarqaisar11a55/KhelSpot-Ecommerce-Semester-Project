@@ -1,0 +1,142 @@
+// KhelSpot database schema.
+//
+// Hours: a booking's `startHour` is counted from midnight of its operating
+// day and can run past 24, so a venue open 4 PM to 4 AM has openHour 16 and
+// closeHour 28, and a 1 AM slot on Monday's operating day is startHour 25.
+//
+// Double booking is blocked by an exclusion constraint added in the first
+// migration (booking_no_overlap): two confirmed bookings on the same court
+// cannot have overlapping hour ranges.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Sport {
+  padel
+  futsal
+  cricket
+  badminton
+}
+
+enum PaymentMethod {
+  jazzcash
+  easypaisa
+  card
+  cash
+}
+
+enum BookingStatus {
+  confirmed
+  cancelled
+}
+
+enum BookingSource {
+  online
+  walk_in
+}
+
+model Venue {
+  id                String     @id
+  slug              String     @unique
+  name              String
+  city              String
+  area              String
+  address           String
+  description       String
+  amenities         String[]
+  /// Operating-day hours; closeHour may exceed 24 (e.g. 28 = 4 AM next day).
+  openHour          Int        @map("open_hour")
+  closeHour         Int        @map("close_hour")
+  /// Full refund when cancelled at least this many hours before start.
+  freeCancelHours   Int        @map("free_cancel_hours")
+  /// Refund percent when cancelled later than that, before start.
+  lateRefundPercent Int        @map("late_refund_percent")
+  payAtVenue        Boolean    @map("pay_at_venue")
+  /// Cover photo (path or URL); null until the venue has one. Credit fields are for stock photos.
+  photoSrc          String?    @map("photo_src")
+  photoAlt          String?    @map("photo_alt")
+  photoCredit       String?    @map("photo_credit")
+  photoCreditUrl    String?    @map("photo_credit_url")
+  createdAt         DateTime   @default(now()) @map("created_at")
+  updatedAt         DateTime   @updatedAt @map("updated_at")
+  courts            Court[]
+  rateBands         RateBand[]
+  bookings          Booking[]
+
+  @@index([city, area])
+  @@map("venues")
+}
+
+model Court {
+  id       String    @id
+  venueId  String    @map("venue_id")
+  name     String
+  sport    Sport
+  venue    Venue     @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@index([venueId])
+  @@map("courts")
+}
+
+/// Price per hour for one sport at one venue, between two operating-day hours.
+model RateBand {
+  id       Int    @id @default(autoincrement())
+  venueId  String @map("venue_id")
+  sport    Sport
+  fromHour Int    @map("from_hour")
+  toHour   Int    @map("to_hour")
+  price    Int
+  label    String
+  venue    Venue  @relation(fields: [venueId], references: [id], onDelete: Cascade)
+
+  @@index([venueId, sport])
+  @@map("rate_bands")
+}
+
+model Customer {
+  id        String    @id @default(uuid())
+  name      String
+  /// Pakistani mobile number, normalised to 03XXXXXXXXX.
+  phone     String    @unique
+  createdAt DateTime  @default(now()) @map("created_at")
+  bookings  Booking[]
+
+  @@map("customers")
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  ref         String        @unique
+  venueId     String        @map("venue_id")
+  courtId     String        @map("court_id")
+  customerId  String        @map("customer_id")
+  /// Operating day (Lahore date the session belongs to).
+  date        DateTime      @db.Date
+  startHour   Int           @map("start_hour")
+  hours       Int
+  /// Rs, fixed at booking time.
+  price       Int
+  payment     PaymentMethod
+  paid        Boolean
+  status      BookingStatus @default(confirmed)
+  source      BookingSource
+  createdAt   DateTime      @default(now()) @map("created_at")
+  cancelledAt DateTime?     @map("cancelled_at")
+  /// Rs refunded on cancellation.
+  refund      Int?
+  venue       Venue         @relation(fields: [venueId], references: [id])
+  court       Court         @relation(fields: [courtId], references: [id])
+  customer    Customer      @relation(fields: [customerId], references: [id])
+
+  @@index([venueId, date])
+  @@index([courtId, date])
+  @@index([customerId])
+  @@map("bookings")
+}

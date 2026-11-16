@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: khelspot
+      POSTGRES_PASSWORD: khelspot
+      POSTGRES_DB: khelspot
+    ports:
+      - "5433:5432" # 5433 on the host, so it doesn't clash with a local Postgres on 5432
+    volumes:
+      - khelspot-db:/var/lib/postgresql/data
+    configs:
+      # Inline instead of a bind mount, so it works with Docker Desktop on any drive.
+      - source: create-test-db
+        target: /docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U khelspot -d khelspot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+configs:
+  create-test-db:
+    # Runs once, when the volume is first created: a separate database for the
+    # API tests, which wipe bookings before each run.
+    content: |
+      CREATE DATABASE khelspot_test OWNER khelspot;
+
+volumes:
+  khelspot-db:
