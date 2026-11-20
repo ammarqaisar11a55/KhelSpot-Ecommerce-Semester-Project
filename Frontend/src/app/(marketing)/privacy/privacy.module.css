@@ -1,0 +1,49 @@
+.page {
+  background: var(--chalk, #f3f2ec);
+  color: var(--ink, #111513);
+}
+
+.body {
+  max-width: 44rem;
+  padding-block: 64px 96px;
+}
+
+.kicker {
+  font: 700 12px/1.3 var(--font-archivo), sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--slate, #59625d);
+  margin: 0 0 12px;
+}
+
+.title {
+  font: 900 clamp(48px, 9vw, 72px) / 0.9 var(--font-big-shoulders), Impact, sans-serif;
+  text-transform: uppercase;
+  margin: 0 0 24px;
+}
+
+.lead {
+  font: 400 18px/1.55 var(--font-archivo), sans-serif;
+  margin: 0 0 32px;
+}
+
+.body h2 {
+  font: 800 28px/1 var(--font-big-shoulders), Impact, sans-serif;
+  text-transform: uppercase;
+  margin: 40px 0 12px;
+}
+
+.body p,
+.body li {
+  font: 400 16px/1.55 var(--font-archivo), sans-serif;
+}
+
+.body ul {
+  padding-left: 1.2em;
+  display: grid;
+  gap: 8px;
+}
+
+.body a {
+  color: var(--turf, #1f7a4d);
+}

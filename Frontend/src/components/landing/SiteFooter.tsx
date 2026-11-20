@@ -17,6 +17,7 @@ export function SiteFooter() {
           <Link href="/bookings">My bookings</Link>
           <Link href="/owners/signup">List your venue</Link>
           <Link href="/owners/login">Venue sign in</Link>
+          <Link href="/privacy">Privacy</Link>
         </nav>
         <p className="footer__legal">© <CopyrightYear /> KhelSpot. Lahore, Pakistan.</p>
       </div>
