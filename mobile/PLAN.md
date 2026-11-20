@@ -107,7 +107,7 @@ Player notification "Game in 2 hours" via `expo-notifications`, scheduled when a
 ```
 push to main ──► GitHub Actions ──► signed APK + update.json ──► GitHub Release (mobile-v…)
                                                                         │
-phone: Account › App updates ── checks Releases API ◄───────────────────┘
+phone: Account › App updates ── reads mobile-<channel>/update.json ◄────┘
         └─ newer build? ─► shows notes ─► downloads APK ─► checks SHA-256 ─► Android installer
 ```
 
@@ -120,7 +120,7 @@ Workflow `.github/workflows/mobile-android.yml`:
 - **Steps**: checkout → Node 22, JDK 17 → `npm ci` → typecheck and lint → `APP_VARIANT=internal npx expo prebuild --platform android` → Gradle `assembleRelease` (arm64) → `apksigner` with the release key → SHA-256 → `gh release create`.
 - **Tags**: beta builds are `mobile-v<version>-beta.<run>` (pre-release); stable builds are the `mobile-v<version>` tag you push, which must match `mobile/package.json`.
 - **Signing**: one release keystore, created once with `mobile/scripts/create-keystore.sh`, stored as GitHub Actions secrets (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`). Keep a backup offline: if it's lost, installed apps can't be updated and must be reinstalled.
-- **Release assets**: `khelspot-1.4.0-57.apk` and `update.json`:
+- **Release assets**: `khelspot-1.4.0-57.apk` and `update.json` on the versioned release. The same `update.json` is also uploaded to a fixed release per channel, `mobile-beta` and `mobile-stable` (stable builds move both), which is what the app reads:
 
 ```json
 {
@@ -129,7 +129,10 @@ Workflow `.github/workflows/mobile-android.yml`:
   "channel": "beta",
   "commit": "ba56926",
   "publishedAt": "2026-11-21T10:12:00Z",
+  "tag": "mobile-v1.4.0-beta.57",
   "apk": "khelspot-1.4.0-57.apk",
+  "apkUrl": "https://github.com/ammarqaisar11a55/KhelSpot-Ecommerce-Semester-Project/releases/download/mobile-v1.4.0-beta.57/khelspot-1.4.0-57.apk",
+  "apkSize": 36664132,
   "sha256": "…",
   "minSupportedVersionCode": 50,
   "notes": ["Venue page shows the deadline as a clock time", "Fix: slot grid on small phones"]
@@ -141,14 +144,14 @@ Release notes come from the commit messages since the previous mobile release.
 ### In the app (Account › App updates)
 
 - Shows: installed version and build (`expo-application`), commit, channel (Stable or Beta), last checked.
-- **Check for updates**: calls `GET https://api.github.com/repos/ammarqaisar11a55/KhelSpot-Ecommerce-Semester-Project/releases?per_page=20`, keeps releases tagged `mobile-v*` (pre-releases too on Beta), reads the newest `update.json`, compares `versionCode`.
+- **Check for updates**: downloads `https://github.com/ammarqaisar11a55/KhelSpot-Ecommerce-Semester-Project/releases/download/mobile-<channel>/update.json` and compares its `versionCode` with the installed build. This is a plain file download from github.com, **not the GitHub API**: the API allows only 60 anonymous requests an hour per IP address, and many Pakistani home and mobile networks put lots of people behind one address (we hit the limit on the first day). The app only accepts an `apkUrl` from this repo's own releases.
 - **Update available**: version, size, date, notes, then **Download and install**: downloads the APK with progress (`expo-file-system`), checks its SHA-256 against `update.json`, then opens the Android installer through a content URI (`expo-intent-launcher`). Android asks once to allow installs from KhelSpot.
 - **Automatic check** on app start, at most every 6 hours, shown as a small banner, never a blocking pop-up. If the installed build is below `minSupportedVersionCode` (an API change broke old builds), the banner says the update is required.
 - **Channel switch**: Stable or Beta, for when you want every `main` build.
 
 ### Safety
 
-- **No GitHub token in the app.** The repo is public, so release reads need no login (GitHub allows 60 anonymous requests an hour per network, far above one check every 6 hours). If the repo goes private, move releases to a small public `khelspot-releases` repo or have the Server serve `update.json`. Never ship a token inside an APK.
+- **No GitHub token in the app.** The repo is public, so release downloads need no login, and they aren't subject to the API's 60-an-hour limit. If the repo goes private, move releases to a small public `khelspot-releases` repo or have the Server serve `update.json`. Never ship a token inside an APK.
 - **Two checks on every APK**: the SHA-256 from `update.json`, and Android's own rule that an update must be signed with the same key as the installed app. A tampered APK fails both.
 - **HTTPS only**; downloads go to the app's cache and are deleted after install.
 

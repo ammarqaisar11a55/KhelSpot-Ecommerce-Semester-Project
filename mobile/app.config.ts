@@ -76,9 +76,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     channel,
     commit: gitCommit(),
     updates: {
-      // Public repo: release reads need no token. Never put a GitHub token in the app.
+      // Public repo: release downloads need no token. Never put a GitHub token in the app.
       repo: "ammarqaisar11a55/KhelSpot-Ecommerce-Semester-Project",
-      tagPrefix: "mobile-v",
+      pointerPrefix: "mobile-", // update.json lives at releases/download/mobile-<channel>/
     },
   },
 });

@@ -132,6 +132,8 @@ jobs:
         working-directory: dist
         run: |
           SHA=$(sha256sum "${{ steps.v.outputs.apk }}" | cut -d' ' -f1)
+          SIZE=$(stat -c%s "${{ steps.v.outputs.apk }}")
+          APK_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${{ steps.v.outputs.tag }}/${{ steps.v.outputs.apk }}"
           PREV=$(git tag --list 'mobile-v*' --sort=-creatordate | grep -vx "${{ steps.v.outputs.tag }}" | head -1 || true)
           RANGE=${PREV:+$PREV..}HEAD
           git log --no-merges --format='%s' $RANGE -- ../mobile ../shared | head -15 > notes.txt
@@ -142,12 +144,16 @@ jobs:
             --arg channel "${{ steps.v.outputs.channel }}" \
             --arg commit "$GIT_COMMIT" \
             --arg publishedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg tag "${{ steps.v.outputs.tag }}" \
             --arg apk "${{ steps.v.outputs.apk }}" \
+            --arg apkUrl "$APK_URL" \
+            --argjson apkSize "$SIZE" \
             --arg sha256 "$SHA" \
             --argjson min "${{ steps.v.outputs.min }}" \
             --rawfile notes notes.txt \
             '{versionName:$versionName, versionCode:$versionCode, channel:$channel, commit:$commit,
-              publishedAt:$publishedAt, apk:$apk, sha256:$sha256, minSupportedVersionCode:$min,
+              publishedAt:$publishedAt, tag:$tag, apk:$apk, apkUrl:$apkUrl, apkSize:$apkSize,
+              sha256:$sha256, minSupportedVersionCode:$min,
               notes:($notes | split("\n") | map(select(length > 0)))}' > update.json
           cat update.json
 
@@ -171,3 +177,23 @@ jobs:
             --title "KhelSpot Android ${{ steps.v.outputs.version }} (build ${BUILD_NUMBER})" \
             --notes-file body.md \
             "${FLAGS[@]}"
+
+      # The app reads releases/download/mobile-<channel>/update.json: a plain download,
+      # not the GitHub API, so it isn't limited to 60 checks an hour per network.
+      # Stable builds move both pointers, so Beta testers also get stable releases.
+      - name: Point the channel at this build
+        working-directory: dist
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          CHANNELS=(beta)
+          [ "${{ steps.v.outputs.channel }}" = stable ] && CHANNELS+=(stable)
+          for c in "${CHANNELS[@]}"; do
+            POINTER="mobile-$c"
+            if ! gh release view "$POINTER" >/dev/null 2>&1; then
+              gh release create "$POINTER" --target "$GIT_COMMIT" --prerelease \
+                --title "KhelSpot Android: latest ${c} build (used by the in-app updater)" \
+                --notes "Holds update.json for the app's ${c} channel. Download the APK from the versioned release it names."
+            fi
+            gh release upload "$POINTER" update.json --clobber
+          done

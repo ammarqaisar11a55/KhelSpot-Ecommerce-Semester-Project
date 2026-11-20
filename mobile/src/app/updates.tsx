@@ -145,9 +145,11 @@ export default function UpdatesScreen() {
         <Card>
           <Tag label="Up to date" tone="turf" />
           <Text style={[text.body, styles.ink]}>
-            {m && m.versionCode < installed.versionCode
-              ? `You have a newer build than the latest ${u.channel} release (build ${m.versionCode}).`
-              : `Build ${installed.versionCode} is the latest on ${u.channel === "stable" ? "Stable" : "Beta"}.`}
+            {!m
+              ? `Nothing has been published on ${u.channel === "stable" ? "Stable" : "Beta"} yet.`
+              : m.versionCode < installed.versionCode
+                ? `You have a newer build than the latest ${u.channel} release (build ${m.versionCode}).`
+                : `Build ${installed.versionCode} is the latest on ${u.channel === "stable" ? "Stable" : "Beta"}.`}
           </Text>
         </Card>
       ) : null}

@@ -7,14 +7,15 @@ interface Extra {
   variant?: "internal" | "play";
   channel?: Channel;
   commit?: string;
-  updates?: { repo: string; tagPrefix: string };
+  updates?: { repo: string; pointerPrefix: string };
 }
 
 const extra = (Constants.expoConfig?.extra ?? {}) as Extra;
 
 export const updaterConfig = {
   repo: extra.updates?.repo ?? "ammarqaisar11a55/KhelSpot-Ecommerce-Semester-Project",
-  tagPrefix: extra.updates?.tagPrefix ?? "mobile-v",
+  /** Fixed release per channel holding update.json: mobile-beta, mobile-stable. */
+  pointerPrefix: extra.updates?.pointerPrefix ?? "mobile-",
   /** Channel the build was published on; the default until the user picks one. */
   builtChannel: extra.channel ?? "beta",
   commit: extra.commit ?? "local",

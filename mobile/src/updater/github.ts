@@ -1,6 +1,11 @@
-// Finds the newest mobile build on this repo's GitHub Releases.
-// Each release tagged `mobile-v…` carries the APK and an update.json manifest (PLAN.md §5).
-// The repo is public, so no token: never ship one inside the app.
+// Finds the newest mobile build for a channel on this repo's GitHub Releases.
+//
+// CI keeps one fixed release per channel (`mobile-beta`, `mobile-stable`) whose
+// update.json names the newest build and its APK. The app downloads that file
+// from github.com/…/releases/download/, which is a plain file download, not the
+// GitHub API: the API allows only 60 anonymous requests an hour per network, and
+// many phones in Pakistan share one address. The repo is public, so no token:
+// never ship one inside the app.
 
 import { updaterConfig } from "./config";
 
@@ -12,7 +17,10 @@ export interface UpdateManifest {
   channel: Channel;
   commit: string;
   publishedAt: string;
+  tag: string;
   apk: string;
+  apkUrl: string;
+  apkSize: number;
   sha256: string;
   minSupportedVersionCode: number;
   notes: string[];
@@ -26,20 +34,9 @@ export interface RemoteBuild {
   tag: string;
 }
 
-interface GhAsset {
-  name: string;
-  size: number;
-  browser_download_url: string;
-}
-interface GhRelease {
-  tag_name: string;
-  html_url: string;
-  draft: boolean;
-  prerelease: boolean;
-  assets: GhAsset[];
-}
-
 export class UpdateError extends Error {}
+
+const releasesBase = () => `https://github.com/${updaterConfig.repo}/releases`;
 
 function isManifest(x: unknown): x is UpdateManifest {
   const m = x as UpdateManifest;
@@ -47,50 +44,43 @@ function isManifest(x: unknown): x is UpdateManifest {
     !!m &&
     typeof m.versionCode === "number" &&
     typeof m.versionName === "string" &&
-    typeof m.apk === "string" &&
+    typeof m.tag === "string" &&
+    typeof m.apkUrl === "string" &&
+    // Only APKs from this repo's own releases, over HTTPS.
+    m.apkUrl.startsWith(`${releasesBase()}/download/`) &&
     /^[0-9a-f]{64}$/i.test(m.sha256 ?? "") &&
     Array.isArray(m.notes)
   );
 }
 
-/** Newest build on `channel`. Beta sees pre-releases (every push to main) and stable releases. */
+/** Newest build on `channel`, or null if nothing has been published there yet. */
 export async function fetchLatestBuild(channel: Channel, signal?: AbortSignal): Promise<RemoteBuild | null> {
-  const { repo, tagPrefix } = updaterConfig;
+  const url = `${releasesBase()}/download/${updaterConfig.pointerPrefix}${channel}/update.json`;
   let res: Response;
   try {
-    res = await fetch(`https://api.github.com/repos/${repo}/releases?per_page=20`, {
-      headers: { Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" },
-      signal,
-    });
+    res = await fetch(url, { headers: { "Cache-Control": "no-cache" }, signal });
   } catch {
     throw new UpdateError("Couldn't reach GitHub. Check your connection and try again.");
   }
+  if (res.status === 404) return null;
   if (res.status === 403 || res.status === 429) {
-    throw new UpdateError("GitHub is limiting checks from this network. Try again in an hour.");
+    throw new UpdateError("GitHub is busy right now. Try again in a few minutes.");
   }
   if (!res.ok) throw new UpdateError(`GitHub answered ${res.status}. Try again later.`);
 
-  const releases = (await res.json()) as GhRelease[];
-  const candidates = releases.filter(
-    (r) => r.tag_name.startsWith(tagPrefix) && !r.draft && (channel === "beta" || !r.prerelease),
-  );
-
-  for (const release of candidates) {
-    const manifestAsset = release.assets.find((a) => a.name === "update.json");
-    if (!manifestAsset) continue;
-    const mRes = await fetch(manifestAsset.browser_download_url, { signal });
-    if (!mRes.ok) continue;
-    const manifest: unknown = await mRes.json();
-    if (!isManifest(manifest)) continue;
-    const apk = release.assets.find((a) => a.name === manifest.apk);
-    if (!apk || !apk.browser_download_url.startsWith("https://")) continue;
-    return {
-      manifest,
-      apkUrl: apk.browser_download_url,
-      apkSize: apk.size,
-      releaseUrl: release.html_url,
-      tag: release.tag_name,
-    };
+  let manifest: unknown;
+  try {
+    manifest = await res.json();
+  } catch {
+    throw new UpdateError("The update file on GitHub couldn't be read. Try again later.");
   }
-  return null;
+  if (!isManifest(manifest)) throw new UpdateError("The update file on GitHub isn't valid. Try again later.");
+
+  return {
+    manifest,
+    apkUrl: manifest.apkUrl,
+    apkSize: typeof manifest.apkSize === "number" ? manifest.apkSize : 0,
+    releaseUrl: `${releasesBase()}/tag/${encodeURIComponent(manifest.tag)}`,
+    tag: manifest.tag,
+  };
 }

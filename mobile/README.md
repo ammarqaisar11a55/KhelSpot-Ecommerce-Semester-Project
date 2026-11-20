@@ -17,12 +17,13 @@ npx tsc --noEmit && npx expo lint && npx expo-doctor
 
 ## Builds on your phone (one-time setup)
 
-1. Create the release keystore and back it up offline:
-   `bash scripts/create-keystore.sh` (writes to `~/khelspot-keys/`, prints the secrets to add).
-2. Add the four `ANDROID_*` secrets to the GitHub repo.
+1. Create the release keystore: `bash scripts/create-keystore.sh --set-secrets owner/repo`. It writes the keystore and a password file to `~/khelspot-keys/` (the password is never printed). Back both up offline.
+2. The same command sets the four `ANDROID_*` secrets on the repo. Without `--set-secrets` it prints the `gh secret set` commands instead.
 3. Push to `main` with a change under `mobile/` or `shared/`. The **Mobile Android build** workflow publishes a Beta pre-release with the APK and `update.json`.
 4. On the phone, open the release page, download the APK and install it (allow installs from your browser once).
 5. From then on: push to `main`, then open **Account › App updates** and tap **Download and install**.
+
+   Build 1 checked GitHub's API, which allows only 60 anonymous requests an hour per network, so its check can fail with "GitHub is limiting checks". If it does, install build 2 once from its release page; from build 2 on, the app reads `releases/download/mobile-<channel>/update.json`, which has no such limit.
 
 Stable builds: bump `version` in `package.json`, then push the tag `mobile-v<version>`.
 If a Server change breaks old builds, raise `khelspot.minSupportedVersionCode` in `package.json`; older builds then show "Update required".
