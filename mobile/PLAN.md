@@ -2,7 +2,7 @@
 
 KhelSpot app for players and venue owners, Lahore launch. Players get the same booking flow as the web app; owners get the web dashboard's daily tools, in brand kit v1.0, with a built-in updater that pulls new test builds straight from this GitHub repo.
 
-Status: phase 0 built (brand, role choice, both tab sets, updater, CI workflow). Signing secrets not set yet, so no build has been published.
+Status: phase 0 shipped (builds 1 and 2 on GitHub Releases). Phases 1 and 2 built against the local Server: Courts, venue page with slot grid, checkout (payment is a stand-in), Booked, My bookings with cancel and refund, owner Today and Calendar from public availability, Server connection screen. Not yet: "Game in 2 hours" reminder, owner sign-in (phase 3), real payments (phase 4), store release (phase 5).
 
 ---
 

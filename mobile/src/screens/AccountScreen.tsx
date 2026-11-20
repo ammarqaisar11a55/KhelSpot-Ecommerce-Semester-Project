@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { LogoMark } from "@/components/brand";
 import { ChevronIcon } from "@/components/icons";
 import { Screen, Tag } from "@/components/ui";
+import { useConnection } from "@/api/connection";
 import { homeFor, useRole, type Role } from "@/role/RoleProvider";
 import { colors, radius, space, text } from "@/theme";
 import { canSelfUpdate, installed, updaterConfig } from "@/updater/config";
@@ -31,6 +32,7 @@ function Row({ title, detail, right, onPress }: { title: string; detail?: string
 export function AccountScreen({ role }: { role: Role }) {
   const { status } = useUpdater();
   const { setRole } = useRole();
+  const conn = useConnection();
   const hasUpdate = status === "available" || status === "ready" || status === "downloading";
   const other: Role = role === "owner" ? "player" : "owner";
 
@@ -51,6 +53,11 @@ export function AccountScreen({ role }: { role: Role }) {
           }
           right={hasUpdate ? <Tag label="New" tone="floodlight" /> : null}
           onPress={() => router.push("/updates")}
+        />
+        <Row
+          title="Server connection"
+          detail={conn.apiUrl ?? "Not set"}
+          onPress={() => router.push("/connection")}
         />
         <Row
           title={role === "owner" ? "Book a court instead" : "I run a venue"}

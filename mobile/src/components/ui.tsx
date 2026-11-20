@@ -1,7 +1,7 @@
 // Kit components: square 4dp buttons, 2dp borders, 8dp cards, and the Ink screen header.
 
 import type { ReactNode } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View, type ViewStyle } from "react-native";
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View, type ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { SpotLogo } from "./brand";
@@ -51,12 +51,31 @@ export function Button({
 }
 
 /** Ink header with the Spot logo and a Display title, then a Chalk scrolling body. */
-export function Screen({ title, kicker, children }: { title: string; kicker?: string; children: ReactNode }) {
+export function Screen({
+  title,
+  kicker,
+  children,
+  refreshing,
+  onRefresh,
+}: {
+  title: string;
+  kicker?: string;
+  children: ReactNode;
+  refreshing?: boolean;
+  onRefresh?: () => void;
+}) {
   const insets = useSafeAreaInsets();
   return (
     <View style={styles.screen}>
       <StatusBar style="light" />
-      <ScrollView contentContainerStyle={{ paddingBottom: space.xxl }}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: space.xxl }}
+        refreshControl={
+          onRefresh ? (
+            <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={colors.floodlight} colors={[colors.turf]} />
+          ) : undefined
+        }
+      >
         <View style={[styles.header, { paddingTop: insets.top + space.lg }]}>
           <SpotLogo on="dark" size={22} />
           {kicker ? <Text style={[text.label, styles.kicker]}>{kicker}</Text> : null}

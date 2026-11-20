@@ -58,6 +58,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     "expo-router",
+    // Highest display refresh rate on 90/120 Hz phones (Android) and ProMotion iPhones.
+    "./plugins/withMaxRefreshRate",
+    [
+      "expo-build-properties",
+      {
+        // Internal builds may talk to a laptop on the same Wi-Fi over plain http
+        // (http://192.168.x.x:4000) until the Server is deployed. Play builds: https only.
+        android: { usesCleartextTraffic: variant === "internal" },
+      },
+    ],
     [
       "expo-splash-screen",
       {

@@ -28,6 +28,12 @@ npx tsc --noEmit && npx expo lint && npx expo-doctor
 Stable builds: bump `version` in `package.json`, then push the tag `mobile-v<version>`.
 If a Server change breaks old builds, raise `khelspot.minSupportedVersionCode` in `package.json`; older builds then show "Update required".
 
+## Talking to the Server from a phone
+
+Until the Server is deployed, run it and the website on your laptop, put the phone on the same Wi-Fi, and set
+**Account › Server connection** to `http://<laptop-ip>:4000` (`hostname -I` shows the address). Internal builds allow
+plain http for this; Play builds don't. Venue photos load from the website on port 3000 of the same machine.
+
 ## Icons and splash
 
 Generated from the brand kit's K symbol and Big Shoulders:

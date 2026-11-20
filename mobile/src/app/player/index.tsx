@@ -1,14 +1,151 @@
-import { PlannedScreen } from "@/screens/PlannedScreen";
+import { router } from "expo-router";
+import { useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { lowestRate, formatRupees } from "@shared/domain/pricing";
+import { addDays, formatHour, operatingNow, relativeDay, weekdayShort, dayOfMonth } from "@shared/domain/time";
+import { SPORT_LABEL, SPORTS, type Sport, type Venue } from "@shared/domain/types";
+import { api, type Availability } from "@/api/client";
+import { useQuery } from "@/api/useQuery";
+import { Empty, ErrorState, Loading, Pills, VenuePhoto } from "@/components/kit";
+import { Screen } from "@/components/ui";
+import { colors, radius, space, text } from "@/theme";
 
-// Phase 1 fills this with venues and open slots from the Server API.
-export default function CourtsScreen() {
+type SportFilter = Sport | "all";
+
+const SPORT_OPTIONS: { id: SportFilter; label: string }[] = [
+  { id: "all", label: "All sports" },
+  ...SPORTS.map((s) => ({ id: s, label: SPORT_LABEL[s] })),
+];
+
+/** Open start times across the courts that match the sport, earliest first, with how many courts are open. */
+function openTimes(av: Availability | undefined, sport: SportFilter) {
+  const byHour = new Map<number, { count: number; price: number }>();
+  for (const c of av?.courts ?? []) {
+    if (sport !== "all" && c.sport !== sport) continue;
+    for (const s of c.slots) {
+      if (s.status !== "free") continue;
+      const cur = byHour.get(s.hour);
+      byHour.set(s.hour, { count: (cur?.count ?? 0) + 1, price: Math.min(cur?.price ?? Infinity, s.price ?? Infinity) });
+    }
+  }
+  return [...byHour.entries()].sort((a, b) => a[0] - b[0]).map(([hour, v]) => ({ hour, ...v }));
+}
+
+function VenueCard({ venue, av, sport, date }: { venue: Venue; av?: Availability; sport: SportFilter; date: string }) {
+  const sports = [...new Set(venue.courts.map((c) => c.sport))];
+  const shownSport = sport === "all" ? undefined : sport;
+  const from = Math.min(
+    ...sports.filter((s) => !shownSport || s === shownSport).map((s) => lowestRate(venue.pricing[s]) ?? Infinity),
+  );
+  const times = openTimes(av, sport);
+  const open = (hour?: number) =>
+    router.push({
+      pathname: "/venue/[slug]",
+      params: { slug: venue.slug, date, ...(shownSport ? { sport: shownSport } : {}), ...(hour !== undefined ? { hour: String(hour) } : {}) },
+    });
+
   return (
-    <PlannedScreen
-      kicker="Aaj raat khelna hai?"
-      title={"Free courts\nin Lahore"}
-      heading="Courts, open slots and prices"
-      body="The venue list arrives once the app is connected to the KhelSpot server. It reaches this phone through Account › App updates."
-      points={["Padel", "Futsal", "Indoor cricket", "Badminton"]}
-    />
+    <View style={styles.card}>
+      <Pressable accessibilityRole="button" accessibilityLabel={`${venue.name}, ${venue.area}`} onPress={() => open()}>
+        <VenuePhoto src={venue.photo?.src} alt={venue.photo?.alt} height={150} area={venue.area} />
+        <View style={styles.cardBody}>
+          <Text style={[text.label, { color: colors.slate }]}>
+            {venue.area} · {sports.map((s) => SPORT_LABEL[s]).join(", ")}
+          </Text>
+          <Text style={[text.heading, styles.ink, { fontSize: 28, lineHeight: 30 }]}>{venue.name}</Text>
+          {Number.isFinite(from) ? (
+            <Text style={[text.bodyStrong, styles.ink]}>
+              From {formatRupees(from)} <Text style={[text.body, styles.slate]}>an hour</Text>
+            </Text>
+          ) : null}
+        </View>
+      </Pressable>
+      <View style={styles.times}>
+        {av === undefined ? (
+          <Text style={[text.body, styles.slate, styles.small]}>Checking open times…</Text>
+        ) : times.length === 0 ? (
+          <Text style={[text.body, styles.slate, styles.small]}>Full {relativeDay(date, operatingNow().date).toLowerCase()}. Try another day.</Text>
+        ) : (
+          times.slice(0, 8).map((t) => (
+            <Pressable
+              key={t.hour}
+              accessibilityRole="button"
+              accessibilityLabel={`${formatHour(t.hour)}, ${t.count} court${t.count > 1 ? "s" : ""} open`}
+              onPress={() => open(t.hour)}
+              style={({ pressed }) => [styles.time, pressed && { opacity: 0.8 }]}
+            >
+              <Text style={[text.bodyStrong, styles.ink, { fontSize: 14, lineHeight: 18 }]}>{formatHour(t.hour)}</Text>
+            </Pressable>
+          ))
+        )}
+      </View>
+    </View>
   );
 }
+
+export default function CourtsScreen() {
+  const today = operatingNow().date;
+  const days = Array.from({ length: 7 }, (_, i) => addDays(today, i));
+  const [date, setDate] = useState(today);
+  const [sport, setSport] = useState<SportFilter>("all");
+
+  const venues = useQuery("venues", () => api.venues());
+  const avail = useQuery(venues.data ? `avail|${date}|${venues.data.map((v) => v.slug).join(",")}` : null, async () => {
+    const list = venues.data ?? [];
+    const results = await Promise.allSettled(list.map((v) => api.availability(v.slug, date)));
+    return Object.fromEntries(list.map((v, i) => [v.id, results[i].status === "fulfilled" ? results[i].value : undefined]));
+  });
+
+  const shown = (venues.data ?? []).filter((v) => sport === "all" || v.courts.some((c) => c.sport === sport));
+  const refresh = () => {
+    venues.refresh();
+    avail.refresh();
+  };
+
+  return (
+    <Screen kicker="Aaj raat khelna hai?" title={"Free courts\nin Lahore"} refreshing={venues.refreshing || avail.refreshing} onRefresh={refresh}>
+      <Pills label="Sport" options={SPORT_OPTIONS} value={sport} onChange={setSport} />
+      <Pills
+        label="Day"
+        options={days.map((d, i) => ({ id: d, label: i < 2 ? relativeDay(d, today) : `${weekdayShort(d)} ${dayOfMonth(d)}` }))}
+        value={date}
+        onChange={setDate}
+      />
+
+      {venues.error ? (
+        <ErrorState error={venues.error} onRetry={venues.refresh} />
+      ) : venues.loading ? (
+        <Loading label="Loading courts" />
+      ) : shown.length === 0 ? (
+        <Empty title={`No ${sport === "all" ? "" : SPORT_LABEL[sport as Sport].toLowerCase() + " "}courts listed yet`}>
+          <Text style={[text.body, styles.slate]}>More Lahore venues are joining. Try another sport.</Text>
+        </Empty>
+      ) : (
+        shown.map((v) => <VenueCard key={v.id} venue={v} av={avail.data?.[v.id]} sport={sport} date={date} />)
+      )}
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  ink: { color: colors.ink },
+  slate: { color: colors.slate },
+  small: { fontSize: 14, lineHeight: 20 },
+  card: {
+    backgroundColor: colors.white,
+    borderRadius: radius.card,
+    borderWidth: 2,
+    borderColor: colors.line,
+    overflow: "hidden",
+  },
+  cardBody: { padding: space.lg, paddingBottom: space.sm, gap: space.xs },
+  times: { flexDirection: "row", flexWrap: "wrap", gap: space.sm, paddingHorizontal: space.lg, paddingBottom: space.lg, paddingTop: space.sm },
+  time: {
+    backgroundColor: colors.floodlight,
+    borderRadius: radius.control,
+    paddingHorizontal: space.md,
+    paddingVertical: 8,
+    minWidth: 64,
+    alignItems: "center",
+  },
+});

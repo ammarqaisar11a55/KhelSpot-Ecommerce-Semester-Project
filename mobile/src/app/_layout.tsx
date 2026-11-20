@@ -45,6 +45,10 @@ export default function RootLayout() {
             <Stack.Screen name="player" options={{ headerShown: false }} />
             <Stack.Screen name="owner" options={{ headerShown: false }} />
             <Stack.Screen name="updates" options={{ title: "App updates" }} />
+            <Stack.Screen name="connection" options={{ title: "Server connection" }} />
+            <Stack.Screen name="venue/[slug]" options={{ title: "" }} />
+            <Stack.Screen name="checkout" options={{ title: "Checkout" }} />
+            <Stack.Screen name="booked/[ref]" options={{ title: "Booking" }} />
           </Stack>
         </UpdaterProvider>
       </RoleProvider>
