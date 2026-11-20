@@ -7,6 +7,10 @@ const bigShoulders = Big_Shoulders({
   variable: "--font-big-shoulders",
   subsets: ["latin"],
   axes: ["opsz"],
+  // next/font has no metrics for this family, so it can't build a size-matched
+  // fallback (and warns). Use condensed system faces instead while it loads.
+  adjustFontFallback: false,
+  fallback: ["Impact", "Arial Narrow", "sans-serif"],
 });
 
 const archivo = Archivo({

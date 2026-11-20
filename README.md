@@ -8,7 +8,7 @@ Indoor sports court booking for Pakistan (padel, futsal, indoor cricket, badmint
 |---|---|---|
 | `Frontend/` | Next.js + TypeScript web app, currently the landing page | In progress |
 | `Server/` | Backend API | Not started |
-| `Mobile App/` | Player mobile app | Not started |
+| `mobile/` | Player mobile app (Expo, Android first), plan in `mobile/PLAN.md` | In progress |
 | `brand/` | Brand brief: positioning, messaging, voice, visual identity | Done |
 | `.agents/brand-context.md` | Brand context read by the brand-building skills | Done |
 | `.claude/skills/` | Brand-building skills (`npx skills add arnabbagxd/brand-building-skills`) | Installed |

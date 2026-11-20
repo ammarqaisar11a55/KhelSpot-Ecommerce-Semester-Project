@@ -1,0 +1,173 @@
+# Builds the KhelSpot Android app and publishes it as a GitHub Release that the
+# in-app updater (Account › App updates) picks up. See mobile/PLAN.md §5.
+#
+#   push to main touching mobile/ or shared/  -> Beta build  (pre-release mobile-v<version>-beta.<run>)
+#   push a tag mobile-v<version>               -> Stable build (release on that tag)
+#
+# Needs four repository secrets (mobile/scripts/create-keystore.sh prints them):
+#   ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
+
+name: Mobile Android build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "mobile/**"
+      - "shared/**"
+      - ".github/workflows/mobile-android.yml"
+    tags: ["mobile-v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mobile-android-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: mobile
+    env:
+      APP_VARIANT: internal
+      BUILD_NUMBER: ${{ github.run_number }}
+      GIT_COMMIT: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # tags and history for the release notes
+
+      - name: Check signing secrets
+        env:
+          KS: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          for v in KS KS_PASS ALIAS KEY_PASS; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Signing secrets are missing. Run mobile/scripts/create-keystore.sh and add the four ANDROID_* secrets."
+              exit 1
+            fi
+          done
+
+      - name: Version and channel
+        id: v
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          MIN=$(node -p "require('./package.json').khelspot?.minSupportedVersionCode ?? 1")
+          if [[ "$GITHUB_REF" == refs/tags/mobile-v* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+            if [ "$TAG" != "mobile-v$VERSION" ]; then
+              echo "::error::Tag $TAG doesn't match mobile/package.json version $VERSION."
+              exit 1
+            fi
+            CHANNEL=stable
+          else
+            TAG="mobile-v$VERSION-beta.$BUILD_NUMBER"
+            CHANNEL=beta
+          fi
+          {
+            echo "version=$VERSION"
+            echo "min=$MIN"
+            echo "tag=$TAG"
+            echo "channel=$CHANNEL"
+            echo "apk=khelspot-$VERSION-$BUILD_NUMBER.apk"
+          } >> "$GITHUB_OUTPUT"
+          echo "RELEASE_CHANNEL=$CHANNEL" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Install
+        run: npm ci
+
+      - name: Check
+        run: |
+          npx tsc --noEmit
+          npx expo lint
+
+      - name: Generate the Android project
+        run: npx expo prebuild --platform android --no-install
+
+      - name: Build release APK
+        working-directory: mobile/android
+        # arm64 only: every phone we test on, and half the size of a universal APK.
+        run: ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a --no-daemon
+
+      - name: Sign
+        env:
+          KS: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          BT="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          echo "$KS" | base64 --decode > "$RUNNER_TEMP/release.jks"
+          mkdir -p ../dist
+          "$BT/apksigner" sign \
+            --ks "$RUNNER_TEMP/release.jks" --ks-key-alias "$ALIAS" \
+            --ks-pass env:KS_PASS --key-pass env:KEY_PASS \
+            --out "../dist/${{ steps.v.outputs.apk }}" \
+            android/app/build/outputs/apk/release/app-release.apk
+          "$BT/apksigner" verify --print-certs "../dist/${{ steps.v.outputs.apk }}"
+          rm -f "$RUNNER_TEMP/release.jks"
+
+      - name: Manifest and notes
+        working-directory: dist
+        run: |
+          SHA=$(sha256sum "${{ steps.v.outputs.apk }}" | cut -d' ' -f1)
+          PREV=$(git tag --list 'mobile-v*' --sort=-creatordate | grep -vx "${{ steps.v.outputs.tag }}" | head -1 || true)
+          RANGE=${PREV:+$PREV..}HEAD
+          git log --no-merges --format='%s' $RANGE -- ../mobile ../shared | head -15 > notes.txt
+          [ -s notes.txt ] || echo "Maintenance build" > notes.txt
+          jq -n \
+            --arg versionName "${{ steps.v.outputs.version }}" \
+            --argjson versionCode "$BUILD_NUMBER" \
+            --arg channel "${{ steps.v.outputs.channel }}" \
+            --arg commit "$GIT_COMMIT" \
+            --arg publishedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg apk "${{ steps.v.outputs.apk }}" \
+            --arg sha256 "$SHA" \
+            --argjson min "${{ steps.v.outputs.min }}" \
+            --rawfile notes notes.txt \
+            '{versionName:$versionName, versionCode:$versionCode, channel:$channel, commit:$commit,
+              publishedAt:$publishedAt, apk:$apk, sha256:$sha256, minSupportedVersionCode:$min,
+              notes:($notes | split("\n") | map(select(length > 0)))}' > update.json
+          cat update.json
+
+      - name: Publish release
+        working-directory: dist
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Build ${BUILD_NUMBER} · ${GIT_COMMIT:0:7} · ${{ steps.v.outputs.channel }}"
+            echo
+            sed 's/^/- /' notes.txt
+            echo
+            echo "Install on Android, or update from the app: Account › App updates."
+          } > body.md
+          FLAGS=()
+          [ "${{ steps.v.outputs.channel }}" = beta ] && FLAGS+=(--prerelease)
+          gh release create "${{ steps.v.outputs.tag }}" \
+            "${{ steps.v.outputs.apk }}" update.json \
+            --target "$GIT_COMMIT" \
+            --title "KhelSpot Android ${{ steps.v.outputs.version }} (build ${BUILD_NUMBER})" \
+            --notes-file body.md \
+            "${FLAGS[@]}"
