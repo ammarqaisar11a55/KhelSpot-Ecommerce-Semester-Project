@@ -2,11 +2,11 @@ import Link from "next/link";
 import { OwnerCta } from "./OwnerCta";
 
 const FEATURES = [
-  "Booking calendar for every court",
-  "Online payments through JazzCash, Easypaisa and card",
+  "Instant confirmed bookings",
+  "Online payment: JazzCash, Easypaisa, card",
+  "Live availability calendar",
   "Automatic WhatsApp and SMS confirmations",
-  "Customer records and repeat players",
-  "Daily and monthly revenue tracking",
+  "Customer records and revenue tracking",
   "Peak and off-peak pricing by time slot",
 ];
 
@@ -16,7 +16,7 @@ export function Venues() {
       <div className="wrap venues__grid">
         <div>
           <p className="eyebrow">For venue owners</p>
-          <h2>Stop running bookings from your phone.</h2>
+          <h2>Stop taking bookings on WhatsApp.</h2>
           <p className="lead">
             You&apos;re already paying for ads. KhelSpot turns those clicks into paid bookings, so you don&apos;t
             have to answer every message yourself.

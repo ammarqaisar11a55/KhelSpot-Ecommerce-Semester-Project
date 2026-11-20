@@ -12,7 +12,12 @@ export function bookingState(b: Booking, now: Date): "cancelled" | "played" | "u
 
 export function StatusBadge({ booking, now, owner = false }: { booking: Booking; now: Date; owner?: boolean }) {
   const st = bookingState(booking, now);
-  const label = { cancelled: "Cancelled", played: "Played", unpaid: owner ? "Unpaid" : "Pay at venue", confirmed: "Confirmed" }[st];
+  const label = {
+    cancelled: booking.refund ? "Refunded" : "Cancelled",
+    played: "Played",
+    unpaid: owner ? "Unpaid" : "Pay at venue",
+    confirmed: "Booked",
+  }[st];
   const tone = { cancelled: ui.badgeRed, played: undefined, unpaid: ui.badgeYellow, confirmed: ui.badgeGreen }[st];
   return <span className={cx(ui.badge, tone)}>{label}</span>;
 }

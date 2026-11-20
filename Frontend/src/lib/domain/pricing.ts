@@ -1,4 +1,4 @@
-import { hoursUntil } from "./time";
+import { formatDay, formatHourLong, hoursUntil, slotStart, toISODate } from "./time";
 import type { Booking, CancellationPolicy, Hour, RateBand } from "./types";
 
 export function rateAt(bands: RateBand[] | undefined, hour: Hour): RateBand | undefined {
@@ -48,6 +48,21 @@ export function refundQuote(
       ? `More than ${policy.freeUntilHours} hours before start, so the full amount comes back.`
       : `Less than ${policy.freeUntilHours} hours before start, so ${percent}% comes back.`;
   return { canCancel: true, percent, amount, reason };
+}
+
+/** Moment free cancellation ends for a slot: "3:00 PM Sat 21 Nov". */
+export function cancelDeadline(date: string, start: number, policy: CancellationPolicy): string {
+  const d = slotStart(date, start - policy.freeUntilHours);
+  return `${formatHourLong(d.getHours() + d.getMinutes() / 60)} ${formatDay(toISODate(d))}`;
+}
+
+/** Player-facing refund line for one slot, with the deadline as a clock time. */
+export function deadlineText(date: string, start: number, policy: CancellationPolicy): string {
+  const late =
+    policy.lateRefundPercent > 0
+      ? `After that, ${policy.lateRefundPercent}% back until the start.`
+      : "After that, no refund.";
+  return `Free cancellation until ${cancelDeadline(date, start, policy)}. Full refund in 3–5 working days. ${late}`;
 }
 
 export function describePolicy(policy: CancellationPolicy): string {

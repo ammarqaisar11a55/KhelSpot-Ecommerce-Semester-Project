@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { WAITLIST_ROLE_EVENT, type WaitlistRole } from "./waitlist-role";
 
-const CITIES = ["Lahore", "Karachi", "Islamabad", "Other"];
+const CITIES = ["Lahore", "Karachi", "Islamabad", "Another city"];
 const PK_MOBILE = /^(\+92|0)3\d{9}$/;
 
 type Field = "name" | "phone" | "city";

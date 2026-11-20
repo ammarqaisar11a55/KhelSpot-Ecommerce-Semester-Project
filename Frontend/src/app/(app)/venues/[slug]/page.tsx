@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { SlotPicker } from "@/components/player/SlotPicker";
+import { VenueAbout, VenueHero } from "@/components/player/VenueProfileView";
 import s from "@/components/player/player.module.css";
-import { CourtArt } from "@/components/ui/CourtArt";
 import { BlockSkeleton } from "@/components/ui/Skeletons";
-import ui from "@/components/ui/ui.module.css";
-import { VENUES, getVenueBySlug, venueSports } from "@/lib/catalog/venues";
-import { SPORT_LABEL } from "@/lib/domain/types";
+import { VENUES, getVenueBySlug } from "@/lib/catalog/venues";
 
 export function generateStaticParams() {
   return VENUES.map((v) => ({ slug: v.slug }));
@@ -52,34 +49,10 @@ async function VenueContent({ params }: Pick<PageProps<"/venues/[slug]">, "param
   const { slug } = await params;
   const venue = getVenueBySlug(slug);
   if (!venue) notFound();
-  const sports = venueSports(venue);
 
   return (
     <>
-      <section className={s.venueHero}>
-        <div className={`wrap ${s.venueHeroGrid}`}>
-          <div>
-            <p className={s.crumbs}>
-              <Link href="/venues">Courts</Link> / <Link href={`/venues?city=${venue.city}`}>{venue.city}</Link>
-            </p>
-            <h1 className={s.venueTitle}>{venue.name}</h1>
-            <p className={s.venueAddress}>{venue.address}</p>
-            <div className={s.tagRow}>
-              {sports.map((sp) => (
-                <span key={sp} className={s.darkTag}>
-                  {SPORT_LABEL[sp]}
-                </span>
-              ))}
-              <span className={s.darkTag}>
-                {venue.courts.length} {venue.courts.length === 1 ? "court" : "courts"}
-              </span>
-            </div>
-          </div>
-          <div className={s.venueHeroArt}>
-            <CourtArt sport={sports[0]} />
-          </div>
-        </div>
-      </section>
+      <VenueHero venue={venue} />
 
       <Suspense
         fallback={
@@ -93,20 +66,7 @@ async function VenueContent({ params }: Pick<PageProps<"/venues/[slug]">, "param
       </Suspense>
 
       <section className="wrap" style={{ paddingBottom: 72 }}>
-        <div className={s.twoCol}>
-          <div className={ui.card}>
-            <h2 className={ui.cardTitle}>About this venue</h2>
-            <p>{venue.description}</p>
-          </div>
-          <div className={ui.card}>
-            <h2 className={ui.cardTitle}>Facilities</h2>
-            <ul className={s.infoList}>
-              {venue.amenities.map((a) => (
-                <li key={a}>{a}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
+        <VenueAbout venue={venue} />
       </section>
     </>
   );

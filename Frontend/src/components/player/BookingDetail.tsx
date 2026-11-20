@@ -6,7 +6,8 @@ import { use, useState } from "react";
 import ui from "@/components/ui/ui.module.css";
 import { formatPhone } from "@/lib/format";
 import { useBrowserOnly, useNow } from "@/lib/hooks";
-import { describePolicy, formatRupees } from "@/lib/domain/pricing";
+import { directionsUrl } from "@/lib/domain/maps";
+import { cancelDeadline, deadlineText, formatRupees } from "@/lib/domain/pricing";
 import { formatDateTime, formatDay, formatRange, formatWhen, realDate } from "@/lib/domain/time";
 import { PAYMENT_LABEL, SPORT_LABEL } from "@/lib/domain/types";
 import { courtOf, findMyBooking, venueOf } from "@/lib/store/queries";
@@ -39,11 +40,14 @@ export function BookingDetail({ params }: { params: Promise<{ ref: string }> }) 
   const court = courtOf(venue, booking.courtId)!;
   const st = bookingState(booking, now);
   const message =
-    `KhelSpot: Booking ${booking.ref} confirmed.\n` +
-    `${venue.name}, ${court.name}\n` +
+    // Kit anatomy: status first; where and when; what was paid and how; the
+    // cancellation deadline as a clock time; one link.
+    `Booked: ${venue.name}, ${court.name}\n` +
     `${formatWhen(booking.date, booking.start, booking.hours)}\n` +
-    `${booking.paid ? `Paid ${formatRupees(booking.price)}` : `Pay ${formatRupees(booking.price)} at the counter`}\n` +
-    `${venue.address}`;
+    `${SPORT_LABEL[court.sport]} · ${formatRupees(booking.price)} ${booking.paid ? `paid via ${PAYMENT_LABEL[booking.payment]}` : "to pay at the counter"}\n` +
+    `Booking ID ${booking.ref}\n` +
+    `Free cancellation until ${cancelDeadline(booking.date, booking.start, venue.cancellation)}. Full refund in 3–5 working days.\n` +
+    `Directions: ${directionsUrl(venue)}`;
 
   return (
     <>
@@ -79,7 +83,13 @@ export function BookingDetail({ params }: { params: Promise<{ ref: string }> }) 
             <dt>Time</dt>
             <dd>{formatRange(booking.start, booking.hours)}</dd>
             <dt>Address</dt>
-            <dd>{venue.address}</dd>
+            <dd>
+              {venue.address}
+              <br />
+              <a href={directionsUrl(venue)} target="_blank" rel="noopener noreferrer">
+                Get directions
+              </a>
+            </dd>
             <dt>Payment</dt>
             <dd>
               {formatRupees(booking.price)} · {PAYMENT_LABEL[booking.payment]}
@@ -103,7 +113,7 @@ export function BookingDetail({ params }: { params: Promise<{ ref: string }> }) 
           </dl>
           {(st === "confirmed" || st === "unpaid") && (
             <>
-              <p className={s.policy} style={{ marginTop: 16 }}>{describePolicy(venue.cancellation)}</p>
+              <p className={s.policy} style={{ marginTop: 16 }}>{deadlineText(booking.date, booking.start, venue.cancellation)}</p>
               <div className={ui.buttonRow} style={{ marginTop: 16 }}>
                 <button type="button" className={ui.btnDanger} onClick={() => setCancelOpen(true)}>
                   Cancel booking

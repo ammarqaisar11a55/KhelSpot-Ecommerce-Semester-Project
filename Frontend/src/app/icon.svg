@@ -1,9 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#0F1F18"/>
-  <g transform="translate(12 6) scale(0.625)">
-    <path d="M16 4H48A12 12 0 0 1 60 16V44A12 12 0 0 1 48 56H40L32 72L24 56H16A12 12 0 0 1 4 44V16A12 12 0 0 1 16 4Z" fill="#17804F"/>
-    <rect x="14" y="14" width="36" height="32" rx="2" fill="none" stroke="#F6F3EA" stroke-width="4"/>
-    <line x1="32" y1="14" x2="32" y2="46" stroke="#F6F3EA" stroke-width="4"/>
-    <circle cx="42" cy="24" r="5" fill="#FFD43B"/>
-  </g>
+  <!-- KhelSpot app icon, brand kit v1.0: Spot symbol on a Turf tile, corner radius 22.5% -->
+  <rect width="64" height="64" rx="14.4" fill="#1F7A4D"/>
+  <path d="M18 14.5h8v14.2L36.3 14.5h9.2L34.6 29.4 46 49.5h-9.3l-7.8-14.4-2.9 3.9v10.5h-8z" fill="#F3F2EC"/>
+  <circle cx="47" cy="15.5" r="6" fill="#D4F53C"/>
 </svg>

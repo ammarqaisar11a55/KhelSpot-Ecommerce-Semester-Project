@@ -22,7 +22,7 @@ type RangeKey = keyof typeof RANGES;
 
 const STATUSES = {
   all: "All statuses",
-  confirmed: "Confirmed",
+  confirmed: "Booked",
   unpaid: "Unpaid",
   played: "Played",
   cancelled: "Cancelled",

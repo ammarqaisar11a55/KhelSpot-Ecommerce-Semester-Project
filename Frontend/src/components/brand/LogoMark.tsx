@@ -1,34 +1,25 @@
+import { SpotLogo } from "./SpotLogo";
+
 type LogoMarkProps = {
   size?: number;
   className?: string;
 };
 
-/** KhelSpot symbol: a map pin whose head is a court seen from above. */
+/**
+ * Spot symbol from brand kit v1.0: a heavy K with the dot at its shoulder.
+ * For icons, avatars and favicons only; use <SpotLogo /> wherever there is room.
+ */
 export function LogoMark({ size = 28, className }: LogoMarkProps) {
   return (
-    <svg
-      className={className}
-      width={size}
-      height={(size * 80) / 64}
-      viewBox="0 0 64 80"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path
-        d="M16 4H48A12 12 0 0 1 60 16V44A12 12 0 0 1 48 56H40L32 72L24 56H16A12 12 0 0 1 4 44V16A12 12 0 0 1 16 4Z"
-        fill="#17804F"
-      />
-      <rect x="14" y="14" width="36" height="32" rx="2" fill="none" stroke="#F6F3EA" strokeWidth="3" />
-      <line x1="32" y1="14" x2="32" y2="46" stroke="#F6F3EA" strokeWidth="3" />
-      <circle cx="42" cy="24" r="4.5" fill="#FFD43B" />
+    <svg className={className} width={size} height={size} viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+      <rect width="64" height="64" rx="14.4" fill="#1F7A4D" />
+      <path d="M18 14.5h8v14.2L36.3 14.5h9.2L34.6 29.4 46 49.5h-9.3l-7.8-14.4-2.9 3.9v10.5h-8z" fill="#F3F2EC" />
+      <circle cx="47" cy="15.5" r="6" fill="#D4F53C" />
     </svg>
   );
 }
 
+/** Text lockup, kept for compatibility: renders the Spot wordmark. */
 export function Wordmark() {
-  return (
-    <span>
-      Khel<em>Spot</em>
-    </span>
-  );
+  return <SpotLogo on="dark" size={22} />;
 }

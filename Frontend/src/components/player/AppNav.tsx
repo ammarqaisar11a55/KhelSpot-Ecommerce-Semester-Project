@@ -9,7 +9,7 @@ import s from "./player.module.css";
 const LINKS = [
   { href: "/venues", label: "Find courts" },
   { href: "/bookings", label: "My bookings" },
-  { href: "/dashboard", label: "For venue owners" },
+  { href: "/owners/login", label: "For venue owners" },
 ];
 
 function Links({ pathname }: { pathname: string | null }) {

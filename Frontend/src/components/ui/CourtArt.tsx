@@ -4,12 +4,12 @@ import type { Sport } from "@/lib/domain/types";
 export function CourtArt({ sport, className }: { sport: Sport; className?: string }) {
   return (
     <svg className={className} viewBox="0 0 320 140" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
-      <rect width="320" height="140" fill="#0F1F18" />
-      <g fill="none" stroke="#2F5A45" strokeWidth="2">
+      <rect width="320" height="140" fill="#111513" />
+      <g fill="none" stroke="#2C5A43" strokeWidth="2">
         {sport === "padel" && (
           <>
             <rect x="40" y="20" width="240" height="100" rx="4" />
-            <line x1="160" y1="20" x2="160" y2="120" stroke="#F6F3EA" />
+            <line x1="160" y1="20" x2="160" y2="120" stroke="#F3F2EC" />
             <line x1="90" y1="20" x2="90" y2="120" />
             <line x1="230" y1="20" x2="230" y2="120" />
             <line x1="90" y1="70" x2="230" y2="70" />
@@ -34,7 +34,7 @@ export function CourtArt({ sport, className }: { sport: Sport; className?: strin
         {sport === "badminton" && (
           <>
             <rect x="50" y="22" width="220" height="96" rx="2" />
-            <line x1="160" y1="22" x2="160" y2="118" stroke="#F6F3EA" />
+            <line x1="160" y1="22" x2="160" y2="118" stroke="#F3F2EC" />
             <line x1="134" y1="22" x2="134" y2="118" />
             <line x1="186" y1="22" x2="186" y2="118" />
             <line x1="50" y1="70" x2="134" y2="70" />
@@ -44,7 +44,7 @@ export function CourtArt({ sport, className }: { sport: Sport; className?: strin
           </>
         )}
       </g>
-      <circle cx="214" cy="46" r="5" fill="#FFD43B" />
+      <circle cx="214" cy="46" r="5" fill="#D4F53C" />
     </svg>
   );
 }

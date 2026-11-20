@@ -1,26 +1,26 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { VenueBrowser } from "@/components/player/VenueBrowser";
-import { GridSkeleton } from "@/components/ui/Skeletons";
-import ui from "@/components/ui/ui.module.css";
+import { BoardHeader, VenueBrowser } from "@/components/player/VenueBrowser";
+import { BlockSkeleton } from "@/components/ui/Skeletons";
 
 export const metadata: Metadata = {
-  title: "Find a court",
-  description: "Padel, futsal, indoor cricket and badminton courts in Lahore, Karachi and Islamabad with live free slots.",
+  title: "Free courts in Lahore",
+  description: "Padel, futsal, indoor cricket and badminton courts in Lahore with the times still open tonight.",
 };
 
 export default function VenuesPage() {
   return (
-    <div className={`wrap ${ui.page}`}>
-      <div className={ui.pageHead}>
-        <div>
-          <h1 className={ui.title}>Find a court</h1>
-          <p className={ui.subtitle}>Pick a city, sport and day to see which courts still have free slots.</p>
-        </div>
-      </div>
-      <Suspense fallback={<GridSkeleton />}>
-        <VenueBrowser />
-      </Suspense>
-    </div>
+    <Suspense
+      fallback={
+        <>
+          <BoardHeader />
+          <div className="wrap" style={{ paddingBlock: "28px 80px" }}>
+            <BlockSkeleton height={420} label="Loading free courts" />
+          </div>
+        </>
+      }
+    >
+      <VenueBrowser />
+    </Suspense>
   );
 }

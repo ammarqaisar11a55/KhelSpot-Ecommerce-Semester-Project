@@ -1,15 +1,15 @@
 const STEPS = [
   {
-    title: "Pick your city and sport",
-    body: "Filter by Lahore, Karachi or Islamabad, and by padel, futsal, indoor cricket or badminton.",
+    title: "Pick your area and sport",
+    body: "Choose an area of Lahore, like Johar Town or DHA, and padel, futsal, indoor cricket or badminton.",
   },
   {
-    title: "See what's free and what it costs",
-    body: "Every court shows its open slots and the per-hour rate, including peak and off-peak prices.",
+    title: "See every open slot and its price",
+    body: "Court 2, 9 to 10 PM, Rs 4,000. Every slot shows the court, the time and the price, peak or off-peak.",
   },
   {
-    title: "Pay, and the slot is yours",
-    body: "Pay with JazzCash, Easypaisa or card. The booking is confirmed straight away and sent to you by WhatsApp and SMS.",
+    title: "Pay, and you're booked",
+    body: "Pay with JazzCash, Easypaisa or card. You're booked straight away, and the confirmation reaches WhatsApp in a minute, with SMS as backup.",
   },
 ];
 

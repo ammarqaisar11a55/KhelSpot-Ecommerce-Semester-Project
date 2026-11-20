@@ -51,6 +51,14 @@ export function longTime(slot: Slot): string {
   return slot.replace(" ", ":00 ");
 }
 
+/** Free-cancellation deadline as a clock time: "9 PM" -> "3:00 PM" (6 hours before). */
+export function cancelBy(slot: Slot, hoursBefore = 6): string {
+  const [h, ap] = slot.split(" ");
+  const h24 = (Number(h) % 12) + (ap === "PM" ? 12 : 0);
+  const d = (h24 - hoursBefore + 24) % 24;
+  return `${d % 12 === 0 ? 12 : d % 12}:00 ${d < 12 ? "AM" : "PM"}`;
+}
+
 export function formatRupees(amount: number): string {
   return `Rs ${amount.toLocaleString("en-PK")}`;
 }

@@ -1,0 +1,429 @@
+/* Owner sign in and sign up: a court at night beside a plain form. */
+
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(340px, 5fr) minmax(0, 6fr);
+  background: var(--chalk);
+}
+
+/* The pitch */
+.pitch {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding: 36px 44px 40px;
+  background: var(--night);
+  color: var(--chalk);
+}
+
+.courtLines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: rgb(246 243 234 / 0.12);
+  pointer-events: none;
+}
+
+.brand {
+  position: relative;
+  align-self: flex-start;
+}
+
+.pitchText {
+  position: relative;
+  max-width: 30rem;
+  margin-top: auto;
+}
+
+.pitchTitle {
+  font-family: var(--head);
+  font-weight: 800;
+  font-size: clamp(32px, 3.6vw, 48px);
+  letter-spacing: 0.01em;
+  line-height: 1.02;
+  margin: 0 0 16px;
+  max-width: none;
+  text-transform: uppercase;
+}
+
+.pitchIntro {
+  color: var(--muted-dark);
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.pitchIntro p + p {
+  margin-top: 10px;
+}
+
+.plan {
+  margin-top: 24px;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  padding-top: 18px;
+  border-top: 1px solid var(--night-line);
+}
+
+.planPrice {
+  font: 700 24px var(--mono);
+  color: var(--chalk);
+  font-variant-numeric: tabular-nums;
+}
+
+.planTerms {
+  color: var(--muted-dark);
+  font-size: 15px;
+}
+
+/* One booking, lit like the only floodlight on the pitch */
+.ticketWrap {
+  position: relative;
+  margin-top: auto;
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+
+.ticket {
+  display: grid;
+  gap: 2px;
+  min-width: 230px;
+  padding: 14px 18px 14px 20px;
+  border-radius: 4px;
+  background: var(--flood);
+  color: var(--night);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.35);
+  border-left: 6px solid var(--flood-dark);
+}
+
+.ticketCourt {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.ticketTime {
+  font: 700 20px var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.ticketPaid {
+  font: 600 13px var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.ticketCaption {
+  font-size: 13px;
+  color: var(--muted-dark);
+  max-width: 24rem;
+}
+
+/* The form */
+.formSide {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px clamp(24px, 6vw, 96px) 28px;
+}
+
+.formInner {
+  width: 100%;
+  max-width: 440px;
+  margin-block: auto;
+}
+
+.formTitle {
+  font-family: var(--head);
+  font-weight: 800;
+  font-size: clamp(24px, 2.4vw, 30px);
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.formIntro {
+  color: var(--ink-2);
+  margin-bottom: 28px;
+}
+
+.formIntro a {
+  color: var(--turf-dark);
+  font-weight: 600;
+}
+
+.form {
+  display: grid;
+  gap: 18px;
+}
+
+.submit {
+  min-height: 50px;
+  font-size: 16px;
+  width: 100%;
+}
+
+.formActions {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+}
+
+.formActions .submit {
+  width: auto;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.textButton {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--turf-dark);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Phone number with the country code fixed in front */
+.phone {
+  position: relative;
+  display: block;
+}
+
+.phonePrefix {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font: 600 16px var(--mono);
+  color: var(--ink-2);
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Specific enough to beat the shared input's padding. */
+.phone .phoneInput {
+  padding-left: 58px;
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.form .codeInput {
+  font: 700 26px var(--mono);
+  letter-spacing: 0.4em;
+  text-align: center;
+  padding-left: 0.4em;
+  min-height: 60px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sentTo {
+  color: var(--ink-2);
+}
+
+.demoCode {
+  padding: 10px 14px;
+  border-radius: 4px;
+  background: var(--sand);
+  border: 1px dashed var(--line);
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+/* Sign up steps: a real sequence, so they are numbered */
+.steps {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 26px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.step {
+  display: grid;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 3px solid var(--line);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.stepNumber {
+  font: 700 12px var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.stepNow {
+  border-top-color: var(--night);
+  color: var(--night);
+}
+
+.stepDone {
+  border-top-color: var(--turf);
+}
+
+.sports {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.sports legend {
+  padding: 0;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.sportChoices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sportChoice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px 0 12px;
+  border-radius: 999px;
+  border: 2px solid var(--line);
+  background: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.sportChoice input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--turf);
+  margin: 0;
+}
+
+.sportChoice:has(input:focus-visible) {
+  outline: 3px solid var(--flood);
+  outline-offset: 2px;
+}
+
+.sportOn {
+  border-color: var(--turf);
+  background: #e6f2ea;
+}
+
+.sports[aria-invalid="true"] .sportChoice {
+  border-color: #c2410c;
+}
+
+.form .courts {
+  max-width: 140px;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.done {
+  display: grid;
+  gap: 18px;
+}
+
+.done .formIntro {
+  margin-bottom: 0;
+}
+
+.receipt {
+  margin: 0;
+  border-block: 1px solid var(--line);
+}
+
+.receipt div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+}
+
+.receipt div + div {
+  border-top: 1px solid var(--line);
+}
+
+.receipt dt {
+  color: var(--ink-2);
+}
+
+.receipt dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+.demoNote {
+  margin-top: 40px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+  .pitch {
+    gap: 22px;
+    padding: 22px 20px 26px;
+  }
+  .pitchText {
+    margin-top: 0;
+  }
+  .pitchTitle {
+    font-size: clamp(28px, 8vw, 36px);
+  }
+  .pitchIntro {
+    font-size: 15px;
+  }
+  .ticketWrap {
+    display: none;
+  }
+  .formSide {
+    padding: 28px 20px 24px;
+  }
+  .demoNote {
+    margin-top: 28px;
+  }
+}
+
+/* On a phone the form comes first; the headline and price are enough above it. */
+@media (max-width: 600px) {
+  .pitchIntro {
+    display: none;
+  }
+  .pitchTitle {
+    margin-bottom: 0;
+  }
+  .plan {
+    margin-top: 14px;
+  }
+}

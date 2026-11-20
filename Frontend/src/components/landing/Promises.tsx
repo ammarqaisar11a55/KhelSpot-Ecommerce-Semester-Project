@@ -1,19 +1,19 @@
 const PROMISES = [
   {
     title: "Paid means booked",
-    body: "No “booking request” waiting for the venue to reply. When payment goes through, the slot is yours.",
+    body: "Nothing waits on the venue to reply. When payment goes through, the court is yours and the message says Booked.",
   },
   {
-    title: "Refund rules up front",
-    body: "Each venue's cancellation window and refund amount is shown on the checkout screen, before you pay.",
+    title: "Refund deadline up front",
+    body: "Checkout shows the exact time you can cancel until, like 2:00 PM, and how much comes back. Full refunds land in 3 to 5 working days.",
   },
   {
     title: "Filters that help",
-    body: "Search by city, area and sport, and skip the courts on the other side of town.",
+    body: "Pick your area of Lahore and your sport, and skip the courts on the other side of town.",
   },
   {
     title: "Confirmation on WhatsApp",
-    body: "You get the court, time and directions by WhatsApp and SMS. No screenshots to show at the gate.",
+    body: "Venue, court, time, what you paid and your booking ID, by WhatsApp with SMS as backup. Show it at the gate.",
   },
 ];
 

@@ -8,7 +8,8 @@ export const SPORT_LABEL: Record<Sport, string> = {
   badminton: "Badminton",
 };
 
-export const CITIES = ["Lahore", "Karachi", "Islamabad"] as const;
+/** Launch city. Add cities here as KhelSpot expands. */
+export const CITIES = ["Lahore"] as const;
 export type City = (typeof CITIES)[number];
 
 export const PAYMENT_METHODS = ["jazzcash", "easypaisa", "card", "cash"] as const;
@@ -59,6 +60,29 @@ export interface VenueSettings {
   payAtVenue: boolean;
 }
 
+/** How the owner describes the venue to players, from the dashboard. */
+export interface VenueProfile {
+  name: string;
+  area: string;
+  address: string;
+  description: string;
+  amenities: string[];
+  /** Court names by court id. Sports and court count stay as listed. */
+  courtNames: Record<string, string>;
+  /** The owner's own photo, or null when they removed the listed one. Absent keeps the listed photo. */
+  photo?: { src: string; alt: string } | null;
+  /** A Google Maps link to the venue, as the owner pasted it. Empty when none. */
+  mapUrl?: string;
+}
+
+export interface VenuePhoto {
+  src: string;
+  alt: string;
+  /** Photographer and source, shown as a credit (stock photos until venues upload their own). */
+  credit: string;
+  creditUrl: string;
+}
+
 export interface Venue extends VenueSettings {
   id: string;
   slug: string;
@@ -69,6 +93,9 @@ export interface Venue extends VenueSettings {
   description: string;
   courts: Court[];
   amenities: string[];
+  photo?: VenuePhoto;
+  /** A Google Maps link to the venue, when the owner has added one. */
+  mapUrl?: string;
 }
 
 export type BookingStatus = "confirmed" | "cancelled";

@@ -28,6 +28,11 @@ const LINKS: { href: string; label: string; icon: ReactNode }[] = [
     icon: <path d="M16 20v-2a4 4 0 0 0-8 0v2M12 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6M20 20v-1.5a3 3 0 0 0-2.5-3M4 20v-1.5a3 3 0 0 1 2.5-3" />,
   },
   {
+    href: "/dashboard/profile",
+    label: "Venue profile",
+    icon: <path d="M4 20V9l8-5 8 5v11M9 20v-6h6v6M4 20h16" />,
+  },
+  {
     href: "/dashboard/settings",
     label: "Prices and rules",
     icon: <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7 7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z" />,

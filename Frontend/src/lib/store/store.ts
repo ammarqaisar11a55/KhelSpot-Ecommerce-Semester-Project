@@ -7,7 +7,7 @@
 import { useSyncExternalStore } from "react";
 import { getVenueById } from "@/lib/catalog/venues";
 import { priceFor, refundQuote } from "@/lib/domain/pricing";
-import type { Booking, Customer, Hour, ISODate, PaymentMethod, VenueSettings } from "@/lib/domain/types";
+import type { Booking, Customer, Hour, ISODate, PaymentMethod, VenueProfile, VenueSettings } from "@/lib/domain/types";
 import { bookingsFor, isRangeFree, venueWithSettings } from "./queries";
 
 export interface StoreState {
@@ -16,11 +16,13 @@ export interface StoreState {
   /** Sample bookings cancelled from the dashboard, by booking id. */
   seedChanges: Record<string, Partial<Booking>>;
   settings: Record<string, VenueSettings>;
+  /** The owner's own description of their venue, by venue id. */
+  profiles: Record<string, VenueProfile>;
   profile: Customer | null;
 }
 
 const KEY = "khelspot:demo:v1";
-const EMPTY: StoreState = { version: 1, bookings: [], seedChanges: {}, settings: {}, profile: null };
+const EMPTY: StoreState = { version: 1, bookings: [], seedChanges: {}, settings: {}, profiles: {}, profile: null };
 
 let state: StoreState = EMPTY;
 let loaded = false;
@@ -49,14 +51,18 @@ function ensureLoaded() {
   });
 }
 
-function setState(next: StoreState) {
+/** Returns false when the browser would not store it, so callers can say so. */
+function setState(next: StoreState): boolean {
   state = next;
+  let stored = true;
   try {
     window.localStorage.setItem(KEY, JSON.stringify(state));
   } catch {
     // Storage full or blocked: keep working in memory.
+    stored = false;
   }
   listeners.forEach((l) => l());
+  return stored;
 }
 
 function subscribe(listener: () => void) {
@@ -183,6 +189,12 @@ function updateBooking(booking: Booking, patch: Partial<Booking>): Booking {
 export function saveVenueSettings(venueId: string, settings: VenueSettings) {
   const current = getSnapshot();
   setState({ ...current, settings: { ...current.settings, [venueId]: settings } });
+}
+
+/** False when the browser ran out of room, usually because the photo is too large. */
+export function saveVenueProfile(venueId: string, profile: VenueProfile): boolean {
+  const current = getSnapshot();
+  return setState({ ...current, profiles: { ...current.profiles, [venueId]: profile } });
 }
 
 export function resetDemo() {

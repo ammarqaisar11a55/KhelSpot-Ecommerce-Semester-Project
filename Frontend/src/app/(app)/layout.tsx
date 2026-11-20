@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LogoMark, Wordmark } from "@/components/brand/LogoMark";
+import { SpotLogo } from "@/components/brand/SpotLogo";
 import { AppNav } from "@/components/player/AppNav";
 import s from "@/components/player/player.module.css";
 
@@ -8,9 +8,8 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
     <>
       <header className={s.header}>
         <div className={`wrap ${s.headerInner}`}>
-          <Link className="brand" href="/" aria-label="KhelSpot home">
-            <LogoMark />
-            <Wordmark />
+          <Link className="brandSpot" href="/" aria-label="KhelSpot home">
+            <SpotLogo on="dark" size={26} />
           </Link>
           <AppNav />
         </div>

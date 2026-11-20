@@ -1,4 +1,5 @@
-// Sample venues for the demo. Names and details are made up.
+// Sample venues for the demo, Lahore only for launch. Names and details are made up;
+// photos are free Unsplash stock (credited) until venues upload their own.
 // Rates follow the time-band pricing seen in venue ads in the proposal (Section C).
 
 import type { CancellationPolicy, RateBand, Sport, Venue } from "@/lib/domain/types";
@@ -15,7 +16,6 @@ const dayBands = (day: number, evening: number): RateBand[] => [
 ];
 
 const STANDARD: CancellationPolicy = { freeUntilHours: 6, lateRefundPercent: 50 };
-const STRICT: CancellationPolicy = { freeUntilHours: 12, lateRefundPercent: 0 };
 
 const PADEL = nightBands(4000, 6000, 5000);
 const FUTSAL = nightBands(3000, 4500, 3500);
@@ -25,6 +25,12 @@ export const VENUES: Venue[] = [
   {
     id: "v-night-owl",
     slug: "night-owl-arena-johar-town",
+    photo: {
+      src: "/venues/night-owl-arena-johar-town.jpg",
+      alt: "An indoor futsal match under arena lights",
+      credit: "Alfonso Scarpa on Unsplash",
+      creditUrl: "https://unsplash.com/photos/f44zfM0Vn8w",
+    },
     name: "Night Owl Arena",
     city: "Lahore",
     area: "Johar Town",
@@ -45,6 +51,12 @@ export const VENUES: Venue[] = [
   {
     id: "v-baseline",
     slug: "baseline-padel-club-dha",
+    photo: {
+      src: "/venues/baseline-padel-club-dha.jpg",
+      alt: "Padel courts seen from above, with glass walls and fencing",
+      credit: "José Alejandro Cuffia on Unsplash",
+      creditUrl: "https://unsplash.com/photos/NtiZoP2CKOs",
+    },
     name: "Baseline Padel Club",
     city: "Lahore",
     area: "DHA Phase 6",
@@ -65,6 +77,12 @@ export const VENUES: Venue[] = [
   {
     id: "v-crease",
     slug: "crease-indoor-cricket-gulberg",
+    photo: {
+      src: "/venues/crease-indoor-cricket-gulberg.jpg",
+      alt: "A netted indoor cricket hall",
+      credit: "Diego González on Unsplash",
+      creditUrl: "https://unsplash.com/photos/kfNcWiV17lI",
+    },
     name: "Crease Indoor Cricket",
     city: "Lahore",
     area: "Gulberg III",
@@ -84,6 +102,12 @@ export const VENUES: Venue[] = [
   {
     id: "v-shuttle-house",
     slug: "shuttle-house-model-town",
+    photo: {
+      src: "/venues/shuttle-house-model-town.jpg",
+      alt: "A player jumping for a smash on an indoor badminton court",
+      credit: "Muktasim Azlan on Unsplash",
+      creditUrl: "https://unsplash.com/photos/rjWfNR_AC5g",
+    },
     name: "Shuttle House",
     city: "Lahore",
     area: "Model Town",
@@ -101,90 +125,7 @@ export const VENUES: Venue[] = [
     pricing: { badminton: dayBands(1200, 1800) },
     cancellation: STANDARD,
     payAtVenue: true,
-  },
-  {
-    id: "v-harbour",
-    slug: "harbour-padel-dha-karachi",
-    name: "Harbour Padel",
-    city: "Karachi",
-    area: "DHA Phase 8",
-    address: "Khayaban-e-Ittehad, DHA Phase 8, Karachi",
-    description: "Two padel courts near the sea front, with coaching on weekday evenings.",
-    courts: [
-      { id: "hp-1", name: "Court 1", sport: "padel" },
-      { id: "hp-2", name: "Court 2", sport: "padel" },
-    ],
-    amenities: ["Coaching", "Racket rental", "Parking"],
-    openHour: 16,
-    closeHour: 28,
-    pricing: { padel: nightBands(4500, 6500, 5500) },
-    cancellation: STRICT,
-    payAtVenue: false,
-  },
-  {
-    id: "v-gulshan-hub",
-    slug: "gulshan-sports-hub",
-    name: "Gulshan Sports Hub",
-    city: "Karachi",
-    area: "Gulshan-e-Iqbal",
-    address: "Block 13-D, Gulshan-e-Iqbal, Karachi",
-    description: "A futsal pitch, an indoor cricket ground and two badminton courts under one roof.",
-    courts: [
-      { id: "gs-f1", name: "Futsal Pitch", sport: "futsal" },
-      { id: "gs-c1", name: "Cricket Ground", sport: "cricket" },
-      { id: "gs-b1", name: "Badminton 1", sport: "badminton" },
-      { id: "gs-b2", name: "Badminton 2", sport: "badminton" },
-    ],
-    amenities: ["Floodlights", "Parking", "Café"],
-    openHour: 16,
-    closeHour: 28,
-    pricing: { futsal: FUTSAL, cricket: CRICKET, badminton: nightBands(1200, 1800, 1500) },
-    cancellation: STANDARD,
-    payAtVenue: true,
-  },
-  {
-    id: "v-margalla",
-    slug: "margalla-courts-f11",
-    name: "Margalla Courts",
-    city: "Islamabad",
-    area: "F-11",
-    address: "F-11 Markaz, Islamabad",
-    description: "Padel and badminton with a view of the hills, open from the afternoon.",
-    courts: [
-      { id: "mc-p1", name: "Padel 1", sport: "padel" },
-      { id: "mc-p2", name: "Padel 2", sport: "padel" },
-      { id: "mc-b1", name: "Badminton 1", sport: "badminton" },
-    ],
-    amenities: ["Racket rental", "Parking", "Changing rooms"],
-    openHour: 16,
-    closeHour: 26,
-    pricing: {
-      padel: nightBands(3500, 5000, 4000).map((b) => (b.label === "Late" ? { ...b, to: 26 } : b)),
-      badminton: nightBands(1000, 1500, 1200).map((b) => (b.label === "Late" ? { ...b, to: 26 } : b)),
-    },
-    cancellation: STANDARD,
-    payAtVenue: true,
-  },
-  {
-    id: "v-capital-dome",
-    slug: "capital-cricket-dome-g13",
-    name: "Capital Cricket Dome",
-    city: "Islamabad",
-    area: "G-13",
-    address: "G-13/1, Islamabad",
-    description: "A full-size indoor cricket dome and a futsal pitch, busiest in Ramadan.",
-    courts: [
-      { id: "cd-c1", name: "Cricket Dome", sport: "cricket" },
-      { id: "cd-f1", name: "Futsal Pitch", sport: "futsal" },
-    ],
-    amenities: ["Floodlights", "Bowling machine", "Parking"],
-    openHour: 16,
-    closeHour: 28,
-    pricing: { cricket: nightBands(3000, 3500, 3200), futsal: FUTSAL },
-    cancellation: STANDARD,
-    payAtVenue: true,
-  },
-];
+  },];
 
 /** The venue the owner dashboard is signed in as, until accounts exist. */
 export const DEMO_OWNER_VENUE_ID = "v-night-owl";

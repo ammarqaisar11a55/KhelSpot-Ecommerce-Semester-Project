@@ -7,7 +7,7 @@ import ui from "@/components/ui/ui.module.css";
 import { getVenueById } from "@/lib/catalog/venues";
 import { PK_MOBILE, cx, normalisePhone } from "@/lib/format";
 import { useBrowserOnly, useNow } from "@/lib/hooks";
-import { describePolicy, formatRupees } from "@/lib/domain/pricing";
+import { deadlineText, formatRupees } from "@/lib/domain/pricing";
 import { formatDay, formatRange, realDate } from "@/lib/domain/time";
 import { PAYMENT_LABEL, SPORT_LABEL, type PaymentMethod } from "@/lib/domain/types";
 import { bookingsFor, maxHoursFrom, quotePrice, slotsFor, venueWithSettings } from "@/lib/store/queries";
@@ -156,7 +156,7 @@ export function Checkout({ venueId }: { venueId: string }) {
 
         <div className={ui.card}>
           <h2 className={ui.cardTitle}>Cancellation and refunds</h2>
-          <p className={s.policy}>{describePolicy(venue.cancellation)}</p>
+          <p className={s.policy}>{deadlineText(date, start, venue.cancellation)}</p>
           <label className={s.check} style={{ marginTop: 14 }}>
             <input
               type="checkbox"
@@ -183,7 +183,7 @@ export function Checkout({ venueId }: { venueId: string }) {
               : `Waiting for ${PAYMENT_LABEL[payment]}…`
             : payment === "cash"
               ? "Confirm booking"
-              : `Pay ${formatRupees(price)}`}
+              : `Pay ${formatRupees(price)} & book`}
         </button>
         <p className={s.testNote}>Demo mode: no payment is taken and no message is sent.</p>
       </form>

@@ -42,7 +42,6 @@ export function RevenueChart({ days, today }: { days: DayRevenue[]; today: ISODa
       </div>
       <p className={ui.small} style={{ marginBottom: 14 }}>
         <span className={ui.muted}>Total</span> <b className={ui.mono}>{formatRupees(total)}</b>
-        <span className={ui.muted}> · today in dark green</span>
       </p>
 
       {asTable ? (
@@ -96,7 +95,13 @@ export function RevenueChart({ days, today }: { days: DayRevenue[]; today: ISODa
           </div>
           <div className={d.axis} aria-hidden="true">
             {days.map((x, i) => (
-              <span key={x.date}>{i % 2 === days.length % 2 ? "" : `${weekdayShort(x.date).slice(0, 2)} ${dayOfMonth(x.date)}`}</span>
+              <span key={x.date} className={x.date === today ? d.axisToday : undefined}>
+                {x.date === today
+                  ? "Today"
+                  : i % 2 === days.length % 2
+                    ? ""
+                    : `${weekdayShort(x.date).slice(0, 2)} ${dayOfMonth(x.date)}`}
+              </span>
             ))}
           </div>
         </div>

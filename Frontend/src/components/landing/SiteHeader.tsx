@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { LogoMark, Wordmark } from "@/components/brand/LogoMark";
+import { SpotLogo } from "@/components/brand/SpotLogo";
 
 const LINKS = [
   { href: "/venues", label: "Find courts" },
@@ -19,9 +19,8 @@ export function SiteHeader() {
   return (
     <header className="nav">
       <div className="wrap nav__inner">
-        <a className="brand" href="#top" aria-label="KhelSpot home">
-          <LogoMark />
-          <Wordmark />
+        <a className="brandSpot" href="#top" aria-label="KhelSpot home">
+          <SpotLogo on="dark" size={28} />
         </a>
         <button
           className="nav__toggle"
@@ -42,7 +41,7 @@ export function SiteHeader() {
             </a>
           ))}
           <Link className="btn btn--small btn--accent" href="/venues" onClick={close}>
-            Book a court
+            See open slots
           </Link>
         </nav>
       </div>

@@ -32,7 +32,7 @@
   align-items: center;
   min-height: 44px;
   padding: 0 12px;
-  border-radius: 10px;
+  border-radius: 4px;
   color: var(--muted-dark);
   text-decoration: none;
   font-weight: 600;
@@ -77,6 +77,7 @@
   text-transform: uppercase;
   color: var(--ink-2);
   min-width: 56px;
+  font-variant-numeric: tabular-nums;
 }
 
 .search {
@@ -132,11 +133,11 @@
 
 .venueName {
   font-family: var(--head);
-  font-stretch: 112%;
   font-weight: 800;
   font-size: 19px;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.01em;
   margin: 0;
+  text-transform: uppercase;
 }
 
 .venueWhere {
@@ -158,6 +159,7 @@
 .from {
   font-family: var(--mono);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .freeCount {
@@ -171,9 +173,36 @@
 
 /* Venue page */
 .venueHero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   background: var(--night);
   color: var(--chalk);
   padding: 32px 0 36px;
+}
+
+/* The venue photo fills the hero, seen through a pane of tinted, frosted
+   glass that is darkest behind the text. */
+.venueHeroPhoto {
+  z-index: -2;
+  object-fit: cover;
+}
+
+.venueHeroGlass {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    rgb(15 31 24 / 0.88) 0%,
+    rgb(15 31 24 / 0.74) 50%,
+    rgb(15 31 24 / 0.52) 100%
+  );
+  -webkit-backdrop-filter: blur(6px) saturate(1.15);
+  backdrop-filter: blur(6px) saturate(1.15);
+  box-shadow:
+    inset 0 1px 0 rgb(246 243 234 / 0.1),
+    inset 0 -1px 0 rgb(246 243 234 / 0.06);
 }
 
 .crumbs {
@@ -196,24 +225,112 @@
 .venueHeroArt {
   border-radius: var(--radius);
   overflow: hidden;
-  height: 140px;
+  height: 180px;
   border: 1px solid var(--night-line);
 }
 
-.venueHeroArt svg {
+.venueHeroArt svg,
+.venueHeroArt img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .venueTitle {
-  font-size: clamp(30px, 4.5vw, 46px);
+  font-size: clamp(40px, 6vw, 72px);
   max-width: none;
   margin-bottom: 8px;
 }
 
 .venueAddress {
   color: var(--muted-dark);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  align-items: baseline;
 }
+
+.heroDirections {
+  color: var(--chalk);
+  font-weight: 600;
+  font-size: 15px;
+  text-underline-offset: 3px;
+}
+
+/* Location: under the rates. Directions for everyone, a map for venues that set a pin */
+.location {
+  display: grid;
+  gap: 12px;
+}
+
+.location h2 {
+  margin-bottom: 0;
+}
+
+.locationText {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+
+.locationButton {
+  margin-top: 2px;
+}
+
+.locationMap {
+  min-height: 190px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--sand);
+}
+
+.locationMap iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 190px;
+  border: 0;
+}
+
+.mapReveal {
+  width: 100%;
+  height: 100%;
+  min-height: 190px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 4px;
+  border: 0;
+  background:
+    linear-gradient(rgb(237 233 221 / 0.85), rgb(237 233 221 / 0.85)),
+    repeating-linear-gradient(0deg, transparent 0 38px, var(--line) 38px 39px),
+    repeating-linear-gradient(90deg, transparent 0 38px, var(--line) 38px 39px);
+  font: 700 16px var(--body);
+  color: var(--night);
+  cursor: pointer;
+}
+
+.mapReveal svg {
+  width: 30px;
+  height: 30px;
+  fill: none;
+  stroke: var(--turf);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.mapReveal:hover span:first-of-type {
+  text-decoration: underline;
+}
+
+.mapNote {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
 
 .tagRow {
   display: flex;
@@ -228,7 +345,12 @@
   min-height: 30px;
   padding: 0 12px;
   border-radius: 999px;
-  border: 1px solid var(--night-line);
+  /* A lighter pane on the hero glass, so the tags stay distinct over the photo. */
+  border: 1px solid rgb(246 243 234 / 0.32);
+  background: rgb(246 243 234 / 0.14);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
   font-size: 13px;
   font-weight: 600;
   color: var(--chalk);
@@ -275,6 +397,7 @@
   text-transform: uppercase;
   color: var(--turf-dark);
   margin-bottom: 10px;
+  font-variant-numeric: tabular-nums;
 }
 
 .dateStrip {
@@ -287,8 +410,8 @@
 
 .dateBtn {
   min-height: 62px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
+  border-radius: 4px;
+  border: 2px solid var(--line);
   background: #fff;
   font: 500 13px var(--body);
   color: var(--ink-2);
@@ -304,6 +427,7 @@
   font-family: var(--mono);
   font-size: 18px;
   color: var(--night);
+  font-variant-numeric: tabular-nums;
 }
 
 .dateBtnOn {
@@ -324,8 +448,8 @@
 
 .slot {
   min-height: 58px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
+  border-radius: 4px;
+  border: 2px solid var(--line);
   background: #fff;
   color: var(--night);
   cursor: pointer;
@@ -336,6 +460,7 @@
   gap: 2px;
   font: 700 14px var(--mono);
   position: relative;
+  font-variant-numeric: tabular-nums;
 }
 
 .slot small {
@@ -425,8 +550,6 @@
 }
 
 .summary {
-  position: sticky;
-  top: 84px;
   display: grid;
   gap: 14px;
 }
@@ -449,16 +572,17 @@
 
 .total {
   font-family: var(--head);
-  font-stretch: 112%;
   font-weight: 800;
   font-size: 26px;
+  text-transform: none /* keep 'Rs' as written */;
+  font-variant-numeric: tabular-nums;
 }
 
 .policy {
   font-size: 14px;
   color: var(--turf-dark);
   background: #e8f3ec;
-  border-radius: 12px;
+  border-radius: 4px;
   padding: 10px 12px;
 }
 
@@ -519,8 +643,8 @@
   gap: 12px;
   min-height: 56px;
   padding: 0 16px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
+  border-radius: 4px;
+  border: 2px solid var(--line);
   background: #fff;
   cursor: pointer;
   font-weight: 600;
@@ -591,7 +715,7 @@
 }
 
 .dateBadge {
-  border-radius: 12px;
+  border-radius: 4px;
   background: var(--night);
   color: var(--chalk);
   text-align: center;
@@ -604,6 +728,7 @@
   display: block;
   font-family: var(--mono);
   font-size: 22px;
+  font-variant-numeric: tabular-nums;
 }
 
 .bookingTitle {
@@ -667,7 +792,7 @@
 
 .whatsappMsg {
   background: #fff;
-  border-radius: 12px 12px 12px 4px;
+  border-radius: 4px 12px 12px 4px;
   padding: 12px 14px;
   font-size: 14px;
   line-height: 1.5;

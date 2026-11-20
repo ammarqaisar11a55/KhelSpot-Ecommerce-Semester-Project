@@ -7,7 +7,7 @@ import ui from "@/components/ui/ui.module.css";
 import { getVenueById, venueSports } from "@/lib/catalog/venues";
 import { cx } from "@/lib/format";
 import { useBrowserOnly, useNow } from "@/lib/hooks";
-import { describePolicy, formatRupees, priceFor, rateAt } from "@/lib/domain/pricing";
+import { deadlineText, formatRupees, priceFor, rateAt } from "@/lib/domain/pricing";
 import {
   addDays,
   dayOfMonth,
@@ -22,6 +22,7 @@ import { SPORTS, SPORT_LABEL, type Hour, type Sport } from "@/lib/domain/types";
 import { bookingsFor, maxHoursFrom, slotsFor, venueWithSettings } from "@/lib/store/queries";
 import { useStore } from "@/lib/store/store";
 import s from "./player.module.css";
+import { VenueLocation } from "./VenueProfileView";
 
 const DURATIONS = [1, 2, 3];
 
@@ -232,7 +233,7 @@ export function SlotPicker({ venueId }: { venueId: string }) {
                 <span>Total</span>
                 <span className={s.total}>{total !== null ? formatRupees(total) : "–"}</span>
               </div>
-              <p className={s.policy}>{describePolicy(venue.cancellation)}</p>
+              <p className={s.policy}>{deadlineText(date, start, venue.cancellation)}</p>
               {checkoutHref && (
                 <Link className="btn btn--accent btn--block" href={checkoutHref}>
                   Continue to payment
@@ -257,6 +258,7 @@ export function SlotPicker({ venueId }: { venueId: string }) {
             ))}
           </div>
         </div>
+        <VenueLocation venue={venue} />
       </aside>
     </div>
   );

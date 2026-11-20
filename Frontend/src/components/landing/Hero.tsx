@@ -6,24 +6,24 @@ export function Hero() {
     <section className="hero">
       <div className="wrap hero__grid">
         <div>
-          <p className="eyebrow">Launching in Lahore and Karachi</p>
+          <p className="eyebrow">Aaj raat khelna hai? Now booking in Lahore</p>
           <h1>
-            Book the court, <span>not the call.</span>
+            Find it. Book it. <span>Play.</span>
           </h1>
           <p className="lead">
-            See free slots and prices at padel, futsal, indoor cricket and badminton courts near you. Pay with
-            JazzCash, Easypaisa or card, and the confirmation lands on your WhatsApp.
+            Padel, futsal, indoor cricket and badminton courts across Lahore. See every open slot and its price,
+            pay with JazzCash, Easypaisa or card, and you&apos;re booked. Confirmation on WhatsApp in a minute.
           </p>
           <div className="hero__ctas">
             <Link className="btn btn--accent" href="/venues">
-              Find a court
+              See open slots
             </Link>
             <a className="btn btn--ghost" href="#venues">
-              I own a venue
+              List your venue
             </a>
           </div>
           <ul className="hero__facts">
-            <li>Refund rules shown before you pay</li>
+            <li>Free-cancellation deadline shown before you pay</li>
             <li>No booking fee for players</li>
           </ul>
         </div>

@@ -1,6 +1,8 @@
 # KhelSpot brand brief
 
-Built with the brand-building skills (brand-positioning, brand-messaging, brand-voice, brand-identity), working from `.agents/brand-context.md` and the Assignment #1 proposal. Logo canvas: https://claude.ai/artifact/3esBZTKekF1yMA175Czrdr
+Built with the brand-building skills (brand-positioning, brand-messaging, brand-voice, brand-identity), working from `.agents/brand-context.md` and the Assignment #1 proposal.
+
+**Source of truth for look and voice: Brand guidelines v1.0 (November 2026), the "KhelSpot brand kit" project in Claude Design.** Sections 2–4 below follow it. The earlier pin-and-court logo canvas (https://claude.ai/artifact/3esBZTKekF1yMA175Czrdr) is retired.
 
 ## 1. Positioning
 
@@ -40,13 +42,14 @@ Built with the brand-building skills (brand-positioning, brand-messaging, brand-
 **Taglines**
 | Tagline | Style | Note |
 |---|---|---|
-| **Book the court, not the call.** | Functional/witty | Names the exact pain. **Recommended.** |
+| **Find it. Book it. Play.** | Functional | Brand kit v1.0 tagline. **Primary.** |
+| Book the court, not the call. | Functional/witty | Names the exact pain. Secondary, for ads and social. |
 | Your slot, confirmed. | Functional | Plain, good for confirmation screens. |
 | Khelo jab dil kare. | Emotional, Urdu | Good for social; weaker on the problem. |
 | Every court in the city, one app. | Functional | Accurate, flat. |
 
 **Hierarchy**
-- **Headline:** Book the court, not the call.
+- **Headline:** Find it. Book it. Play.
 - **Supporting:** See free slots and prices at padel, futsal, indoor cricket and badminton courts near you. Pay with JazzCash, Easypaisa or card and get the confirmation on WhatsApp.
 - **Key messages**
   1. *See what's free before you ask.* Live slots and per-hour prices, by city and sport. Proof: city and sport filters.
@@ -74,28 +77,31 @@ KhelSpot sounds like the friend in the group chat who already booked the court: 
 Before: "Experience seamless, hassle-free sports booking with our revolutionary platform!"
 After: "See which courts are free at 9 PM and book one in a minute."
 
-## 4. Visual identity
+## 4. Visual identity (brand kit v1.0)
 
-**Strategy:** A floodlit court at night is the brand's picture: dark pitch, white lines, one bright light. The identity uses a dark ground with one sharp accent, sports-signage type, and real data (times, prices) as decoration.
+**Logo: The Spot.** KHELSPOT set in Big Shoulders Black, uppercase, with the O drawn as a solid dot: a ball, a map pin, an open slot. Ink letters with a Turf dot on light; Chalk letters with a Floodlight dot on dark. The symbol (a heavy K with the dot at its shoulder) is for app icons, avatars and favicons only. Minimum size: full logo 20 px tall, symbol 16 px. Clear space equals the wordmark's cap height on every side. Don't stretch, rotate, recolour or place it on low contrast.
 
-**Logo:** symbol + wordmark. The symbol is a map pin whose head is a court seen from above, with the net down the middle and a ball in one half. Pin = Spot, court = Khel. Wordmark set in Archivo Expanded ExtraBold, "Spot" in turf green (floodlight yellow on dark). Avoid: balls with motion streaks, trophies, generic play-button arrows, gradients.
+| Role | Name | Hex | Use |
+|---|---|---|---|
+| Primary | Turf Green | `#1F7A4D` | Brand surfaces, primary buttons, confirmed states |
+| Core | Ink | `#111513` | Text, night-game surfaces, the summary bar |
+| Core | Chalk | `#F3F2EC` | Default light background, court lines on dark |
+| Highlight | Floodlight | `#D4F53C` | Open slots, live offers, the logo dot on dark |
+| Urgency | Tape Orange | `#FF5B1F` | Last slots, time-limited discounts. Sparingly |
+| Support | Deep Turf | `#0E3B26` | Dark green surfaces |
+| Support | Slate | `#59625D` | Secondary text on light |
+| Support | Line | `#D8D7CF` | Borders, booked slots |
 
-| Role | Name | Hex |
-|---|---|---|
-| Text / dark ground | Night pitch | `#0F1F18` |
-| Primary | Turf | `#17804F` |
-| Light ground | Chalk | `#F6F3EA` |
-| Accent (on dark, or as fill under dark text) | Floodlight | `#FFD43B` |
+Rules: each layout gets **one** loud accent, Floodlight or Tape Orange, never both. Proportion roughly Chalk 40, Ink 25, Turf 20, Floodlight 10, Tape 5. Text pairings: Ink on Chalk 16.4:1, Chalk on Turf 4.7:1, Ink on Floodlight 14.8:1, Ink on Tape 5.9:1. Never Chalk on Tape (2.8:1). Floodlight on Turf (4.3:1) is for headlines only.
 
-Rule: never put Floodlight text on Chalk (fails contrast). Turf on Chalk passes for text at 4.5:1.
+**Type.** Display: Big Shoulders (ExtraBold 800, Black 900) for headlines, prices, scores and times, always uppercase, leading 0.85–0.9 (prices keep "Rs" as written). Text: Archivo (400, 600, 700) for body copy, UI labels, tables and messages, in sentence case. Labels: Archivo 700, 12 px, +0.14em, uppercase. Scale: Display L 900 72/0.9 · Heading 800 40/1 · Subhead 700 22/1.3 · Body 400 16/1.55.
 
-**Type:** Archivo (width 125, weight 800) for headlines; Instrument Sans for body; JetBrains Mono for slot times, prices and data labels.
+**UI components.** Square-cornered buttons (4 px), pill-shaped filters, heavy 2 px borders. Statuses: Booked, Open, "2 left tonight", Full, Refunded.
 
-**Imagery:** night games under lights, real courts in Lahore and Karachi, groups of friends. No stock handshakes, no glossy studio shots.
+**App icon.** The symbol on a Turf tile at 55% of the tile height, optically centred; corner radius 22.5% where the platform doesn't mask it.
 
-**Icons:** 2px stroke line icons, rounded joins.
+**Booking messages.** Sent on WhatsApp with SMS as fallback, same facts in the same order: status first ("Booked", never "Request received"); venue, court, day, date and time range; amount and payment method, with a booking ID; the cancellation deadline as a clock time; one link. SMS stays under 160 characters.
 
-**Design principles**
-1. *Show the slot.* Times and prices appear in the design itself.
-2. *One light.* One accent per view, like a single floodlight.
-3. *Plain before clever.* If a label could be misread, rewrite it.
+**Imagery.** Night games under lights, real courts, groups of friends. No stock handshakes or glossy studio shots. Until venues upload their own, the app uses credited Unsplash photos.
+
+**In the code.** Tokens live in `Frontend/src/app/globals.css`; the Spot logo is `Frontend/src/components/brand/SpotLogo.tsx`; the app icon is `Frontend/src/app/icon.svg`.

@@ -7,9 +7,29 @@ import { dateRange, isPast } from "@/lib/domain/time";
 import type { Booking, Court, Hour, ISODate, RateBand, Venue } from "@/lib/domain/types";
 import type { StoreState } from "./store";
 
+/** A venue as players see it: the listing with the owner's saved settings and profile. */
 export function venueWithSettings(state: StoreState, venue: Venue): Venue {
   const s = state.settings[venue.id];
-  return s ? { ...venue, ...s } : venue;
+  const p = state.profiles?.[venue.id];
+  const withSettings = s ? { ...venue, ...s } : venue;
+  if (!p) return withSettings;
+  const photo =
+    p.photo === undefined
+      ? withSettings.photo
+      : p.photo === null
+        ? undefined
+        : { src: p.photo.src, alt: p.photo.alt, credit: "", creditUrl: "" };
+  return {
+    ...withSettings,
+    name: p.name,
+    area: p.area,
+    address: p.address,
+    description: p.description,
+    amenities: p.amenities,
+    courts: withSettings.courts.map((court) => ({ ...court, name: p.courtNames[court.id]?.trim() || court.name })),
+    photo,
+    mapUrl: p.mapUrl === undefined ? withSettings.mapUrl : p.mapUrl || undefined,
+  };
 }
 
 /** Every booking at a venue on one operating day, cancelled ones included. */

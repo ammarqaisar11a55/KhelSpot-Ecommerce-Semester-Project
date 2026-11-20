@@ -18,6 +18,19 @@
   gap: 20px;
 }
 
+/* Wide screens: the sidebar stays put while the page scrolls. */
+@media (min-width: 861px) {
+  .side {
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
 .content {
   flex: 999 1 560px;
   min-width: 0;
@@ -38,7 +51,7 @@
 
 .venueBox {
   border: 1px solid var(--night-line);
-  border-radius: 12px;
+  border-radius: 4px;
   padding: 10px 12px;
 }
 
@@ -71,7 +84,7 @@
   gap: 10px;
   min-height: 44px;
   padding: 0 12px;
-  border-radius: 10px;
+  border-radius: 4px;
   color: var(--muted-dark);
   text-decoration: none;
   font-weight: 600;
@@ -122,41 +135,371 @@
 }
 
 /* KPI tiles */
-.kpis {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 14px;
+/* Tonight: the venue's night drawn as lanes, one per court */
+.board {
+  background: var(--night);
+  color: var(--chalk);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px 18px;
+  margin-bottom: 28px;
+}
+
+.boardHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px 32px;
   margin-bottom: 20px;
 }
 
-.kpi {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 16px 18px;
+.boardTitle {
+  font-family: var(--head);
+  font-weight: 800;
+  font-size: clamp(26px, 3vw, 34px);
+  letter-spacing: 0.01em;
+  line-height: 1;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.boardSub {
+  color: var(--muted-dark);
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.boardFigures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  margin: 0;
+}
+
+.boardFigures div {
+  display: grid;
+  gap: 2px;
+}
+
+.boardFigures dt {
+  font-size: 13px;
+  color: var(--muted-dark);
+}
+
+.boardFigures dd {
+  margin: 0;
+  font: 700 21px var(--mono);
+  color: var(--chalk);
+  font-variant-numeric: tabular-nums;
+}
+
+.boardScroll {
+  overflow-x: auto;
+  margin: 0 -6px;
+  padding: 0 6px 6px;
+}
+
+.boardGrid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 118px repeat(var(--hours), minmax(46px, 1fr));
+  grid-template-rows: 22px;
+  grid-auto-rows: 54px;
+  row-gap: 8px;
+  min-width: 760px;
+}
+
+.boardAxis,
+.boardLane {
+  display: contents;
+}
+
+.boardAxis span {
+  grid-row: 1;
+  align-self: end;
+  justify-self: start;
+  transform: translateX(-50%);
+  font: 500 11px var(--mono);
+  color: var(--muted-dark);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.boardAxis span:first-child {
+  transform: none;
+}
+
+.boardCourt {
+  grid-column: 1;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  left: -6px;
+  z-index: 4;
+  background: var(--night);
+  padding: 0 12px 0 6px;
+  margin-left: -6px;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The lane, marked off in hours like lines on a pitch */
+.boardTrack {
+  grid-column: 2 / -1;
+  border-radius: 4px;
+  background-color: var(--night-2);
+  background-image: linear-gradient(to right, var(--night-line) 1px, transparent 1px);
+  background-size: calc(100% / var(--hours)) 100%;
+}
+
+.boardFree {
+  margin: 4px 2px;
+  border: 1px dashed transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--chalk);
+  font: 600 18px var(--body);
+  cursor: pointer;
+  z-index: 1;
+}
+
+.boardFree span {
+  opacity: 0;
+}
+
+.boardFree:hover,
+.boardFree:focus-visible {
+  border-color: rgb(246 243 234 / 0.45);
+}
+
+.boardFree:hover span,
+.boardFree:focus-visible span {
+  opacity: 1;
+}
+
+.boardBooking {
+  min-width: 0;
+  margin: 4px 2px;
+  padding: 6px 9px;
+  border: 2px solid;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  overflow: hidden;
+  text-align: left;
+  font-family: var(--body);
+  cursor: pointer;
+  z-index: 2;
+}
+
+.boardBooking:hover {
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.boardPaid {
+  background: var(--turf);
+  border-color: #33b273;
+  color: var(--chalk);
+}
+
+/* The one bright thing on the board: money still to take at the counter */
+.boardCollect {
+  background: var(--flood);
+  border-color: var(--flood-dark);
+  color: var(--night);
+}
+
+/* Played: steps back but stays readable */
+.boardPaid.boardPlayed {
+  background: var(--night-line);
+  border-color: #3d5c4d;
+  color: var(--muted-dark);
+}
+
+.boardCollect.boardPlayed {
+  background: #4a4220;
+  border-color: #6e6024;
+  color: #f2e2a2;
+}
+
+.boardName {
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.boardWhen {
+  font: 500 11px var(--mono);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.boardNowTrack {
+  grid-column: 2 / -1;
+  position: relative;
+  margin-block: -4px;
+  pointer-events: none;
+  z-index: 1; /* behind bookings, so the one in progress stays readable */
+}
+
+.boardNow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 2px;
+  background: var(--chalk);
+  box-shadow: 0 0 0 2px var(--night);
+}
+
+.boardNow::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--chalk);
+}
+
+.boardKey {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 18px;
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--muted-dark);
+}
+
+.boardKey span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.boardHint {
+  margin-left: auto;
+}
+
+.keyBoardPaid,
+.keyBoardCollect {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+.keyBoardPaid {
+  background: var(--turf);
+  border-color: #33b273;
+}
+
+.keyBoardCollect {
+  background: var(--flood);
+  border-color: var(--flood-dark);
+}
+
+.keyBoardNow {
+  width: 2px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--chalk);
+}
+
+/* The figures that are not about tonight, in one ruled row */
+.ledger {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 28px;
+  border-block: 1px solid var(--line);
+}
+
+.ledgerItem {
   display: grid;
   gap: 4px;
+  align-content: start;
+  padding: 18px 24px;
 }
 
-.kpiLabel {
+.ledgerItem:first-child {
+  padding-left: 0;
+}
+
+.ledgerItem + .ledgerItem {
+  border-left: 1px solid var(--line);
+}
+
+.ledgerLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
-  color: var(--ink-2);
   font-weight: 600;
+  color: var(--ink-2);
 }
 
-.kpiValue {
+.ledgerValue {
   font-family: var(--head);
-  font-stretch: 112%;
   font-weight: 800;
-  font-size: clamp(22px, 2.1vw, 28px);
-  letter-spacing: -0.02em;
+  font-size: clamp(24px, 2.4vw, 32px);
+  letter-spacing: 0.01em;
   line-height: 1.1;
   white-space: nowrap;
+  text-transform: none /* keep 'Rs' as written */;
+  font-variant-numeric: tabular-nums;
 }
 
-.kpiNote {
+.ledgerNote {
   font-size: 13px;
   color: var(--ink-2);
+}
+
+.meter {
+  height: 6px;
+  max-width: 240px;
+  margin: 6px 0 2px;
+  border-radius: 999px;
+  background: var(--sand);
+  overflow: hidden;
+}
+
+.meter span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--turf);
+}
+
+@media (max-width: 760px) {
+  .board {
+    padding: 18px 16px 14px;
+    border-radius: var(--radius);
+  }
+  .boardHint {
+    margin-left: 0;
+  }
+  .ledger {
+    grid-template-columns: 1fr;
+  }
+  .ledgerItem {
+    padding: 14px 0;
+  }
+  .ledgerItem + .ledgerItem {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
 }
 
 .grid2 {
@@ -228,6 +571,7 @@
   transform: translateY(-50%);
   font: 500 11px var(--mono);
   color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
 }
 
 .barHit {
@@ -275,6 +619,12 @@
   font: 500 11px var(--mono);
   color: var(--ink-2);
   text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.axisToday {
+  font-weight: 700;
+  color: var(--night);
 }
 
 .tooltip {
@@ -309,6 +659,7 @@
 .chartTable th:last-child {
   text-align: right;
   font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
 }
 
 /* Up next list */
@@ -321,7 +672,7 @@
 
 .listItem {
   display: grid;
-  grid-template-columns: 84px minmax(0, 1fr) auto;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
   padding: 10px 0;
@@ -334,6 +685,7 @@
 
 .listTime {
   font: 700 14px var(--mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .listMain {
@@ -350,6 +702,14 @@
 .listSub {
   font-size: 13px;
   color: var(--ink-2);
+}
+
+.listEnd {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  font: 600 13px var(--mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .rowBtn {
@@ -409,6 +769,7 @@
   text-align: right;
   font-family: var(--mono);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .toolbar {
@@ -429,156 +790,920 @@
   margin: 12px 2px 0;
 }
 
-/* Calendar */
-.calNav {
+/* Calendar: a court sheet under floodlights.
+   One loud element (the now line); everything else stays quiet. */
+
+.calBar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 12px 16px;
+  margin-bottom: 14px;
+}
+
+.calStep {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.calStep button {
+  min-width: 44px;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 0;
+  background: none;
+  font: 700 14px var(--body);
+  color: var(--night);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calStep button + button {
+  border-left: 1px solid var(--line);
+}
+
+.calStep button:hover:not(:disabled) {
+  background: var(--chalk);
+}
+
+.calStep button:disabled {
+  color: #9aa09a;
+  cursor: default;
+}
+
+.calStep svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .calDate {
   font-family: var(--head);
-  font-stretch: 112%;
   font-weight: 800;
-  font-size: 20px;
-  margin: 0 8px;
+  font-size: 22px;
+  letter-spacing: 0.01em;
+  margin: 0;
+  max-width: none;
+  text-transform: uppercase;
 }
 
-.calWrap {
-  overflow-x: auto;
+.calPick input {
+  min-height: 42px;
+  border-radius: 4px;
+  border: 2px solid var(--line);
   background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-}
-
-.cal {
-  display: grid;
-  min-width: 640px;
-}
-
-.calHead {
-  position: sticky;
-  top: 0;
-  background: #faf8f2;
-  border-bottom: 1px solid var(--line);
-  padding: 10px 12px;
-  font-weight: 700;
-  font-size: 14px;
-  z-index: 2;
-}
-
-.calHour {
-  font: 600 12px var(--mono);
   color: var(--ink-2);
-  padding: 6px 10px;
-  border-top: 1px solid #efebe0;
-  text-align: right;
+  font: 500 14px var(--body);
+  padding: 0 10px;
 }
 
-.calCell {
-  border-top: 1px solid #efebe0;
-  border-left: 1px solid #efebe0;
-  background: none;
-  min-height: 52px;
-  padding: 0;
-  cursor: pointer;
-  position: relative;
-}
-
-button.calCell:not(:disabled):hover {
-  background: #eef6f1;
-}
-
-button.calCell:not(:disabled):hover::after {
-  content: "+ Add";
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font: 700 13px var(--body);
-  color: var(--turf-dark);
-}
-
-.calPast {
-  background: repeating-linear-gradient(135deg, #f6f3ea 0 6px, #f1ede2 6px 12px);
-  cursor: default;
-}
-
-.calBooking {
-  margin: 3px;
-  border-radius: 10px;
-  border: 0;
-  border-left: 0;
-  padding: 8px 10px;
-  text-align: left;
-  font: 500 13px var(--body);
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  overflow: hidden;
-  z-index: 1;
-  background: #dcefe3;
-  color: #0c3d26;
-}
-
-.calBooking b {
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.calUnpaid {
-  background: #fff1bf;
-  color: #4d3b00;
-}
-
-.calWalkIn {
-  background: var(--night);
-  color: var(--chalk);
-}
-
-.calLegend {
+.calKey {
+  margin-left: auto;
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 12px;
+  gap: 6px 16px;
   font-size: 13px;
   color: var(--ink-2);
 }
 
-.calLegend span {
+.calKey span {
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
-.legendSwatch {
-  width: 14px;
-  height: 14px;
+.calKey .calWalkIn {
+  position: static;
+  color: var(--ink-2);
+}
+
+.keyPaid,
+.keyCollect {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+.keyPaid {
+  background: #e6f2ea;
+  border-color: #b9d8c6;
+}
+
+.keyCollect {
+  background: #f2fad0;
+  border-color: #c9e35a;
+}
+
+/* Grid */
+.calWrap {
+  overflow: auto;
+  max-height: min(72vh, 760px);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overscroll-behavior: contain;
+}
+
+.cal {
+  display: grid;
+  min-width: 600px;
+  position: relative;
+}
+
+.calCorner,
+.calCourt {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  z-index: 6;
+}
+
+.calCorner {
+  left: 0;
+  z-index: 7;
+}
+
+.calCourt {
+  padding: 12px 14px 12px;
+  display: grid;
+  gap: 2px;
+  border-left: 1px solid #efebe0;
+}
+
+.calCourtName {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.calCourtMeta {
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.calMeter {
+  display: block;
+  height: 4px;
+  margin-top: 6px;
+  border-radius: 2px;
+  background: var(--sand);
+  overflow: hidden;
+}
+
+.calMeter span {
+  display: block;
+  height: 100%;
+  background: var(--turf);
+  border-radius: 2px;
+}
+
+.calHour {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background: #fff;
+  padding: 6px 10px 0 0;
+  text-align: right;
+  font: 500 12px var(--mono);
+  color: var(--ink-2);
+  border-top: 1px solid #efebe0;
+  font-variant-numeric: tabular-nums;
+}
+
+.calRowLine {
+  border-top: 1px solid #efebe0;
+  pointer-events: none;
+}
+
+.calColLine {
+  border-left: 1px solid #efebe0;
+  pointer-events: none;
+}
+
+.calPastShade {
+  background: rgba(237, 233, 221, 0.6);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Free slots */
+.calSlot {
+  margin: 3px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  z-index: 1;
+  font: 600 12.5px var(--body);
+  color: var(--turf-dark);
+}
+
+.calSlot span {
+  opacity: 0;
+}
+
+.calSlot:hover,
+.calSlot:focus-visible {
+  background: #eef6f1;
+}
+
+.calSlot:hover span,
+.calSlot:focus-visible span {
+  opacity: 1;
+}
+
+/* Bookings: colour carries one meaning, payment */
+.calBlock {
+  position: relative;
+  margin: 3px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 2px solid;
+  text-align: left;
+  font-family: var(--body);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.calBlockPaid {
+  background: #e6f2ea;
+  border-color: #b9d8c6;
+  color: #0c3d26;
+}
+
+.calBlockDue {
+  background: #f2fad0;
+  border-color: #c9e35a;
+  color: #34400a;
+}
+
+.calBlock:hover {
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+/* Finished: step back without losing contrast */
+.calBlockPlayed {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: var(--line);
+  color: var(--ink-2);
+}
+
+.calBlockPlayed .calCollect {
+  background: #eef3d8;
+  color: #34400a;
+}
+
+.calBlockName {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 18px;
+}
+
+.calBlockMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 8px;
+  font-size: 12.5px;
+}
+
+.calPrice {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.calCollect {
+  display: inline-block;
+  background: var(--flood);
+  color: var(--night);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 1px 6px;
   border-radius: 4px;
 }
 
-/* Settings */
-.settingsGrid {
-  display: grid;
-  gap: 20px;
-  max-width: 880px;
+.calWalkIn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 14px;
+  height: 14px;
+  color: currentColor;
+  opacity: 0.75;
 }
 
-.bandRow {
+/* The floodlit now line: runs under bookings so names stay readable,
+   with its time chip pinned in the hour column. */
+.calNow {
+  align-self: start;
+  height: 0;
+  border-top: 2px solid var(--night);
+  box-shadow: 0 0 0 3px rgba(212, 245, 60, 0.6);
+  transform: translateY(var(--now-offset, 0px));
+  z-index: 1;
+  pointer-events: none;
+}
+
+.calNowChip {
+  position: sticky;
+  left: 0;
+  align-self: start;
+  justify-self: end;
+  margin-right: 4px;
+  transform: translateY(calc(var(--now-offset, 0px) - 50%));
+  z-index: 6;
+  background: var(--flood);
+  color: var(--night);
+  font: 700 11.5px var(--mono);
+  padding: 3px 6px;
+  border-radius: 6px;
+  box-shadow: 0 0 0 2px var(--night);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 860px) {
+  .calKey {
+    margin-left: 0;
+    width: 100%;
+  }
+  .calDate {
+    font-size: 19px;
+  }
+}
+
+/* Settings */
+/* Prices and rules: the form beside what players will read */
+.rulesLayout {
   display: grid;
-  grid-template-columns: minmax(110px, 1.2fr) repeat(2, minmax(100px, 1fr)) minmax(110px, 1fr) 44px;
-  gap: 8px;
-  align-items: end;
-  margin-bottom: 8px;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+.rulesMain {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+
+.rulesAside {
+  display: grid;
+  gap: 16px;
+}
+
+@media (max-width: 1180px) {
+  .rulesLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* A sport's rates across the opening hours */
+.strip {
+  margin: 4px 0 18px;
+}
+
+.stripBar {
+  display: flex;
+  height: 58px;
+  border-radius: 4px;
+  overflow: hidden;
+  gap: 2px;
+  background: #fff;
+}
+
+.stripRun {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 10px;
+  color: var(--night);
+  overflow: hidden;
+}
+
+.stripDark {
+  color: var(--chalk);
+}
+
+.stripProblem {
+  color: #8a2a0c;
+  background-color: #fbe4dc;
+  background-image: repeating-linear-gradient(135deg, rgb(163 51 15 / 0.22) 0 2px, transparent 2px 7px);
+}
+
+.stripName {
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stripPrice {
+  font: 600 12px var(--mono);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.stripAxis {
+  position: relative;
+  height: 18px;
+  margin-top: 6px;
+  font: 500 11px var(--mono);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.stripAxis span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.stripAxis span:first-child {
+  transform: none;
+}
+
+.stripAxis span:last-child {
+  transform: translateX(-100%);
 }
 
 @media (max-width: 640px) {
-  .bandRow {
-    grid-template-columns: 1fr 1fr;
+  .stripAxis span:nth-child(even):not(:last-child) {
+    display: none;
   }
+}
+
+.stripIssues {
+  margin: -6px 0 16px;
+  padding-left: 18px;
+  color: #a3330f;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Rates: labels once, in the header */
+.rateTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12px;
+}
+
+.rateTable th {
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  padding: 0 8px 6px 0;
+}
+
+.rateTable td {
+  padding: 4px 8px 4px 0;
+  vertical-align: middle;
+}
+
+.rateTable th:nth-child(1) {
+  width: 32%;
+}
+
+.rateTable th:nth-child(4) {
+  width: 22%;
+}
+
+.rateTable th:last-child,
+.rateTable td:last-child {
+  width: 44px;
+  padding-right: 0;
+}
+
+.priceField {
+  position: relative;
+  display: block;
+}
+
+.priceField > span {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font: 600 14px var(--mono);
+  color: var(--ink-2);
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.priceField input {
+  padding-left: 40px;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .rateTable thead {
+    display: none;
+  }
+  .rateTable tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr 44px;
+    gap: 6px;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+  }
+  .rateTable td {
+    padding: 0;
+  }
+  .rateTable td:first-child {
+    grid-column: 1 / 3;
+  }
+  .rateTable td:nth-child(4) {
+    grid-column: 1 / 3;
+  }
+  .rateTable td:last-child {
+    grid-row: 1;
+    grid-column: 3;
+  }
+}
+
+.addRate {
+  margin-top: 2px;
+}
+
+.checkRow {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 16px;
+  font-weight: 600;
+}
+
+.checkRow input {
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  accent-color: var(--turf);
+  flex: none;
+}
+
+.checkRow > span {
+  display: grid;
+  gap: 2px;
+}
+
+.problems {
+  border: 1px solid #efc2b5;
+  background: #fdf1ec;
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+
+.problems ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #a3330f;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.unsaved {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+/* What players see: set like the venue page */
+.preview {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.previewSport {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.previewSport h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.previewSport dl {
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.previewSport dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.previewSport dt {
+  color: var(--ink-2);
+}
+
+.previewSport dd {
+  margin: 0;
+  font: 600 13px var(--mono);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.previewSport p {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.previewSport p + p {
+  margin-top: 6px;
+}
+
+.demoBox {
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
+.demoBox h2 {
+  font-size: 15px;
+  margin: 0;
+}
+
+.demoBox p {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+/* Venue profile */
+.photoCurrent {
+  display: grid;
+  gap: 12px;
+}
+
+.photoCurrent img {
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  display: block;
+}
+
+.photoActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dropZone {
+  width: 100%;
+  min-height: 170px;
+  display: grid;
+  place-content: center;
+  gap: 6px;
+  padding: 24px;
+  border: 2px dashed var(--line);
+  border-radius: 4px;
+  background: var(--sand);
+  color: var(--ink-2);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+.dropZone strong {
+  color: var(--night);
+  font-size: 16px;
+}
+
+.dropZone:hover,
+.dropZoneOn {
+  border-color: var(--turf);
+  background: #eef6f1;
+}
+
+.profileFields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+.profileWide {
+  grid-column: 1 / -1;
+}
+
+.profileText {
+  min-height: 112px;
+  padding-block: 10px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.facilityChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.facilityChip {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 2px solid var(--line);
+  background: #fff;
+  color: var(--ink-2);
+  font: 600 14px var(--body);
+  cursor: pointer;
+}
+
+.facilityChip:hover {
+  border-color: var(--night);
+}
+
+.facilityOn {
+  border-color: var(--turf);
+  background: #e6f2ea;
+  color: #0c3d26;
+}
+
+.facilityOn::before {
+  content: "✓ ";
+}
+
+.customFacility {
+  display: grid;
+  grid-template-columns: minmax(0, 280px) auto;
+  justify-content: start;
+  align-items: end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.mapTest {
+  justify-self: start;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--turf-dark);
+}
+
+.courtNames {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .profileFields {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* The live preview, built like the public venue page */
+.profilePreview {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.previewLabel {
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--line);
+}
+
+.previewHero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--night);
+  color: var(--chalk);
+  padding: 18px 16px 20px;
+}
+
+.previewPhoto {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+
+.previewGlass {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, rgb(15 31 24 / 0.88) 0%, rgb(15 31 24 / 0.7) 60%, rgb(15 31 24 / 0.52) 100%);
+  -webkit-backdrop-filter: blur(5px) saturate(1.15);
+  backdrop-filter: blur(5px) saturate(1.15);
+}
+
+.previewText {
+  display: grid;
+  gap: 4px;
+}
+
+.previewCrumb {
+  font-size: 11px;
+  color: var(--muted-dark);
+}
+
+.previewName {
+  font-family: var(--head);
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.previewAddress {
+  font-size: 13px;
+  color: var(--muted-dark);
+}
+
+.previewTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.previewTags span {
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid rgb(246 243 234 / 0.32);
+  background: rgb(246 243 234 / 0.14);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.previewBody {
+  padding: 14px 16px 16px;
+  display: grid;
+  gap: 6px;
+}
+
+.previewBody h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 6px 0 0;
+}
+
+.previewBody p,
+.previewBody li {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.previewBody ul {
+  margin: 0;
+  padding-left: 16px;
+  display: grid;
+  gap: 2px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .formRow {

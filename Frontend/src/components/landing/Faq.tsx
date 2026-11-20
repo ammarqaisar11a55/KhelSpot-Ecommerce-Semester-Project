@@ -1,7 +1,7 @@
 const QUESTIONS = [
   {
-    q: "Which cities are first?",
-    a: "Lahore and Karachi, where search interest in padel and indoor cricket is highest. Islamabad follows, then smaller cities where new indoor arenas are opening.",
+    q: "Where can I book?",
+    a: "Lahore for now, with courts in Johar Town, DHA, Gulberg and Model Town. Karachi is next, where search interest in padel is highest, then Islamabad. Join the waitlist below to hear when we reach your city.",
   },
   {
     q: "Do players pay anything extra?",

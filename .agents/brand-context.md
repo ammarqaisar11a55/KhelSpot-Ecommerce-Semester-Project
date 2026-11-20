@@ -20,6 +20,9 @@ Source: E-Commerce Assignment #1 project proposal (KhelSpot), Fall 2026.
 - **Competitors**: Turfy (venue OS, Lahore, Rs 0 limited / PKR 4,500 Pro, no online payments yet), Now V Play (multi-sport plus e-gaming, Lahore, discount-led), PlayPro (padel community, 7 cities, refund complaints and app bugs). Also Playra, SportsNow, Poncho, Playtomic, Padel Club PK, On Spot.
 - **Market Position**: Value: affordable and dependable, booking first.
 
+## Brand Kit
+- **Guidelines**: Brand guidelines v1.0 (Nov 2026), "KhelSpot brand kit" project in Claude Design. Tagline "Find it. Book it. Play." Spot logo; Turf #1F7A4D, Ink #111513, Chalk #F3F2EC, Floodlight #D4F53C, Tape Orange #FF5B1F; Big Shoulders + Archivo. Summary in brand/BRAND.md section 4.
+
 ## Brand Personality
 - **Personality Words**: straightforward, quick, local, fair, game-ready
 - **Tone**: Casual and direct. Lightly playful, never jokey about money or refunds.

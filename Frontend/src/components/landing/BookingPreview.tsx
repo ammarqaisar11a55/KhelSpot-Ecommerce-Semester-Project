@@ -7,6 +7,7 @@ import {
   PEAK_RATE,
   SLOTS,
   formatRupees,
+  cancelBy,
   longTime,
   rateFor,
   type DayKey,
@@ -109,7 +110,7 @@ export function BookingPreview() {
           <p className="booker__when">
             {day} {date} · {longTime(slot)} · 1 hr
           </p>
-          <p className="booker__rule">Free cancellation up to 6 hours before</p>
+          <p className="booker__rule">Free cancellation until {cancelBy(slot)}</p>
         </div>
         <p className="booker__price">{formatRupees(rateFor(slot))}</p>
       </div>
@@ -118,10 +119,10 @@ export function BookingPreview() {
         type="button"
         className="btn btn--accent btn--block"
         onClick={() =>
-          setToast(`This is a preview. At launch, ${day} ${longTime(slot)} would now be confirmed and sent to your WhatsApp.`)
+          setToast(`Preview only. At launch: Booked, ${day} ${longTime(slot)}. Confirmation on WhatsApp in a minute.`)
         }
       >
-        Pay and confirm
+        Pay &amp; book
       </button>
       <p className="booker__pay">JazzCash · Easypaisa · Card</p>
       <p className="booker__toast" role="status" aria-live="polite">

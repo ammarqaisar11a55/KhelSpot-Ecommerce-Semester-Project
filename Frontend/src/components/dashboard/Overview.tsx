@@ -5,13 +5,14 @@ import { useMemo, useState } from "react";
 import { StatusBadge } from "@/components/player/StatusBadge";
 import ui from "@/components/ui/ui.module.css";
 import { formatRupees } from "@/lib/domain/pricing";
-import { addDays, dateRange, formatDay, formatHour, isPast, parseISODate, relativeDay, toISODate } from "@/lib/domain/time";
-import { SPORT_LABEL, type Booking } from "@/lib/domain/types";
+import { addDays, dateRange, formatDay, formatHour, operatingNow, parseISODate, relativeDay, toISODate } from "@/lib/domain/time";
+import type { Booking } from "@/lib/domain/types";
 import { bookingsFor, isActive, isFinished } from "@/lib/store/queries";
 import { AddBookingDialog, type AddBookingPreset } from "./AddBookingDialog";
 import { BookingDialog } from "./BookingDialog";
 import d from "./dashboard.module.css";
 import { RevenueChart } from "./RevenueChart";
+import { TonightBoard } from "./TonightBoard";
 import { useOwnerVenue } from "./useOwnerVenue";
 
 export function Overview() {
@@ -46,8 +47,6 @@ export function Overview() {
 
     return {
       todays,
-      todayLeft: todays.filter((b) => !isPast(b.date, b.start, now)).length,
-      todayRevenue: todays.reduce((s, b) => s + b.price, 0),
       monthRevenue,
       occupancy: openHours ? Math.round((bookedHours / openHours) * 100) : 0,
       chart,
@@ -61,6 +60,8 @@ export function Overview() {
   const selected: Booking | null = stats.all.find((b) => b.id === selectedId) ?? null;
   const hour = now.getHours();
   const greeting = hour < 5 || hour >= 17 ? "Good evening" : hour < 12 ? "Good morning" : "Good afternoon";
+  const operating = operatingNow(now);
+  const nowHour = operating.date === today ? operating.hour : null;
 
   return (
     <>
@@ -72,7 +73,7 @@ export function Overview() {
           </p>
         </div>
         <div className={ui.buttonRow}>
-          <button type="button" className="btn btn--accent" onClick={() => setAdding({ date: today })}>
+          <button type="button" className={ui.btnDark} onClick={() => setAdding({ date: today })}>
             Add a booking
           </button>
           <Link className={ui.btnLight} href="/dashboard/calendar">
@@ -81,32 +82,40 @@ export function Overview() {
         </div>
       </div>
 
-      <div className={d.kpis}>
-        <div className={d.kpi}>
-          <span className={d.kpiLabel}>Bookings today</span>
-          <span className={d.kpiValue}>{stats.todays.length}</span>
-          <span className={d.kpiNote}>{stats.todayLeft} still to start</span>
+      <TonightBoard
+        venue={venue}
+        today={today}
+        bookings={stats.todays}
+        now={now}
+        nowHour={nowHour}
+        onSelect={setSelectedId}
+        onAdd={setAdding}
+      />
+
+      <div className={d.ledger}>
+        <div className={d.ledgerItem}>
+          <span className={d.ledgerLabel}>Revenue this month</span>
+          <span className={d.ledgerValue}>{formatRupees(stats.monthRevenue)}</span>
+          <span className={d.ledgerNote}>From confirmed bookings since the 1st</span>
         </div>
-        <div className={d.kpi}>
-          <span className={d.kpiLabel}>Revenue today</span>
-          <span className={d.kpiValue}>{formatRupees(stats.todayRevenue)}</span>
-          <span className={d.kpiNote}>Confirmed bookings</span>
+        <div className={d.ledgerItem}>
+          <span className={d.ledgerLabel}>Courts booked, last 7 days</span>
+          <span className={d.ledgerValue}>{stats.occupancy}%</span>
+          <span className={d.meter} aria-hidden="true">
+            <span style={{ width: `${Math.min(stats.occupancy, 100)}%` }} />
+          </span>
+          <span className={d.ledgerNote}>Of the hours your courts were open</span>
         </div>
-        <div className={d.kpi}>
-          <span className={d.kpiLabel}>Revenue this month</span>
-          <span className={d.kpiValue}>{formatRupees(stats.monthRevenue)}</span>
-          <span className={d.kpiNote}>Since the 1st</span>
-        </div>
-        <div className={d.kpi}>
-          <span className={d.kpiLabel}>Courts booked, last 7 days</span>
-          <span className={d.kpiValue}>{stats.occupancy}%</span>
-          <span className={d.kpiNote}>Of open court-hours</span>
-        </div>
-        <div className={d.kpi}>
-          <span className={d.kpiLabel}>To collect at the counter</span>
-          <span className={d.kpiValue}>{formatRupees(stats.unpaidTotal)}</span>
-          <span className={d.kpiNote}>
-            {stats.unpaidCount} upcoming {stats.unpaidCount === 1 ? "booking" : "bookings"} unpaid
+        <div className={d.ledgerItem}>
+          <span className={d.ledgerLabel}>
+            <i className={d.keyBoardCollect} aria-hidden="true" />
+            To collect at the counter
+          </span>
+          <span className={d.ledgerValue}>{formatRupees(stats.unpaidTotal)}</span>
+          <span className={d.ledgerNote}>
+            {stats.unpaidCount === 0
+              ? "Every upcoming booking is paid"
+              : `${stats.unpaidCount} upcoming ${stats.unpaidCount === 1 ? "booking is" : "bookings are"} unpaid`}
           </span>
         </div>
       </div>
@@ -132,18 +141,25 @@ export function Overview() {
                     <button type="button" className={`${d.rowBtn} ${d.listItem}`} onClick={() => setSelectedId(b.id)}>
                       <span className={d.listTime}>
                         {formatHour(b.start)}
-                        <br />
-                        <span className={d.listSub}>{relativeDay(b.date, today)}</span>
+                        {b.date !== today && (
+                          <>
+                            <br />
+                            <span className={d.listSub}>{relativeDay(b.date, today)}</span>
+                          </>
+                        )}
                       </span>
                       <span className={d.listMain}>
                         <span className={d.listName} style={{ display: "block" }}>
                           {b.customer.name}
                         </span>
                         <span className={d.listSub}>
-                          {court?.name} · {court && SPORT_LABEL[court.sport]} · {b.hours} hr
+                          {court?.name}, {b.hours} {b.hours === 1 ? "hour" : "hours"}
                         </span>
                       </span>
-                      <StatusBadge booking={b} now={now} owner />
+                      <span className={d.listEnd}>
+                        {formatRupees(b.price)}
+                        {!b.paid && <StatusBadge booking={b} now={now} owner />}
+                      </span>
                     </button>
                   </li>
                 );
