@@ -75,6 +75,42 @@
 .msg--seen { align-self: flex-end; font-family: var(--mono); font-size: 12px; color: var(--ink-2); padding: 0 4px; font-variant-numeric: tabular-nums; }
 @media (max-width: 860px) { .problem { padding: 64px 0; } .problem__grid { grid-template-columns: 1fr; gap: 32px; } }
 
+/* Booked: the confirmation players get, right after the WhatsApp back-and-forth */
+.booked { background: var(--night); color: var(--chalk); padding: 96px 0; }
+.booked__grid { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: 64px; align-items: center; }
+.booked h2 { margin-bottom: 18px; }
+.booked .lead { color: var(--muted-dark); }
+.booked__list { list-style: none; padding: 0; margin: 28px 0 0; display: grid; }
+.booked__list li { display: grid; gap: 4px; padding: 16px 0 16px 22px; border-top: 1px solid var(--night-line); position: relative; }
+.booked__list li:last-child { border-bottom: 1px solid var(--night-line); }
+.booked__list li::before { content: ""; position: absolute; left: 0; top: 23px; width: 9px; height: 9px; border-radius: 50%; background: var(--flood); }
+.booked__list b { font-size: 17px; }
+.booked__list span { font-size: 15px; color: var(--muted-dark); }
+.booked__sms { margin: 18px 0 26px; font-size: 15px; color: var(--chalk); }
+
+.phone {
+  margin: 0; justify-self: center; width: min(100%, 370px);
+  border: 3px solid var(--night-line); border-radius: 30px; overflow: hidden;
+  background: #e6e5de; color: var(--night);
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .7);
+}
+.phone__bar { display: flex; align-items: center; gap: 12px; padding: 16px 18px; background: var(--turf); color: var(--chalk); }
+.phone__bar b { display: block; font-size: 16px; }
+.phone__bar small { display: block; font-size: 12.5px; color: #cfe3d7; }
+.phone__avatar { width: 38px; height: 38px; flex: 0 0 38px; }
+.phone__chat { display: grid; gap: 10px; padding: 16px 14px 18px; }
+.bubble { background: #fff; border-radius: 8px 8px 8px 2px; padding: 12px 14px 8px; display: grid; gap: 5px; font-size: 14.5px; line-height: 1.4; max-width: 92%; }
+.bubble__status { font-weight: 700; }
+.bubble__link { color: var(--turf); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.bubble__time { justify-self: end; font-size: 11.5px; color: var(--ink-2); }
+.bubble--flood { background: var(--flood); }
+.bubble--flood .bubble__time { color: #34400a; }
+@media (max-width: 900px) {
+  .booked { padding: 64px 0; }
+  .booked__grid { grid-template-columns: 1fr; gap: 40px; }
+  .booked__copy { order: -1; }
+}
+
 /* How */
 .how { padding: 96px 0; }
 .steps { list-style: none; padding: 0; margin: 48px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; counter-reset: none; }
@@ -187,23 +223,43 @@
   .promise, .promise:nth-child(even) { padding: 24px 0; border-left: 0; }
 }
 
-/* Venues */
-.venues { background: var(--turf-dark); color: var(--chalk); padding: 96px 0; }
-.venues .eyebrow { color: var(--flood); }
-.venues .lead { color: #CFE3D7; margin-top: 18px; }
-.venues__grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 56px; align-items: center; }
-.ticks { list-style: none; padding: 0; margin: 28px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 24px; }
-.ticks li { display: flex; gap: 10px; font-size: 16px; }
-.ticks li::before { content: ""; flex: 0 0 18px; height: 10px; margin-top: 6px; border-left: 2.5px solid var(--flood); border-bottom: 2.5px solid var(--flood); transform: rotate(-45deg) scale(.7); }
-.price { background: var(--chalk); color: var(--night); border-radius: 8px; padding: 32px; }
-.price__name { font-family: var(--mono); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--turf-dark); font-variant-numeric: tabular-nums; }
-.price__amount { margin: 12px 0 4px; font-size: 18px; color: var(--ink-2); }
-.price__amount span { font-family: var(--head); font-weight: 800; font-size: 56px; letter-spacing: 0.01em; color: var(--night); text-transform: none /* keep 'Rs' as written */; font-variant-numeric: tabular-nums; }
-.price__trial { font-weight: 700; }
-.price__compare { font-size: 15px; color: var(--ink-2); margin: 14px 0 24px; padding-top: 14px; border-top: 1px solid var(--line); }
-.price__small { font-size: 13px; color: var(--ink-2); text-align: center; margin-top: 12px; }
-@media (max-width: 900px) { .venues { padding: 64px 0; } .venues__grid { grid-template-columns: 1fr; gap: 40px; } }
-@media (max-width: 560px) { .ticks { grid-template-columns: 1fr; } .price { padding: 24px; } }
+/* Owners: the brand-kit venue-owner flyer on an Ink closing section. The flyer keeps its
+   Turf header (Turf leads; Turf on Ink is what gives the card its shape). */
+.owners { background: var(--night); color: var(--chalk); padding: 96px 0; }
+.owners__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 470px); gap: 64px; align-items: center; }
+.owners__pitch { font: 700 22px/1.3 var(--body); color: var(--chalk); max-width: 34ch; } /* kit: Subhead */
+.owners__facts { margin: 32px 0 28px; display: grid; }
+.owners__facts div { display: grid; grid-template-columns: 150px 1fr; gap: 20px; align-items: baseline; padding: 16px 0; border-top: 2px solid var(--night-line); }
+.owners__facts div:last-child { border-bottom: 2px solid var(--night-line); }
+.owners__facts dt { font: 800 40px/1 var(--head); text-transform: uppercase; letter-spacing: .01em; color: var(--flood); font-variant-numeric: tabular-nums; } /* kit: Heading, figures only; Floodlight on Ink 14.8:1 */
+.owners__facts dd { margin: 0; color: var(--muted-dark); font: 400 16px/1.55 var(--body); } /* kit: Body */
+.owners__signin { font-weight: 700; color: var(--chalk); text-decoration: underline; text-decoration-color: var(--flood); text-decoration-thickness: 2px; text-underline-offset: 4px; display: inline-flex; min-height: 44px; align-items: center; }
+.owners__signin:hover { color: var(--flood); }
+
+.flyer { background: var(--chalk); outline: 2px solid var(--night-line); outline-offset: 0; } /* keeps the Ink footer distinct on the Ink section */
+.flyer__head { background: var(--turf); color: var(--chalk); padding: 30px 32px 34px; }
+.flyer__label { font: 700 12px var(--body); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 14px; }
+.flyer__head h2 { font-size: clamp(40px, 4.4vw, 54px); line-height: .88; max-width: none; }
+.flyer__list { list-style: none; margin: 0; padding: 14px 32px 18px; }
+.flyer__list li { display: grid; grid-template-columns: 46px 1fr; align-items: baseline; gap: 4px; padding: 11px 0; font-weight: 700; font-size: 16px; color: var(--night); }
+.flyer__list li + li { border-top: 1px solid var(--line); }
+.flyer__num { font: 800 26px/1 var(--head); color: var(--turf); font-variant-numeric: tabular-nums; }
+.flyer__price { background: var(--flood); color: var(--night); padding: 20px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; }
+.flyer__amount { font-size: 17px; font-weight: 700; }
+.flyer__amount span { font: 800 clamp(48px, 5vw, 64px)/.9 var(--head); text-transform: none; font-variant-numeric: tabular-nums; margin-right: 4px; }
+.flyer__free { font: 800 15px/1.15 var(--body); letter-spacing: .12em; text-transform: uppercase; max-width: 9em; }
+.flyer__foot { background: var(--night); color: var(--chalk); padding: 22px 32px 26px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.flyer__cta-line { font-weight: 700; font-size: 16px; margin-bottom: 12px; }
+.flyer__mark { width: 52px; height: 52px; flex: 0 0 52px; }
+@media (max-width: 960px) {
+  .owners { padding: 64px 0; }
+  .owners__grid { grid-template-columns: 1fr; gap: 40px; }
+  .flyer { max-width: 520px; }
+}
+@media (max-width: 520px) {
+  .owners__facts div { grid-template-columns: 1fr; gap: 4px; }
+  .flyer__head, .flyer__list, .flyer__price, .flyer__foot { padding-left: 20px; padding-right: 20px; }
+}
 
 /* FAQ */
 .faq { padding: 96px 0; }
@@ -217,28 +273,6 @@ summary::after { content: "+"; position: absolute; right: 4px; top: 16px; font-f
 details[open] summary::after { content: "–"; }
 details p { padding: 0 0 20px; color: var(--ink-2); max-width: 64ch; }
 @media (max-width: 760px) { .faq { padding: 64px 0; } }
-
-/* Join */
-.join { background: var(--night); color: var(--chalk); padding: 96px 0; }
-.join__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: start; }
-.join .lead { margin-top: 18px; }
-.form { background: var(--night-2); border: 1px solid var(--night-line); border-radius: 8px; padding: 28px; display: grid; gap: 16px; }
-.form__role { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.form__role label { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border: 2px solid var(--night-line); border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 15px; }
-.form__role label:has(input:checked) { border-color: var(--flood); background: rgba(212, 245, 60,.08); }
-.form__role input { accent-color: var(--flood); }
-.field { display: grid; gap: 6px; font-size: 14px; font-weight: 600; color: var(--muted-dark); }
-.field[hidden] { display: none; }
-.field input, .field select {
-  min-height: 48px; border-radius: 4px; border: 2px solid var(--night-line); background: var(--night);
-  color: var(--chalk); font: 500 16px var(--body); padding: 0 14px; width: 100%;
-}
-.field input::placeholder { color: #7D8F85; }
-.field input[aria-invalid="true"], .field select[aria-invalid="true"] { border-color: #FF8A6B; }
-.form__msg { font-size: 15px; min-height: 0; }
-.form__msg.is-error { color: #FF9C82; }
-.form__msg.is-ok { color: var(--flood); font-weight: 600; }
-@media (max-width: 860px) { .join { padding: 64px 0; } .join__grid { grid-template-columns: 1fr; gap: 32px; } .form { padding: 20px; } }
 
 /* Footer */
 .footer { background: var(--night); border-top: 1px solid var(--night-line); color: var(--muted-dark); padding: 32px 0 40px; }
@@ -266,18 +300,16 @@ details p { padding: 0 0 20px; color: var(--ink-2); max-width: 64ch; }
 
 /* Chat panel: white card with a heavy border, so it stands off the sand section */
 .kit .chat { border-radius: 8px; background: #fff; border: 2px solid var(--line); }
-/* Floodlight on Turf is for headlines only (4.3:1), so small labels on Turf use Chalk */
-.kit .venues .eyebrow { color: var(--chalk); }
 
 /* Sports and plan cards follow the square-cornered system */
 .kit .sportTile { border-radius: 8px; }
 .kit .sportTile__chip, .kit .sportTile__panel { border-radius: 6px; }
-.kit .price { border-radius: 8px; border: 2px solid var(--night); }
-.kit .form { border-radius: 8px; }
-.kit .form__role label { border-radius: 999px; border-width: 2px; }
-.kit .field input, .kit .field select { border-radius: 4px; border-width: 2px; }
 .kit .chart { border-radius: 8px; }
 .kit .sport, .kit .promise h3, .kit .steps li { border-color: var(--night); }
 .kit .steps li { border-top-width: 3px; }
 .kit .footer__brand { display: grid; gap: 8px; }
 .kit .footer__tag { font-family: var(--head); font-weight: 800; font-size: 20px; text-transform: uppercase; letter-spacing: 0.02em; color: var(--chalk); }
+.kit .footer__links { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+.kit .footer__links a { color: var(--chalk); text-decoration: none; font-weight: 600; font-size: 15px; min-height: 44px; display: inline-flex; align-items: center; }
+.kit .footer__links a:hover { color: var(--flood); }
+.kit .footer__legal { width: 100%; font-size: 13px; color: var(--muted-dark); }

@@ -1,3 +1,5 @@
+import { cacheLife } from "next/cache";
+import Link from "next/link";
 import { SpotLogo } from "@/components/brand/SpotLogo";
 
 export function SiteFooter() {
@@ -10,11 +12,21 @@ export function SiteFooter() {
           </a>
           <p className="footer__tag">Find it. Book it. Play.</p>
         </div>
-        <p>
-          Semester project for E-Commerce, The University of Lahore, Fall 2026. KhelSpot is not live yet, and the
-          booking preview uses sample data.
-        </p>
+        <nav className="footer__links" aria-label="Footer">
+          <Link href="/venues">Find courts</Link>
+          <Link href="/bookings">My bookings</Link>
+          <Link href="/owners/signup">List your venue</Link>
+          <Link href="/owners/login">Venue sign in</Link>
+        </nav>
+        <p className="footer__legal">© <CopyrightYear /> KhelSpot. Lahore, Pakistan.</p>
       </div>
     </footer>
   );
+}
+
+/** The current year, cached so the footer can still be prerendered; refreshes daily. */
+async function CopyrightYear() {
+  "use cache";
+  cacheLife("days");
+  return <>{new Date().getFullYear()}</>;
 }

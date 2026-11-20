@@ -1,7 +1,7 @@
 const QUESTIONS = [
   {
     q: "Where can I book?",
-    a: "Lahore for now, with courts in Johar Town, DHA, Gulberg and Model Town. Karachi is next, where search interest in padel is highest, then Islamabad. Join the waitlist below to hear when we reach your city.",
+    a: "Lahore for now, with courts in Johar Town, DHA, Gulberg and Model Town. Karachi is next, where search interest in padel is highest, then Islamabad.",
   },
   {
     q: "Do players pay anything extra?",

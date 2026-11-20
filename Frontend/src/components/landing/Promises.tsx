@@ -12,8 +12,8 @@ const PROMISES = [
     body: "Pick your area of Lahore and your sport, and skip the courts on the other side of town.",
   },
   {
-    title: "Confirmation on WhatsApp",
-    body: "Venue, court, time, what you paid and your booking ID, by WhatsApp with SMS as backup. Show it at the gate.",
+    title: "No booking fee",
+    body: "You pay the court's own rate and nothing on top. Venues pay for KhelSpot through their monthly plan.",
   },
 ];
 
