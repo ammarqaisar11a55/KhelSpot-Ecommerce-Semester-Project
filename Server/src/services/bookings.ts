@@ -9,6 +9,24 @@ import type { newBooking, walkInBooking } from "../http/schemas.ts";
 import { bookingInclude, isoToDate, toBooking } from "./mappers.ts";
 import { getVenueById } from "./venues.ts";
 
+/** How long an online-payment hold keeps a slot before it's released. */
+export const HOLD_MS = 10 * 60_000;
+
+/** Confirmed bookings and unexpired payment holds both block a slot. */
+export const blocksSlot = (b: Pick<Booking, "status">) => b.status !== "cancelled";
+
+/**
+ * Releases payment holds that ran out. Called before every read and write that
+ * depends on availability, so an expired hold never blocks a slot or a new booking
+ * (the booking_no_overlap constraint counts every row that isn't cancelled).
+ */
+export async function sweepExpiredHolds(db: DB, now: Date) {
+  await db.booking.updateMany({
+    where: { status: "pending_payment", holdExpiresAt: { lte: now } },
+    data: { status: "cancelled", cancelledAt: now, refund: 0 },
+  });
+}
+
 // ---------- availability ----------
 
 export type SlotStatus = "free" | "booked" | "past" | "no-rate";
@@ -33,7 +51,7 @@ function overlaps(b: Pick<Booking, "start" | "hours">, start: Hour, hours: numbe
 
 export function slotsFor(venue: Venue, court: Court, bookings: Booking[], date: ISODate, now: Date): Slot[] {
   const bands = venue.pricing[court.sport];
-  const taken = bookings.filter((b) => b.courtId === court.id && b.status === "confirmed");
+  const taken = bookings.filter((b) => b.courtId === court.id && blocksSlot(b));
   const out: Slot[] = [];
   for (let h = venue.openHour; h < venue.closeHour; h++) {
     const band: RateBand | undefined = rateAt(bands, h);
@@ -58,6 +76,7 @@ export async function bookingsOn(db: DB, venueId: string, from: ISODate, to: ISO
 export async function availability(db: DB, venue: Venue, date: ISODate, now: Date, courtId?: string) {
   const courts = venue.courts.filter((c) => !courtId || c.id === courtId);
   if (courtId && !courts.length) throw notFound("Court");
+  await sweepExpiredHolds(db, now);
   const bookings = await bookingsOn(db, venue.id, date);
   return {
     venueId: venue.id,
@@ -76,8 +95,18 @@ export async function availability(db: DB, venue: Venue, date: ISODate, now: Dat
 const REF_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const makeRef = () => `KS-${Array.from({ length: 5 }, () => REF_ALPHABET[randomInt(REF_ALPHABET.length)]).join("")}`;
 
-type NewBooking = z.infer<typeof newBooking> & { source: "online" | "walk-in"; paid?: boolean };
+type NewBooking = Omit<z.infer<typeof newBooking>, "returnUrl"> & {
+  source: "online" | "walk-in";
+  paid?: boolean;
+  /** Online payment only: provider that will take the payment, and where to send the player after. */
+  paymentProvider?: string;
+  returnUrl?: string | null;
+};
 
+/**
+ * Online bookings paid by JazzCash, Easypaisa or card start as a pending_payment
+ * hold for HOLD_MS. Cash bookings, and walk-ins added by the venue, are confirmed at once.
+ */
 export async function createBooking(db: DB, input: NewBooking, now: Date): Promise<Booking> {
   const venue = await getVenueById(db, input.venueId);
   const court = venue.courts.find((c) => c.id === input.courtId);
@@ -98,6 +127,7 @@ export async function createBooking(db: DB, input: NewBooking, now: Date): Promi
   const price = priceFor(venue.pricing[court.sport], input.start, input.hours);
   if (price === null) throw badRequest("NO_RATE", "There's no rate set for part of that time.");
 
+  const hold = input.source === "online" && input.payment !== "cash";
   const slotTaken = () =>
     conflict(
       "SLOT_TAKEN",
@@ -106,12 +136,14 @@ export async function createBooking(db: DB, input: NewBooking, now: Date): Promi
         : "Someone booked this slot a moment ago. Please pick another time.",
     );
 
+  await sweepExpiredHolds(db, now);
+
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       const row = await db.$transaction(async (tx) => {
         // Friendly check first; the booking_no_overlap constraint is the real guard against races.
         const sameDay = await tx.booking.findMany({
-          where: { courtId: court.id, date: isoToDate(input.date), status: "confirmed" },
+          where: { courtId: court.id, date: isoToDate(input.date), status: { not: "cancelled" } },
           select: { startHour: true, hours: true },
         });
         if (sameDay.some((b) => overlaps({ start: b.startHour, hours: b.hours }, input.start, input.hours))) {
@@ -133,8 +165,21 @@ export async function createBooking(db: DB, input: NewBooking, now: Date): Promi
             hours: input.hours,
             price,
             payment: input.payment,
-            paid: input.payment !== "cash" || input.paid === true,
             source: input.source === "walk-in" ? "walk_in" : "online",
+            createdAt: now,
+            ...(hold
+              ? {
+                  status: "pending_payment",
+                  paid: false,
+                  holdExpiresAt: new Date(now.getTime() + HOLD_MS),
+                  paymentProvider: input.paymentProvider ?? null,
+                  returnUrl: input.returnUrl ?? null,
+                }
+              : {
+                  status: "confirmed",
+                  // Walk-ins paid by JazzCash/Easypaisa/card were paid at the counter.
+                  paid: input.payment !== "cash" || input.paid === true,
+                }),
           },
           include: bookingInclude,
         });
@@ -155,6 +200,40 @@ export function createWalkIn(db: DB, input: z.infer<typeof walkInBooking>, now: 
   return createBooking(db, { ...input, source: "walk-in" }, now);
 }
 
+// ---------- payment results ----------
+
+export interface PaymentOutcome {
+  booking: Booking;
+  /** Allow-listed URL to send the player back to, if they gave one. */
+  returnUrl: string | null;
+}
+
+/** Provider says the hold was paid. Idempotent; a hold that already expired stays cancelled. */
+export async function confirmPayment(db: DB, ref: string, now: Date): Promise<PaymentOutcome> {
+  await sweepExpiredHolds(db, now);
+  const row = await findByRef(db, ref);
+  if (row.status !== "pending_payment") return { booking: toBooking(row), returnUrl: row.returnUrl };
+  const updated = await db.booking.update({
+    where: { id: row.id },
+    data: { status: "confirmed", paid: true, holdExpiresAt: null },
+    include: bookingInclude,
+  });
+  return { booking: toBooking(updated), returnUrl: row.returnUrl };
+}
+
+/** Provider says the payment failed or the player gave up: release the hold. */
+export async function failPayment(db: DB, ref: string, now: Date): Promise<PaymentOutcome> {
+  await sweepExpiredHolds(db, now);
+  const row = await findByRef(db, ref);
+  if (row.status !== "pending_payment") return { booking: toBooking(row), returnUrl: row.returnUrl };
+  const updated = await db.booking.update({
+    where: { id: row.id },
+    data: { status: "cancelled", cancelledAt: now, refund: 0 },
+    include: bookingInclude,
+  });
+  return { booking: toBooking(updated), returnUrl: row.returnUrl };
+}
+
 // ---------- reading and changing ----------
 
 async function findByRef(db: DB, ref: string) {
@@ -163,15 +242,37 @@ async function findByRef(db: DB, ref: string) {
   return row;
 }
 
-/** Without accounts yet, a player proves a booking is theirs with the phone number used to book it. */
-export async function getPlayerBooking(db: DB, ref: string, phone: string): Promise<Booking> {
+/** Without an account, a player proves a booking is theirs with the phone number used to book it. */
+export async function getPlayerBooking(db: DB, ref: string, phone: string, now: Date): Promise<Booking> {
+  await sweepExpiredHolds(db, now);
   const row = await findByRef(db, ref);
   if (row.customer.phone !== phone) throw notFound("Booking");
   return toBooking(row);
 }
 
-export async function getBooking(db: DB, ref: string): Promise<Booking> {
+export async function getBooking(db: DB, ref: string, now: Date): Promise<Booking> {
+  await sweepExpiredHolds(db, now);
   return toBooking(await findByRef(db, ref));
+}
+
+/** venueId of a booking, for owner access checks. */
+export async function bookingVenueId(db: DB, ref: string): Promise<string> {
+  const row = await db.booking.findUnique({ where: { ref: ref.toUpperCase() }, select: { venueId: true } });
+  if (!row) throw notFound("Booking");
+  return row.venueId;
+}
+
+export type MyBooking = Booking & { venue: { id: string; slug: string; name: string; area: string } };
+
+/** Everything booked with this phone number, newest first, cancelled included. */
+export async function myBookings(db: DB, phone: string, now: Date): Promise<MyBooking[]> {
+  await sweepExpiredHolds(db, now);
+  const rows = await db.booking.findMany({
+    where: { customer: { phone } },
+    include: { ...bookingInclude, venue: { select: { id: true, slug: true, name: true, area: true } } },
+    orderBy: [{ date: "desc" }, { startHour: "desc" }],
+  });
+  return rows.map((r) => ({ ...toBooking(r), venue: r.venue }));
 }
 
 export async function cancelBooking(
@@ -180,16 +281,22 @@ export async function cancelBooking(
   by: { kind: "player"; phone: string } | { kind: "owner" },
   now: Date,
 ): Promise<Booking> {
+  await sweepExpiredHolds(db, now);
   const row = await findByRef(db, ref);
   if (by.kind === "player" && row.customer.phone !== by.phone) throw notFound("Booking");
   if (row.status === "cancelled") throw conflict("ALREADY_CANCELLED", "This booking is already cancelled.");
 
   const booking = toBooking(row);
-  const venue = await getVenueById(db, row.venueId);
-  const quote = refundQuote(booking, venue.cancellation, now);
-  if (!quote.canCancel) throw conflict("STARTED", quote.reason);
-  // Venues cancelling refund in full; players get what the policy allows.
-  const refund = by.kind === "owner" ? (booking.paid ? booking.price : 0) : quote.amount;
+  let refund: number;
+  if (row.status === "pending_payment") {
+    refund = 0; // nothing was paid yet
+  } else {
+    const venue = await getVenueById(db, row.venueId);
+    const quote = refundQuote(booking, venue.cancellation, now);
+    if (!quote.canCancel) throw conflict("STARTED", quote.reason);
+    // Venues cancelling refund in full; players get what the policy allows.
+    refund = by.kind === "owner" ? (booking.paid ? booking.price : 0) : quote.amount;
+  }
 
   const updated = await db.booking.update({
     where: { id: row.id },
@@ -199,19 +306,31 @@ export async function cancelBooking(
   return toBooking(updated);
 }
 
-export async function markPaid(db: DB, ref: string): Promise<Booking> {
+export async function markPaid(db: DB, ref: string, now: Date): Promise<Booking> {
+  await sweepExpiredHolds(db, now);
   const row = await findByRef(db, ref);
   if (row.status === "cancelled") throw conflict("CANCELLED", "This booking was cancelled.");
+  if (row.status === "pending_payment") {
+    throw conflict("PENDING_PAYMENT", "The player is paying online right now. Wait for the payment to finish.");
+  }
   const updated = await db.booking.update({ where: { id: row.id }, data: { paid: true }, include: bookingInclude });
   return toBooking(updated);
 }
 
 // ---------- owner views ----------
 
-export async function venueBookings(db: DB, venueId: string, from: ISODate, to: ISODate, status?: Booking["status"]) {
+export async function venueBookings(
+  db: DB,
+  venueId: string,
+  from: ISODate,
+  to: ISODate,
+  now: Date,
+  status?: Booking["status"],
+) {
   if (to < from) throw badRequest("BAD_RANGE", "`to` must be on or after `from`.");
   if (dateRange(from, to).length > 92) throw badRequest("BAD_RANGE", "Ask for 92 days or fewer at a time.");
   await getVenueById(db, venueId);
+  await sweepExpiredHolds(db, now);
   const list = await bookingsOn(db, venueId, from, to);
   return status ? list.filter((b) => b.status === status) : list;
 }

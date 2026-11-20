@@ -1,7 +1,8 @@
-// Seeds the Lahore launch venues. Safe to run again: venues, courts and rates
-// are upserted from seed-data.ts; bookings and customers are never touched.
-import "../src/env.ts";
+// Seeds the Lahore launch venues and their owners. Safe to run again: venues,
+// courts and rates are upserted from seed-data.ts; bookings and customers are never touched.
+import { config } from "../src/env.ts";
 import { createDb } from "../src/db.ts";
+import { phone } from "../src/http/schemas.ts";
 import type { Sport } from "../src/domain/types.ts";
 import { VENUES } from "./seed-data.ts";
 
@@ -45,4 +46,33 @@ for (const v of VENUES) {
   console.log(`Seeded ${v.name} (${v.courts.length} courts)`);
 }
 
+// Venue owners from OWNER_PHONES, e.g. "v-baseline:03001112233,v-crease:03002223344".
+// Adds links; never removes ones added another way.
+const owners = parseOwnerPhones(config.ownerPhones);
+for (const { venueId, phone } of owners) {
+  await db.venueOwner.upsert({
+    where: { phone_venueId: { phone, venueId } },
+    update: {},
+    create: { phone, venueId },
+  });
+  console.log(`Owner ${phone} -> ${venueId}`);
+}
+if (!owners.length) console.log("No OWNER_PHONES set, so no venue owners were added.");
+
 await db.$disconnect();
+
+function parseOwnerPhones(raw: string) {
+  const known = new Set(VENUES.map((v) => v.id));
+  return raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const [venueId, rawPhone] = entry.split(":").map((s) => s?.trim());
+      const parsed = phone.safeParse(rawPhone ?? "");
+      if (!venueId || !known.has(venueId) || !parsed.success) {
+        throw new Error(`OWNER_PHONES entry "${entry}" should look like v-baseline:03001112233 with a known venue id.`);
+      }
+      return { venueId, phone: parsed.data };
+    });
+}

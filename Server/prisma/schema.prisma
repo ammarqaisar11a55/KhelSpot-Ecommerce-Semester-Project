@@ -32,6 +32,8 @@ enum PaymentMethod {
 }
 
 enum BookingStatus {
+  /// Online payment started; the slot is held until holdExpiresAt.
+  pending_payment
   confirmed
   cancelled
 }
@@ -42,8 +44,8 @@ enum BookingSource {
 }
 
 model Venue {
-  id                String     @id
-  slug              String     @unique
+  id                String       @id
+  slug              String       @unique
   name              String
   city              String
   area              String
@@ -51,23 +53,24 @@ model Venue {
   description       String
   amenities         String[]
   /// Operating-day hours; closeHour may exceed 24 (e.g. 28 = 4 AM next day).
-  openHour          Int        @map("open_hour")
-  closeHour         Int        @map("close_hour")
+  openHour          Int          @map("open_hour")
+  closeHour         Int          @map("close_hour")
   /// Full refund when cancelled at least this many hours before start.
-  freeCancelHours   Int        @map("free_cancel_hours")
+  freeCancelHours   Int          @map("free_cancel_hours")
   /// Refund percent when cancelled later than that, before start.
-  lateRefundPercent Int        @map("late_refund_percent")
-  payAtVenue        Boolean    @map("pay_at_venue")
+  lateRefundPercent Int          @map("late_refund_percent")
+  payAtVenue        Boolean      @map("pay_at_venue")
   /// Cover photo (path or URL); null until the venue has one. Credit fields are for stock photos.
-  photoSrc          String?    @map("photo_src")
-  photoAlt          String?    @map("photo_alt")
-  photoCredit       String?    @map("photo_credit")
-  photoCreditUrl    String?    @map("photo_credit_url")
-  createdAt         DateTime   @default(now()) @map("created_at")
-  updatedAt         DateTime   @updatedAt @map("updated_at")
+  photoSrc          String?      @map("photo_src")
+  photoAlt          String?      @map("photo_alt")
+  photoCredit       String?      @map("photo_credit")
+  photoCreditUrl    String?      @map("photo_credit_url")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
   courts            Court[]
   rateBands         RateBand[]
   bookings          Booking[]
+  owners            VenueOwner[]
 
   @@index([city, area])
   @@map("venues")
@@ -112,31 +115,87 @@ model Customer {
 }
 
 model Booking {
-  id          String        @id @default(uuid())
-  ref         String        @unique
-  venueId     String        @map("venue_id")
-  courtId     String        @map("court_id")
-  customerId  String        @map("customer_id")
+  id              String        @id @default(uuid())
+  ref             String        @unique
+  venueId         String        @map("venue_id")
+  courtId         String        @map("court_id")
+  customerId      String        @map("customer_id")
   /// Operating day (Lahore date the session belongs to).
-  date        DateTime      @db.Date
-  startHour   Int           @map("start_hour")
-  hours       Int
+  date            DateTime      @db.Date
+  startHour       Int           @map("start_hour")
+  hours           Int
   /// Rs, fixed at booking time.
-  price       Int
-  payment     PaymentMethod
-  paid        Boolean
-  status      BookingStatus @default(confirmed)
-  source      BookingSource
-  createdAt   DateTime      @default(now()) @map("created_at")
-  cancelledAt DateTime?     @map("cancelled_at")
+  price           Int
+  payment         PaymentMethod
+  paid            Boolean
+  status          BookingStatus @default(confirmed)
+  source          BookingSource
+  createdAt       DateTime      @default(now()) @map("created_at")
+  cancelledAt     DateTime?     @map("cancelled_at")
   /// Rs refunded on cancellation.
-  refund      Int?
-  venue       Venue         @relation(fields: [venueId], references: [id])
-  court       Court         @relation(fields: [courtId], references: [id])
-  customer    Customer      @relation(fields: [customerId], references: [id])
+  refund          Int?
+  /// pending_payment only: the hold is released (booking cancelled) after this.
+  holdExpiresAt   DateTime?     @map("hold_expires_at")
+  /// Where the payment page sends the player back to (allow-listed).
+  returnUrl       String?       @map("return_url")
+  /// Payment provider that handled the checkout ("test", later "jazzcash"...).
+  paymentProvider String?       @map("payment_provider")
+  venue           Venue         @relation(fields: [venueId], references: [id])
+  court           Court         @relation(fields: [courtId], references: [id])
+  customer        Customer      @relation(fields: [customerId], references: [id])
 
   @@index([venueId, date])
   @@index([courtId, date])
   @@index([customerId])
+  @@index([status, holdExpiresAt])
   @@map("bookings")
+}
+
+/// Anyone who has signed in with a phone code (players and venue owners).
+model User {
+  /// Pakistani mobile number, normalised to 03XXXXXXXXX.
+  phone     String    @id
+  name      String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  sessions  Session[]
+
+  @@map("users")
+}
+
+/// A signed-in device. Only a SHA-256 hash of the bearer token is stored.
+model Session {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique @map("token_hash")
+  phone     String
+  createdAt DateTime @default(now()) @map("created_at")
+  expiresAt DateTime @map("expires_at")
+  user      User     @relation(fields: [phone], references: [phone], onDelete: Cascade)
+
+  @@index([phone])
+  @@map("sessions")
+}
+
+/// One-time sign-in codes. Only an HMAC of the code is stored.
+model OtpCode {
+  id        String    @id @default(uuid())
+  phone     String
+  codeHash  String    @map("code_hash")
+  attempts  Int       @default(0)
+  createdAt DateTime  @map("created_at")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+
+  @@index([phone, createdAt])
+  @@map("otp_codes")
+}
+
+/// Which phone numbers manage which venue. The owner needn't have signed in yet.
+model VenueOwner {
+  phone   String
+  venueId String @map("venue_id")
+  venue   Venue  @relation(fields: [venueId], references: [id], onDelete: Cascade)
+
+  @@id([phone, venueId])
+  @@index([venueId])
+  @@map("venue_owners")
 }

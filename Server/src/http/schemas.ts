@@ -28,9 +28,11 @@ export const newBooking = z.object({
   hours: z.number().int().min(1).max(3),
   customer,
   payment,
+  /** Online payment: where the payment page sends the player back. Ignored unless allow-listed. */
+  returnUrl: z.string().trim().max(500).optional(),
 });
 
-export const walkInBooking = newBooking.extend({
+export const walkInBooking = newBooking.omit({ returnUrl: true }).extend({
   /** Cash already taken at the counter. */
   paid: z.boolean().optional(),
 });
@@ -56,5 +58,16 @@ export const venueSettings = z.object({
 export const bookingQuery = z.object({
   from: isoDate,
   to: isoDate,
-  status: z.enum(["confirmed", "cancelled"]).optional(),
+  status: z.enum(["pending_payment", "confirmed", "cancelled"]).optional(),
+});
+
+export const otpRequest = z.object({ phone });
+
+export const otpVerify = z.object({
+  phone,
+  code: z.string().trim().regex(/^\d{6}$/, "Enter the 6-digit code."),
+});
+
+export const profileUpdate = z.object({
+  name: z.string().trim().min(1, "Add a name.").max(80),
 });

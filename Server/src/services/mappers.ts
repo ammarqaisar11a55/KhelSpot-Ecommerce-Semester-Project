@@ -68,5 +68,6 @@ export function toBooking(row: BookingRow): Booking {
     createdAt: row.createdAt.toISOString(),
     ...(row.cancelledAt ? { cancelledAt: row.cancelledAt.toISOString() } : {}),
     ...(row.refund !== null ? { refund: row.refund } : {}),
+    ...(row.status === "pending_payment" && row.holdExpiresAt ? { holdExpiresAt: row.holdExpiresAt.toISOString() } : {}),
   };
 }
