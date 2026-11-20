@@ -5,28 +5,38 @@ import { formatRupees, refundLine, refundQuote } from "@shared/domain/pricing";
 import { formatDateTime, formatWhen, isPast } from "@shared/domain/time";
 import { PAYMENT_LABEL } from "@shared/domain/types";
 import { ApiError, api } from "@/api/client";
-import { useQuery } from "@/api/useQuery";
+import { invalidateQueries, useQuery } from "@/api/useQuery";
 import { ErrorState, Loading } from "@/components/kit";
+import { haptic, StampIn } from "@/components/motion";
 import { Button, Card, Label, Tag } from "@/components/ui";
+import { useSession } from "@/auth/session";
+import { cancelGameReminder } from "@/lib/reminders";
 import { findSavedBooking } from "@/player/store";
-import { colors, radius, space, text } from "@/theme";
+import { radius, space, text, useStyles, usePalette, type Palette } from "@/theme";
 
 /** Booking confirmation and detail, in the kit's message order: status, where and when, paid, ID, deadline. */
 export default function Booked() {
+  const c = usePalette();
+  const styles = useStyles(makeStyles);
   const { ref, fresh } = useLocalSearchParams<{ ref: string; fresh?: string }>();
   const saved = findSavedBooking(ref);
-  const data = useQuery(saved ? `booking|${ref}` : null, async () => {
-    const [booking, venue] = await Promise.all([api.booking(ref, saved!.phone), api.venue(saved!.venueSlug)]);
+  const { user } = useSession();
+  // Bookings made on this phone carry their number; signed-in players' bookings use theirs.
+  const phone = saved?.phone ?? user?.phone ?? null;
+  const data = useQuery(phone ? `booking|${ref}` : null, async () => {
+    const booking = await api.booking(ref, phone!);
+    const venue = saved ? await api.venue(saved.venueSlug) : (await api.venues()).find((v) => v.id === booking.venueId);
+    if (!venue) throw new ApiError("NOT_FOUND", "That venue isn't listed any more.");
     return { booking, venue };
   });
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<ApiError | null>(null);
 
-  if (!saved) {
+  if (!phone) {
     return (
       <View style={styles.pad}>
-        <ErrorState error={new ApiError("NOT_FOUND", "This booking wasn't made on this phone, so it can't be opened here.")} />
+        <ErrorState error={new ApiError("NOT_FOUND", "Sign in with the number used to book to see this booking.")} />
       </View>
     );
   }
@@ -36,10 +46,13 @@ export default function Booked() {
   const { booking: b, venue: v } = data.data;
   const court = v.courts.find((c) => c.id === b.courtId);
   const cancelled = b.status === "cancelled";
+  const pending = b.status === "pending_payment";
   const finished = isPast(b.date, b.start + b.hours);
   const quote = refundQuote(b, v.cancellation);
   const when = formatWhen(b.date, b.start, b.hours);
-  const paidLine = b.paid
+  const paidLine = pending
+    ? `${formatRupees(b.price)} not paid yet. The court is held until the payment page times out.`
+    : b.paid
     ? `${formatRupees(b.price)} paid with ${PAYMENT_LABEL[b.payment]}`
     : `${formatRupees(b.price)} to pay at the venue`;
 
@@ -47,7 +60,11 @@ export default function Booked() {
     setBusy(true);
     setFailure(null);
     try {
-      await api.cancel(b.ref, saved.phone);
+      await api.cancel(b.ref, phone);
+      await cancelGameReminder(b.ref);
+      invalidateQueries("avail|");
+      invalidateQueries("mine|");
+      haptic.success();
       setConfirming(false);
       data.refresh();
     } catch (e) {
@@ -59,16 +76,20 @@ export default function Booked() {
 
   return (
     <ScrollView contentContainerStyle={[styles.pad, { gap: space.lg }]}>
+      <StampIn
+        play={!!fresh && !cancelled && !pending}
+        tag={<Tag label={cancelled ? "Cancelled" : pending ? "Payment pending" : finished ? "Played" : "Booked"} tone={cancelled || pending ? "line" : "floodlight"} />}
+      >
       <View style={styles.hero}>
-        <Tag label={cancelled ? "Cancelled" : finished ? "Played" : "Booked"} tone={cancelled ? "line" : "turf"} />
-        <Text style={[text.display, { color: colors.chalk, fontSize: 40, lineHeight: 38 }]}>
-          {cancelled ? "Cancelled" : fresh ? "You're booked" : v.name}
+        <Text style={[text.display, { color: c.chalk, fontSize: 40, lineHeight: 38 }]}>
+          {cancelled ? "Cancelled" : pending ? "Not paid yet" : fresh ? "You're booked" : v.name}
         </Text>
-        <Text style={[text.subhead, { color: colors.chalk }]}>
+        <Text style={[text.subhead, { color: c.chalk }]}>
           {court?.name ?? "Court"} · {v.name}
         </Text>
-        <Text style={[text.bodyStrong, { color: colors.floodlight }]}>{when}</Text>
+        <Text style={[text.bodyStrong, { color: c.floodlight }]}>{when}</Text>
       </View>
+      </StampIn>
 
       <Card>
         <Label>Where</Label>
@@ -111,7 +132,7 @@ export default function Booked() {
         />
       </View>
 
-      {!cancelled && !finished && quote.canCancel ? (
+      {!cancelled && !pending && !finished && quote.canCancel ? (
         confirming ? (
           <View style={styles.confirm}>
             <Text style={[text.subhead, styles.ink]}>
@@ -134,17 +155,18 @@ export default function Booked() {
   );
 }
 
-const styles = StyleSheet.create({
-  pad: { padding: space.xl, paddingBottom: space.xxl * 2, backgroundColor: colors.chalk, flexGrow: 1 },
-  ink: { color: colors.ink },
-  slate: { color: colors.slate },
-  hero: { backgroundColor: colors.ink, borderRadius: radius.card, padding: space.xl, gap: space.sm },
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+  pad: { padding: space.xl, paddingBottom: space.xxl * 2, backgroundColor: c.bg, flexGrow: 1 },
+  ink: { color: c.text },
+  slate: { color: c.textMuted },
+  hero: { backgroundColor: c.stage, borderRadius: radius.card, padding: space.xl, gap: space.sm },
   row: { flexDirection: "row", gap: space.md },
   confirm: {
     borderWidth: 2,
-    borderColor: colors.ink,
+    borderColor: c.strong,
     borderRadius: radius.card,
-    backgroundColor: colors.white,
+    backgroundColor: c.surface,
     padding: space.lg,
     gap: space.md,
   },

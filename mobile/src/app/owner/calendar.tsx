@@ -1,135 +1,179 @@
+import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { addDays, dayOfMonth, formatHour, operatingNow, relativeDay, weekdayShort } from "@shared/domain/time";
-import { api, type CourtAvailability } from "@/api/client";
+import { owner } from "@/api/client";
 import { useQuery } from "@/api/useQuery";
 import { ErrorState, Loading, Pills } from "@/components/kit";
 import { Screen } from "@/components/ui";
-import { setOwnerVenue, useOwnerVenue } from "@/owner/store";
-import { VenuePicker } from "@/owner/VenuePicker";
-import { colors, radius, space, text } from "@/theme";
+import { courtDay, isLive } from "@/owner/day";
+import { OwnerGate } from "@/owner/OwnerGate";
+import type { OwnedVenue } from "@/owner/store";
+import { radius, space, text, useStyles, usePalette, type Palette } from "@/theme";
 
-const CELL_W = 92;
-const HOUR_W = 64;
+const CELL_W = 104;
+const HOUR_W = 60;
 
-/** Courts across, hours down, like the web owner calendar. Booked = Turf, open = white, past = faded. */
-function Grid({ courts, date }: { courts: CourtAvailability[]; date: string }) {
-  const now = operatingNow();
-  const hours = [...new Set(courts.flatMap((c) => c.slots.filter((s) => s.status !== "no-rate").map((s) => s.hour)))].sort((a, b) => a - b);
-  return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-      <View>
-        <View style={styles.headRow}>
-          <View style={{ width: HOUR_W }} />
-          {courts.map((c) => (
-            <Text key={c.courtId} style={[text.label, styles.head]} numberOfLines={1}>
-              {c.name}
-            </Text>
-          ))}
-        </View>
-        {hours.map((h) => {
-          const isNow = date === now.date && h <= now.hour && now.hour < h + 1;
-          return (
-            <View key={h} style={styles.row}>
-              <View style={[styles.hour, isNow && styles.hourNow]}>
-                <Text style={[text.bodyStrong, { fontSize: 13, lineHeight: 16, color: isNow ? colors.ink : colors.slate }]}>
-                  {formatHour(h)}
-                </Text>
-              </View>
-              {courts.map((c) => {
-                const s = c.slots.find((x) => x.hour === h);
-                const status = s?.status ?? "no-rate";
-                const booked = status === "booked";
-                return (
-                  <View
-                    key={c.courtId}
-                    accessibilityLabel={`${c.name}, ${formatHour(h)}, ${booked ? "booked" : status === "free" ? "open" : status === "past" ? "past" : "closed"}`}
-                    style={[
-                      styles.cell,
-                      booked && styles.booked,
-                      status === "past" && styles.past,
-                      status === "no-rate" && styles.closed,
-                    ]}
-                  >
-                    <Text style={[text.label, { fontSize: 10, lineHeight: 12, color: booked ? colors.chalk : colors.slate }]}>
-                      {booked ? "Booked" : status === "free" ? "Open" : ""}
-                    </Text>
-                  </View>
-                );
-              })}
-            </View>
-          );
-        })}
-      </View>
-    </ScrollView>
-  );
-}
-
-export default function OwnerCalendar() {
-  const slug = useOwnerVenue();
+function Calendar({ v }: { v: OwnedVenue }) {
+  const c = usePalette();
+  const styles = useStyles(makeStyles);
   const today = operatingNow().date;
   const days = Array.from({ length: 14 }, (_, i) => addDays(today, i));
   const [date, setDate] = useState(today);
-  const venue = useQuery(slug ? `venue|${slug}` : null, () => api.venue(slug!));
-  const avail = useQuery(slug ? `avail|${slug}|${date}` : null, () => api.availability(slug!, date));
-
-  if (!slug) {
-    return (
-      <Screen title="Calendar">
-        <VenuePicker />
-      </Screen>
-    );
-  }
-
-  const courts = avail.data?.courts ?? [];
-  const booked = courts.reduce((n, c) => n + c.slots.filter((s) => s.status === "booked").length, 0);
-  const open = courts.reduce((n, c) => n + c.slots.filter((s) => s.status === "free").length, 0);
+  const day = useQuery(`owner-day|${v.venueId}|${date}`, async () => {
+    const [venue, bookings] = await Promise.all([owner.venue(v.venueId), owner.bookings(v.venueId, date, date)]);
+    return { venue, bookings };
+  });
+  const now = operatingNow();
 
   return (
-    <Screen title="Calendar" kicker={venue.data?.name} refreshing={avail.refreshing} onRefresh={avail.refresh}>
+    <>
       <Pills
         label="Day"
         options={days.map((d, i) => ({ id: d, label: i < 2 ? relativeDay(d, today) : `${weekdayShort(d)} ${dayOfMonth(d)}` }))}
         value={date}
         onChange={setDate}
       />
-      {avail.error ? (
-        <ErrorState error={avail.error} onRetry={avail.refresh} />
-      ) : !avail.data ? (
+      {day.error ? (
+        <ErrorState error={day.error} onRetry={day.refresh} />
+      ) : !day.data ? (
         <Loading label="Loading calendar" />
       ) : (
-        <>
-          <Text style={[text.bodyStrong, { color: colors.ink }]}>
-            {booked} booked {booked === 1 ? "hour" : "hours"} · {open} open
-          </Text>
-          <Grid courts={courts} date={date} />
-        </>
+        (() => {
+          const { venue, bookings } = day.data;
+          const grid = venue.courts.map((c) => ({ court: c, cells: courtDay(venue, c, bookings, date) }));
+          const booked = bookings.filter(isLive).reduce((n, b) => n + b.hours, 0);
+          const hours = grid[0]?.cells.map((c) => c.hour) ?? [];
+          return (
+            <>
+              <Text style={[text.bodyStrong, { color: c.text }]}>
+                {booked} booked {booked === 1 ? "hour" : "hours"} · tap an open hour to add a walk-in
+              </Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View>
+                  <View style={styles.headRow}>
+                    <View style={{ width: HOUR_W }} />
+                    {grid.map(({ court }) => (
+                      <Text key={court.id} style={[text.label, styles.head]} numberOfLines={1}>
+                        {court.name}
+                      </Text>
+                    ))}
+                  </View>
+                  {hours.map((h, i) => {
+                    const isNow = date === now.date && h <= now.hour && now.hour < h + 1;
+                    return (
+                      <View key={h} style={styles.row}>
+                        <View style={[styles.hour, isNow && styles.hourNow]}>
+                          <Text style={[text.bodyStrong, { fontSize: 13, lineHeight: 16, color: isNow ? c.ink : c.textMuted }]}>
+                            {formatHour(h)}
+                          </Text>
+                        </View>
+                        {grid.map(({ court, cells }) => {
+                          const cell = cells[i];
+                          const b = cell.booking;
+                          const first = b && b.start === h;
+                          const label =
+                            cell.status === "booked" || cell.status === "held"
+                              ? first
+                                ? b!.customer.name
+                                : "·"
+                              : cell.status === "open"
+                                ? "Open"
+                                : "";
+                          return (
+                            <Pressable
+                              key={court.id}
+                              disabled={cell.status === "past" || cell.status === "closed"}
+                              accessibilityRole="button"
+                              accessibilityLabel={`${court.name}, ${formatHour(h)}, ${b ? `${b.customer.name}${b.paid ? ", paid" : ", not paid"}` : cell.status}`}
+                              onPress={() =>
+                                b
+                                  ? router.push({ pathname: "/manage/booking/[ref]", params: { ref: b.ref } })
+                                  : router.push({ pathname: "/manage/walk-in", params: { courtId: court.id, date, start: String(h) } })
+                              }
+                              style={[
+                                styles.cell,
+                                cell.status === "booked" && (b?.paid ? styles.paid : styles.unpaid),
+                                cell.status === "held" && styles.held,
+                                cell.status === "past" && styles.past,
+                                cell.status === "closed" && styles.closed,
+                              ]}
+                            >
+                              <Text
+                                numberOfLines={1}
+                                style={[
+                                  text.label,
+                                  {
+                                    fontSize: 10,
+                                    lineHeight: 12,
+                                    letterSpacing: 0.6,
+                                    color: cell.status === "booked" && b?.paid ? c.chalk : c.text,
+                                  },
+                                ]}
+                              >
+                                {label}
+                              </Text>
+                            </Pressable>
+                          );
+                        })}
+                      </View>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+              <View style={styles.legend}>
+                {[
+                  [c.turf, "Paid"],
+                  [c.surface, "Pay at venue", c.turf],
+                  [c.subtle, "Paying online"],
+                ].map(([bg, label, border]) => (
+                  <View key={label} style={styles.legendItem}>
+                    <View style={[styles.swatch, { backgroundColor: bg, borderColor: border ?? bg }]} />
+                    <Text style={[text.body, { color: c.textMuted, fontSize: 13 }]}>{label}</Text>
+                  </View>
+                ))}
+              </View>
+            </>
+          );
+        })()
       )}
-      <Pressable accessibilityRole="button" onPress={() => setOwnerVenue(null)} hitSlop={8}>
-        <Text style={[text.bodyStrong, { color: colors.turf, textDecorationLine: "underline" }]}>Change venue</Text>
-      </Pressable>
+    </>
+  );
+}
+
+export default function OwnerCalendar() {
+  return (
+    <Screen title="Calendar">
+      <OwnerGate>{(v) => <Calendar v={v} />}</OwnerGate>
     </Screen>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
   headRow: { flexDirection: "row", marginBottom: space.xs },
-  head: { width: CELL_W, color: colors.ink, paddingHorizontal: 4 },
+  head: { width: CELL_W, color: c.text, paddingHorizontal: 4 },
   row: { flexDirection: "row", marginBottom: 4 },
   hour: { width: HOUR_W, justifyContent: "center", paddingLeft: 4, borderRadius: radius.control, marginRight: 4 },
-  hourNow: { backgroundColor: colors.floodlight },
+  hourNow: { backgroundColor: c.floodlight },
   cell: {
     width: CELL_W - 4,
     height: 40,
     marginRight: 4,
     borderRadius: radius.control,
     borderWidth: 2,
-    borderColor: colors.line,
-    backgroundColor: colors.white,
+    borderColor: c.border,
+    backgroundColor: c.surface,
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: 4,
   },
-  booked: { backgroundColor: colors.turf, borderColor: colors.turf },
+  paid: { backgroundColor: c.turf, borderColor: c.turf },
+  unpaid: { backgroundColor: c.surface, borderColor: c.turf },
+  held: { backgroundColor: c.subtle, borderColor: c.subtle },
   past: { opacity: 0.45 },
-  closed: { backgroundColor: colors.sand, borderColor: colors.sand },
+  closed: { backgroundColor: c.subtle, borderColor: c.subtle, opacity: 0.5 },
+  legend: { flexDirection: "row", gap: space.lg, flexWrap: "wrap" },
+  legendItem: { flexDirection: "row", alignItems: "center", gap: 6 },
+  swatch: { width: 14, height: 14, borderRadius: 3, borderWidth: 2 },
 });

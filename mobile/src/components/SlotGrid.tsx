@@ -1,11 +1,12 @@
 // One court's hours for a day. Open = Floodlight (the kit's open-slot colour),
 // booked = Line, past = faded, selected range = Ink.
 
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { PressableScale } from "./motion";
 import { formatRupees } from "@shared/domain/pricing";
 import { formatHour } from "@shared/domain/time";
 import type { Slot } from "@/api/client";
-import { colors, radius, space, text } from "@/theme";
+import { radius, space, text, useStyles, usePalette, type Palette } from "@/theme";
 
 export function SlotGrid({
   slots,
@@ -20,9 +21,11 @@ export function SlotGrid({
   onSelect?: (hour: number) => void;
   readOnly?: boolean;
 }) {
+  const c = usePalette();
+  const styles = useStyles(makeStyles);
   const shown = slots.filter((s) => s.status !== "no-rate");
   if (!shown.length) {
-    return <Text style={[text.body, { color: colors.slate }]}>No bookable hours this day.</Text>;
+    return <Text style={[text.body, { color: c.textMuted }]}>No bookable hours this day.</Text>;
   }
   const inRange = (h: number) => selected != null && h >= selected && h < selected + (hours ?? 1);
   return (
@@ -30,18 +33,19 @@ export function SlotGrid({
       {shown.map((s) => {
         const on = inRange(s.hour);
         const free = s.status === "free";
-        const bg = on ? colors.ink : free ? colors.floodlight : s.status === "booked" ? colors.line : colors.sand;
-        const fg = on ? colors.chalk : free ? colors.ink : colors.slate;
+        const bg = on ? c.strong : free ? c.floodlight : s.status === "booked" ? c.border : c.subtle;
+        const fg = on ? c.onStrong : free ? c.ink : c.textMuted;
         const label = `${formatHour(s.hour)}, ${free ? (s.price ? formatRupees(s.price) : "open") : s.status === "booked" ? "booked" : "past"}`;
         return (
-          <Pressable
+          <PressableScale
             key={s.hour}
+            depth={0.92}
             disabled={readOnly || !free}
             onPress={() => onSelect?.(s.hour)}
             accessibilityRole={readOnly ? undefined : "button"}
             accessibilityLabel={label}
             accessibilityState={{ selected: on, disabled: !free }}
-            style={({ pressed }) => [styles.cell, { backgroundColor: bg, opacity: s.status === "past" ? 0.55 : pressed ? 0.85 : 1 }]}
+            style={[styles.cell, { backgroundColor: bg, opacity: s.status === "past" ? 0.5 : 1 }]}
           >
             <Text
               style={[
@@ -55,7 +59,7 @@ export function SlotGrid({
             <Text style={[text.label, { color: fg, fontSize: 10, lineHeight: 13, letterSpacing: 0.8 }]}>
               {free ? (s.price ? formatRupees(s.price) : "Open") : s.status === "booked" ? "Booked" : "Past"}
             </Text>
-          </Pressable>
+          </PressableScale>
         );
       })}
     </View>
@@ -63,16 +67,19 @@ export function SlotGrid({
 }
 
 export function SlotLegend() {
+  const c = usePalette();
+  const styles = useStyles(makeStyles);
   const item = (bg: string, label: string) => (
     <View style={styles.legendItem} key={label}>
       <View style={[styles.swatch, { backgroundColor: bg }]} />
-      <Text style={[text.body, { color: colors.slate, fontSize: 13, lineHeight: 18 }]}>{label}</Text>
+      <Text style={[text.body, { color: c.textMuted, fontSize: 13, lineHeight: 18 }]}>{label}</Text>
     </View>
   );
-  return <View style={styles.legend}>{[item(colors.floodlight, "Open"), item(colors.line, "Booked"), item(colors.ink, "Your pick")]}</View>;
+  return <View style={styles.legend}>{[item(c.floodlight, "Open"), item(c.border, "Booked"), item(c.strong, "Your pick")]}</View>;
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
   grid: { flexDirection: "row", flexWrap: "wrap", gap: space.sm },
   cell: {
     width: "31.5%",

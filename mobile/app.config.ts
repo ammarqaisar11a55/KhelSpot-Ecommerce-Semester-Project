@@ -33,7 +33,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   orientation: "portrait",
   icon: "./assets/images/icon.png",
   scheme: "khelspot",
-  userInterfaceStyle: "light",
+  userInterfaceStyle: "automatic", // light, dark or the phone's setting: Account › Appearance
   backgroundColor: "#F3F2EC",
   ios: {
     bundleIdentifier: "pk.khelspot.app",
@@ -60,6 +60,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     // Highest display refresh rate on 90/120 Hz phones (Android) and ProMotion iPhones.
     "./plugins/withMaxRefreshRate",
+    ["expo-notifications", { icon: "./assets/images/notification-icon.png", color: TURF }],
+    "expo-secure-store",
     [
       "expo-build-properties",
       {

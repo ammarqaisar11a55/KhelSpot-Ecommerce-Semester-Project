@@ -84,7 +84,8 @@ export interface Venue extends VenueSettings {
   photo?: VenuePhoto;
 }
 
-export type BookingStatus = "confirmed" | "cancelled";
+/** pending_payment: held for up to 10 minutes while the player pays online. */
+export type BookingStatus = "pending_payment" | "confirmed" | "cancelled";
 export type BookingSource = "online" | "walk-in";
 
 export interface Customer {
@@ -109,6 +110,8 @@ export interface Booking {
   createdAt: string; // ISO timestamp
   cancelledAt?: string;
   refund?: number;
+  /** When an unpaid online booking stops holding the slot. */
+  holdExpiresAt?: string;
   /** Made by the player on this device (shows under My bookings). */
   mine?: boolean;
   /** Generated sample booking. */

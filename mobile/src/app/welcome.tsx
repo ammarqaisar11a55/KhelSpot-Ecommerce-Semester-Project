@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SpotLogo } from "@/components/brand";
 import { ChevronIcon, CourtIcon, TicketIcon } from "@/components/icons";
 import { homeFor, useRole, type Role } from "@/role/RoleProvider";
-import { colors, radius, space, text } from "@/theme";
+import { radius, space, text, useStyles, usePalette, type Palette } from "@/theme";
 
 const CHOICES: { role: Role; title: string; detail: string; Icon: typeof CourtIcon }[] = [
   {
@@ -23,6 +23,8 @@ const CHOICES: { role: Role; title: string; detail: string; Icon: typeof CourtIc
 ];
 
 export default function Welcome() {
+  const c = usePalette();
+  const styles = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const { setRole } = useRole();
 
@@ -36,8 +38,8 @@ export default function Welcome() {
       <StatusBar style="light" />
       <SpotLogo on="dark" size={26} />
       <View style={styles.hero}>
-        <Text style={[text.label, { color: colors.floodlight }]}>Lahore · now booking</Text>
-        <Text style={[text.display, { color: colors.chalk }]}>{"Aaj raat\nkhelna hai?"}</Text>
+        <Text style={[text.label, { color: c.floodlight }]}>Lahore · now booking</Text>
+        <Text style={[text.display, { color: c.chalk }]}>{"Aaj raat\nkhelna hai?"}</Text>
       </View>
       <View style={styles.choices}>
         {CHOICES.map(({ role, title, detail, Icon }) => (
@@ -47,19 +49,19 @@ export default function Welcome() {
             onPress={() => choose(role)}
             style={({ pressed }) => [styles.choice, role === "player" && styles.primary, pressed && { opacity: 0.85 }]}
           >
-            <Icon color={role === "player" ? colors.ink : colors.floodlight} size={28} />
+            <Icon color={role === "player" ? c.ink : c.floodlight} size={28} />
             <View style={{ flex: 1, gap: 4 }}>
-              <Text style={[text.subhead, { color: role === "player" ? colors.ink : colors.chalk }]}>{title}</Text>
+              <Text style={[text.subhead, { color: role === "player" ? c.ink : c.chalk }]}>{title}</Text>
               <Text
                 style={[
                   text.body,
-                  { fontSize: 14, lineHeight: 20, color: role === "player" ? colors.ink : colors.mutedOnInk },
+                  { fontSize: 14, lineHeight: 20, color: role === "player" ? c.ink : c.onStageMuted },
                 ]}
               >
                 {detail}
               </Text>
             </View>
-            <ChevronIcon color={role === "player" ? colors.ink : colors.chalk} />
+            <ChevronIcon color={role === "player" ? c.ink : c.chalk} />
           </Pressable>
         ))}
         <Text style={[text.body, styles.note]}>You can switch later in Account.</Text>
@@ -68,8 +70,9 @@ export default function Welcome() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.ink, paddingHorizontal: space.xl, justifyContent: "space-between" },
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+  screen: { flex: 1, backgroundColor: c.stage, paddingHorizontal: space.xl, justifyContent: "space-between" },
   hero: { gap: space.md },
   choices: { gap: space.md },
   choice: {
@@ -79,9 +82,9 @@ const styles = StyleSheet.create({
     padding: space.lg,
     borderRadius: radius.card,
     borderWidth: 2,
-    borderColor: colors.inkLine,
-    backgroundColor: colors.ink2,
+    borderColor: c.stageLine,
+    backgroundColor: c.stage2,
   },
-  primary: { backgroundColor: colors.floodlight, borderColor: colors.floodlight },
-  note: { color: colors.mutedOnInk, fontSize: 14, lineHeight: 20, textAlign: "center", marginTop: space.xs },
+  primary: { backgroundColor: c.floodlight, borderColor: c.floodlight },
+  note: { color: c.onStageMuted, fontSize: 14, lineHeight: 20, textAlign: "center", marginTop: space.xs },
 });

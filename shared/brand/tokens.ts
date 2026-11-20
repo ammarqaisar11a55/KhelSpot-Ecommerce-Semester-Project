@@ -19,6 +19,70 @@ export const colors = {
 } as const;
 
 /**
+ * Light and dark themes, both built only from the kit's colours.
+ * The kit's light layouts are Chalk with Ink text and Turf actions; its dark
+ * ("night game") layouts are Ink with Chalk text and Floodlight as the accent.
+ * The stage (headers, hero, tab bar) is Ink in both, as in the kit.
+ */
+const light = {
+  bg: colors.chalk,
+  surface: colors.white,
+  subtle: colors.sand,
+  border: colors.line,
+  text: colors.ink,
+  textMuted: colors.slate,
+  /** 2dp outlines on inputs and outline buttons, and the selected pill. */
+  strong: colors.ink,
+  onStrong: colors.chalk,
+  primary: colors.turf, // Turf with Chalk text on light screens
+  onPrimary: colors.chalk,
+  link: colors.turf,
+  stage: colors.ink,
+  stage2: colors.ink2,
+  stageLine: colors.inkLine,
+  onStage: colors.chalk,
+  onStageMuted: colors.mutedOnInk,
+};
+
+type Roles = { [K in keyof typeof light]: string };
+
+const dark: Roles = {
+  bg: colors.ink,
+  surface: colors.ink2,
+  subtle: colors.inkLine,
+  border: colors.inkLine,
+  text: colors.chalk,
+  textMuted: colors.mutedOnInk,
+  strong: colors.chalk,
+  onStrong: colors.ink,
+  primary: colors.floodlight, // Floodlight with Ink text on dark screens
+  onPrimary: colors.ink,
+  link: colors.floodlight,
+  stage: colors.ink,
+  stage2: colors.ink2,
+  stageLine: colors.inkLine,
+  onStage: colors.chalk,
+  onStageMuted: colors.mutedOnInk,
+};
+
+/** Fixed brand colours that read the same in both themes (Turf, Floodlight, Tape, Ink, Chalk). */
+const fixed = {
+  turf: colors.turf,
+  deepTurf: colors.deepTurf,
+  floodlight: colors.floodlight,
+  tape: colors.tape,
+  ink: colors.ink,
+  chalk: colors.chalk,
+};
+
+export type Palette = Roles & typeof fixed & { scheme: "light" | "dark" };
+
+export const themes: { light: Palette; dark: Palette } = {
+  light: { ...(light as Roles), ...fixed, scheme: "light" },
+  dark: { ...dark, ...fixed, scheme: "dark" },
+};
+
+/**
  * Type scale. Display faces are Big Shoulders (always uppercase, "Rs" keeps its case);
  * text is Archivo. Sizes are in px / dp.
  */

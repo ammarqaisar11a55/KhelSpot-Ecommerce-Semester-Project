@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { getConnection, saveConnection, savedConnection, useConnection } from "@/api/connection";
 import { Button, Card, Label, Tag } from "@/components/ui";
-import { colors, fonts, radius, space, text } from "@/theme";
+import { fonts, radius, space, text, useStyles, usePalette, type Palette } from "@/theme";
 
 type Check = { state: "idle" | "checking" | "ok" | "fail"; message?: string };
 
@@ -15,6 +15,8 @@ const SOURCE = {
 
 /** Points the app at a KhelSpot Server. Until the Server is deployed, use your laptop's Wi-Fi address. */
 export default function ConnectionScreen() {
+  const c = usePalette();
+  const styles = useStyles(makeStyles);
   const conn = useConnection();
   const saved = savedConnection();
   const [apiUrl, setApiUrl] = useState(saved.apiUrl ?? "");
@@ -44,24 +46,24 @@ export default function ConnectionScreen() {
       </Card>
 
       <View style={{ gap: 6 }}>
-        <Label color={colors.ink}>Server address</Label>
+        <Label color={c.text}>Server address</Label>
         <TextInput
           value={apiUrl}
           onChangeText={setApiUrl}
           placeholder="http://192.168.1.20:4000"
-          placeholderTextColor={colors.slate}
+          placeholderTextColor={c.textMuted}
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="url"
           style={styles.input}
           accessibilityLabel="Server address"
         />
-        <Label color={colors.ink}>Website address (photos)</Label>
+        <Label color={c.text}>Website address (photos)</Label>
         <TextInput
           value={webUrl}
           onChangeText={setWebUrl}
           placeholder="Leave empty: same computer, port 3000"
-          placeholderTextColor={colors.slate}
+          placeholderTextColor={c.textMuted}
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="url"
@@ -97,21 +99,22 @@ export default function ConnectionScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  body: { padding: space.xl, gap: space.xl, backgroundColor: colors.chalk, flexGrow: 1 },
-  ink: { color: colors.ink },
-  slate: { color: colors.slate },
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+  body: { padding: space.xl, gap: space.xl, backgroundColor: c.bg, flexGrow: 1 },
+  ink: { color: c.text },
+  slate: { color: c.textMuted },
   small: { fontSize: 14, lineHeight: 20 },
   input: {
     borderWidth: 2,
-    borderColor: colors.ink,
+    borderColor: c.strong,
     borderRadius: radius.control,
-    backgroundColor: colors.white,
+    backgroundColor: c.surface,
     paddingHorizontal: space.md,
     minHeight: 52,
     fontFamily: fonts.text400,
     fontSize: 16,
-    color: colors.ink,
+    color: c.text,
     marginBottom: space.sm,
   },
 });

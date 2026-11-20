@@ -2,7 +2,7 @@
 
 KhelSpot app for players and venue owners, Lahore launch. Players get the same booking flow as the web app; owners get the web dashboard's daily tools, in brand kit v1.0, with a built-in updater that pulls new test builds straight from this GitHub repo.
 
-Status: phase 0 shipped (builds 1 and 2 on GitHub Releases). Phases 1 and 2 built against the local Server: Courts, venue page with slot grid, checkout (payment is a stand-in), Booked, My bookings with cancel and refund, owner Today and Calendar from public availability, Server connection screen. Not yet: "Game in 2 hours" reminder, owner sign-in (phase 3), real payments (phase 4), store release (phase 5).
+Status: phases 0–4 built in the app and on the Server, tested against a local Server. Done: browse, book, cancel with refund, "Game in 2 hours" reminder, phone sign-in, owner Today / Calendar / Bookings / walk-ins / mark paid / cancel / venue rates editor, online payment through a hosted checkout (test provider), light and dark themes, highest refresh rate. Waiting on accounts the user must open: an SMS provider for real sign-in codes, JazzCash / Easypaisa / card merchant accounts, a deployed Server, and a Google Play developer account.
 
 ---
 
@@ -206,7 +206,7 @@ Each phase ends with a build installed from GitHub on your phone.
 | **2. Book** | Checkout, Booked screen, My bookings, cancel with refund quote, "Game in 2 hours" reminder. Payment step is a stand-in until provider accounts exist. | A booking made in the app shows on the web owner calendar. |
 | **3. Accounts** | Phone OTP sign-in for players and owners (needs the Server's auth). Owner Today, Bookings and Venue tabs go live: walk-ins, mark paid, cancel, edit hours and rates. | An owner adds a walk-in on the phone and it shows on the web calendar. |
 | **4. Payments** | JazzCash, Easypaisa and card through the providers' hosted checkout; booking confirmed by the provider's callback. | Paid booking with a real (test-mode) transaction. |
-| **5. Release** | Play variant, store listing, privacy policy, TestFlight build. | Internal testing track live on Google Play. |
+| **5. Release** | Play variant (in `app.config.ts`), privacy policy at `/privacy` on the website, store listing, TestFlight build. | Internal testing track live on Google Play. |
 
 Phase 0 comes first on purpose: once the updater works, every later phase reaches your phone without a cable.
 

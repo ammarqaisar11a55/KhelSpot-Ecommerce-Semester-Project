@@ -8,9 +8,10 @@ import { SPORT_LABEL, type Sport } from "@shared/domain/types";
 import { api, type Slot } from "@/api/client";
 import { useQuery } from "@/api/useQuery";
 import { ErrorState, Loading, Pills, VenuePhoto } from "@/components/kit";
+import { SlideUp, SlotGridSkeleton } from "@/components/motion";
 import { SlotGrid, SlotLegend } from "@/components/SlotGrid";
 import { Button, Label } from "@/components/ui";
-import { colors, radius, space, text } from "@/theme";
+import { radius, space, text, useStyles, usePalette, type Palette } from "@/theme";
 
 /** Longest run (max 3 hours) of open slots from `start`. */
 function maxHoursFrom(slots: Slot[], start: number) {
@@ -24,6 +25,8 @@ function maxHoursFrom(slots: Slot[], start: number) {
 }
 
 export default function VenueScreen() {
+  const c = usePalette();
+  const styles = useStyles(makeStyles);
   const params = useLocalSearchParams<{ slug: string; date?: string; sport?: Sport; hour?: string }>();
   const insets = useSafeAreaInsets();
   const today = operatingNow().date;
@@ -131,7 +134,7 @@ export default function VenueScreen() {
           {avail.error ? (
             <ErrorState error={avail.error} onRetry={avail.refresh} />
           ) : !court ? (
-            <Loading label="Loading open times" />
+            <SlotGridSkeleton />
           ) : (
             <View style={{ gap: space.md }}>
               <SlotLegend />
@@ -168,10 +171,10 @@ export default function VenueScreen() {
       </ScrollView>
 
       {court && start != null && price !== null ? (
-        <View style={[styles.bar, { paddingBottom: insets.bottom + space.md }]}>
+        <SlideUp style={[styles.bar, { paddingBottom: insets.bottom + space.md }]}>
           <View style={{ flex: 1 }}>
-            <Text style={[text.label, { color: colors.mutedOnInk }]}>{relativeDay(date, today)}</Text>
-            <Text style={[text.heading, { color: colors.chalk, fontSize: 26, lineHeight: 28, textTransform: "none" }]}>{formatRupees(price)}</Text>
+            <Text style={[text.label, { color: c.onStageMuted }]}>{relativeDay(date, today)}</Text>
+            <Text style={[text.heading, { color: c.chalk, fontSize: 26, lineHeight: 28, textTransform: "none" }]}>{formatRupees(price)}</Text>
           </View>
           <Button
             kind="dark"
@@ -184,23 +187,24 @@ export default function VenueScreen() {
               })
             }
           />
-        </View>
+        </SlideUp>
       ) : null}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.chalk },
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+  screen: { flex: 1, backgroundColor: c.bg },
   pad: { padding: space.xl },
-  ink: { color: colors.ink },
-  slate: { color: colors.slate },
-  link: { color: colors.turf, textDecorationLine: "underline" },
-  credit: { ...text.body, fontSize: 11, lineHeight: 14, color: colors.slate, paddingHorizontal: space.xl, paddingTop: 4 },
+  ink: { color: c.text },
+  slate: { color: c.textMuted },
+  link: { color: c.link, textDecorationLine: "underline" },
+  credit: { ...text.body, fontSize: 11, lineHeight: 14, color: c.textMuted, paddingHorizontal: space.xl, paddingTop: 4 },
   summary: {
-    backgroundColor: colors.white,
+    backgroundColor: c.surface,
     borderWidth: 2,
-    borderColor: colors.ink,
+    borderColor: c.strong,
     borderRadius: radius.card,
     padding: space.lg,
     gap: space.sm,
@@ -210,7 +214,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: colors.ink,
+    backgroundColor: c.stage,
     flexDirection: "row",
     alignItems: "center",
     gap: space.lg,

@@ -34,6 +34,11 @@ Until the Server is deployed, run it and the website on your laptop, put the pho
 **Account › Server connection** to `http://<laptop-ip>:4000` (`hostname -I` shows the address). Internal builds allow
 plain http for this; Play builds don't. Venue photos load from the website on port 3000 of the same machine.
 
+## Signing in locally
+
+With `OTP_DEV_ECHO=1` in `Server/.env`, the sign-in screen shows the code ("Local test server code"), so no SMS is needed.
+Venue owners sign in with a number listed in `OWNER_PHONES` (e.g. `v-night-owl:03001112233`), then `npm run db:seed` in `Server/`.
+
 ## Icons and splash
 
 Generated from the brand kit's K symbol and Big Shoulders:

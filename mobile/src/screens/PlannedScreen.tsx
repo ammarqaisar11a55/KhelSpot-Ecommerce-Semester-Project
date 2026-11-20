@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import { Card, Label, Screen } from "@/components/ui";
-import { colors, space, text } from "@/theme";
+import { space, text, useStyles, type Palette } from "@/theme";
 
 /**
  * Phase 0 placeholder for a screen whose data comes from the Server API.
@@ -19,6 +19,7 @@ export function PlannedScreen({
   body: string;
   points?: string[];
 }) {
+  const styles = useStyles(makeStyles);
   return (
     <Screen title={title} kicker={kicker}>
       <Card>
@@ -39,8 +40,9 @@ export function PlannedScreen({
   );
 }
 
-const styles = StyleSheet.create({
-  ink: { color: colors.ink },
-  slate: { color: colors.slate },
-  point: { borderTopWidth: 2, borderTopColor: colors.ink, paddingTop: space.sm, paddingBottom: space.xs },
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+  ink: { color: c.text },
+  slate: { color: c.textMuted },
+  point: { borderTopWidth: 2, borderTopColor: c.strong, paddingTop: space.sm, paddingBottom: space.xs },
 });

@@ -79,4 +79,6 @@ symbol(1024, (0, 0, 0, 0), "#FFFFFF", "#FFFFFF", 0.42).save(OUT / "android-icon-
 # Splash: Chalk wordmark with a Floodlight dot, on the Ink background set in app.config.ts.
 wordmark(160).save(OUT / "splash-icon.png")
 tile(48).save(OUT / "favicon.png")
+# Android notification icon: white silhouette on transparent; the system tints it.
+symbol(96, (0, 0, 0, 0), "#FFFFFF", "#FFFFFF", 0.62).save(OUT / "notification-icon.png")
 print("done")

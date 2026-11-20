@@ -9,6 +9,7 @@ import type {
   Sport,
   Venue,
 } from "@shared/domain/types";
+import { getToken, signedOut, type User } from "@/auth/session";
 import { getConnection } from "./connection";
 
 export type SlotStatus = "free" | "booked" | "past" | "no-rate";
@@ -45,7 +46,9 @@ export class ApiError extends Error {
 
 const TIMEOUT_MS = 12_000;
 
-async function request<T>(path: string, init?: { method?: "GET" | "POST" | "PUT"; body?: unknown }): Promise<T> {
+type Method = "GET" | "POST" | "PUT" | "PATCH";
+
+async function request<T>(path: string, init?: { method?: Method; body?: unknown }): Promise<T> {
   const { apiUrl } = getConnection();
   if (!apiUrl) {
     throw new ApiError("NOT_CONFIGURED", "This build doesn't know where the KhelSpot server is. Set it in Account › Server connection.");
@@ -56,7 +59,11 @@ async function request<T>(path: string, init?: { method?: "GET" | "POST" | "PUT"
   try {
     res = await fetch(`${apiUrl}${path}`, {
       method: init?.method ?? "GET",
-      headers: init?.body ? { "Content-Type": "application/json", Accept: "application/json" } : { Accept: "application/json" },
+      headers: {
+        Accept: "application/json",
+        ...(init?.body ? { "Content-Type": "application/json" } : null),
+        ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : null),
+      },
       body: init?.body ? JSON.stringify(init.body) : undefined,
       signal: controller.signal,
     });
@@ -65,12 +72,14 @@ async function request<T>(path: string, init?: { method?: "GET" | "POST" | "PUT"
   } finally {
     clearTimeout(timer);
   }
+  if (res.status === 204) return null as T;
   let json: unknown = null;
   try {
     json = await res.json();
   } catch {
     // Non-JSON error page; handled below.
   }
+  if (res.status === 401 && getToken()) signedOut(); // session expired or revoked
   if (!res.ok) {
     const err = (json as { error?: { code?: string; message?: string } } | null)?.error;
     throw new ApiError(err?.code ?? "HTTP_ERROR", err?.message ?? `The server answered ${res.status}.`, res.status);
@@ -105,7 +114,8 @@ export const api = {
     hours: number;
     customer: Customer;
     payment: PaymentMethod;
-  }) => request<{ booking: Booking }>("/bookings", { method: "POST", body: input }).then((r) => r.booking),
+    returnUrl?: string;
+  }) => request<{ booking: Booking; checkout?: { url: string } }>("/bookings", { method: "POST", body: input }),
 
   booking: (ref: string, phone: string) =>
     request<{ booking: Booking }>(`/bookings/${encodeURIComponent(ref)}${q({ phone })}`).then((r) => r.booking),
@@ -114,4 +124,57 @@ export const api = {
     request<{ booking: Booking }>(`/bookings/${encodeURIComponent(ref)}/cancel`, { method: "POST", body: { phone } }).then(
       (r) => r.booking,
     ),
+};
+
+// ---------- sign-in (phone OTP) ----------
+
+export const auth = {
+  /** Sends the code. `devCode` comes back only from a local Server with OTP_DEV_ECHO=1. */
+  requestCode: (phone: string) =>
+    request<{ devCode?: string } | null>("/auth/otp", { method: "POST", body: { phone } }).then((r) => r ?? {}),
+  verify: (phone: string, code: string) =>
+    request<{ token: string; user: User }>("/auth/verify", { method: "POST", body: { phone, code } }),
+  me: () => request<{ user: User }>("/me").then((r) => r.user),
+  setName: (name: string) => request<{ user: User }>("/me", { method: "PATCH", body: { name } }).then((r) => r.user),
+  logout: () => request<null>("/auth/logout", { method: "POST" }),
+  myBookings: () =>
+    request<{ bookings: (Booking & { venue: { id: string; slug: string; name: string; area: string } })[] }>("/me/bookings").then(
+      (r) => r.bookings,
+    ),
+};
+
+// ---------- venue owners (signed in, own venue only) ----------
+
+export interface CustomerSummary {
+  name: string;
+  phone: string;
+  games: number;
+  hours: number;
+  spent: number;
+  lastVisit: ISODate | null;
+  nextVisit: ISODate | null;
+}
+
+export type VenueSettingsInput = Pick<Venue, "openHour" | "closeHour" | "pricing" | "cancellation" | "payAtVenue">;
+
+export const owner = {
+  venue: (id: string) => request<{ venue: Venue }>(`/owner/venues/${id}`).then((r) => r.venue),
+  bookings: (id: string, from: ISODate, to: ISODate) =>
+    request<{ bookings: Booking[] }>(`/owner/venues/${id}/bookings${q({ from, to })}`).then((r) => r.bookings),
+  customers: (id: string) => request<{ customers: CustomerSummary[] }>(`/owner/venues/${id}/customers`).then((r) => r.customers),
+  saveSettings: (id: string, settings: VenueSettingsInput) =>
+    request<{ venue: Venue }>(`/owner/venues/${id}/settings`, { method: "PUT", body: settings }).then((r) => r.venue),
+  walkIn: (input: {
+    venueId: string;
+    courtId: string;
+    date: ISODate;
+    start: Hour;
+    hours: number;
+    customer: Customer;
+    payment: PaymentMethod;
+    paid?: boolean;
+  }) => request<{ booking: Booking }>("/owner/bookings", { method: "POST", body: input }).then((r) => r.booking),
+  booking: (ref: string) => request<{ booking: Booking }>(`/owner/bookings/${ref}`).then((r) => r.booking),
+  markPaid: (ref: string) => request<{ booking: Booking }>(`/owner/bookings/${ref}/mark-paid`, { method: "POST" }).then((r) => r.booking),
+  cancel: (ref: string) => request<{ booking: Booking }>(`/owner/bookings/${ref}/cancel`, { method: "POST" }).then((r) => r.booking),
 };

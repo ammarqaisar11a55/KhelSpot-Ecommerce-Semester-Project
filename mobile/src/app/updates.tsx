@@ -2,7 +2,7 @@ import * as WebBrowser from "expo-web-browser";
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { ArrowDownIcon } from "@/components/icons";
 import { Button, Card, Label, Tag } from "@/components/ui";
-import { colors, radius, space, text } from "@/theme";
+import { radius, space, text, useStyles, usePalette, type Palette } from "@/theme";
 import { canSelfUpdate, installed, updaterConfig } from "@/updater/config";
 import type { Channel } from "@/updater/github";
 import { useUpdater } from "@/updater/UpdaterProvider";
@@ -14,6 +14,7 @@ function when(d: Date) {
 }
 
 function Fact({ label, value }: { label: string; value: string }) {
+  const styles = useStyles(makeStyles);
   return (
     <View style={styles.fact}>
       <Label>{label}</Label>
@@ -23,6 +24,8 @@ function Fact({ label, value }: { label: string; value: string }) {
 }
 
 function ChannelPicker({ value, onChange, disabled }: { value: Channel; onChange: (c: Channel) => void; disabled: boolean }) {
+  const c = usePalette();
+  const styles = useStyles(makeStyles);
   const options: { id: Channel; label: string; hint: string }[] = [
     { id: "stable", label: "Stable", hint: "Tagged releases" },
     { id: "beta", label: "Beta", hint: "Every push to main" },
@@ -40,8 +43,8 @@ function ChannelPicker({ value, onChange, disabled }: { value: Channel; onChange
             onPress={() => onChange(o.id)}
             style={[styles.pill, on && styles.pillOn]}
           >
-            <Text style={[text.bodyStrong, { color: colors.ink }]}>{o.label}</Text>
-            <Text style={[text.body, { color: on ? colors.ink : colors.slate, fontSize: 13, lineHeight: 18 }]}>{o.hint}</Text>
+            <Text style={[text.bodyStrong, { color: c.text }]}>{o.label}</Text>
+            <Text style={[text.body, { color: on ? c.text : c.textMuted, fontSize: 13, lineHeight: 18 }]}>{o.hint}</Text>
           </Pressable>
         );
       })}
@@ -50,6 +53,8 @@ function ChannelPicker({ value, onChange, disabled }: { value: Channel; onChange
 }
 
 export default function UpdatesScreen() {
+  const c = usePalette();
+  const styles = useStyles(makeStyles);
   const u = useUpdater();
 
   if (!canSelfUpdate) {
@@ -95,7 +100,7 @@ export default function UpdatesScreen() {
       </View>
 
       {newer && m && u.build ? (
-        <Card style={u.required ? { borderColor: colors.tape } : { borderColor: colors.ink }}>
+        <Card style={u.required ? { borderColor: c.tape } : { borderColor: c.strong }}>
           <View style={styles.tags}>
             <Tag label={u.required ? "Required" : "New build"} tone={u.required ? "tape" : "floodlight"} />
             <Tag label={m.channel === "stable" ? "Stable" : "Beta"} tone="line" />
@@ -132,8 +137,8 @@ export default function UpdatesScreen() {
               onPress={u.download}
               style={({ pressed }) => [styles.download, pressed && { opacity: 0.85 }]}
             >
-              <ArrowDownIcon color={colors.chalk} />
-              <Text style={[text.bodyStrong, { color: colors.chalk, fontFamily: text.subhead.fontFamily }]}>
+              <ArrowDownIcon color={c.chalk} />
+              <Text style={[text.bodyStrong, { color: c.chalk, fontFamily: text.subhead.fontFamily }]}>
                 Download and install
               </Text>
             </Pressable>
@@ -168,7 +173,7 @@ export default function UpdatesScreen() {
           again.
         </Text>
         <Pressable accessibilityRole="button" onPress={u.openInstallSettings} hitSlop={8}>
-          <Text style={[text.bodyStrong, { color: colors.turf, textDecorationLine: "underline" }]}>
+          <Text style={[text.bodyStrong, { color: c.link, textDecorationLine: "underline" }]}>
             Install unknown apps settings
           </Text>
         </Pressable>
@@ -177,36 +182,37 @@ export default function UpdatesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  body: { padding: space.xl, gap: space.xl, backgroundColor: colors.chalk, flexGrow: 1 },
-  ink: { color: colors.ink },
-  slate: { color: colors.slate },
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+  body: { padding: space.xl, gap: space.xl, backgroundColor: c.bg, flexGrow: 1 },
+  ink: { color: c.text },
+  slate: { color: c.textMuted },
   facts: { gap: space.md },
-  fact: { gap: 2, borderBottomWidth: 1, borderBottomColor: colors.line, paddingBottom: space.md },
+  fact: { gap: 2, borderBottomWidth: 1, borderBottomColor: c.border, paddingBottom: space.md },
   pills: { flexDirection: "row", gap: space.sm },
   pill: {
     flex: 1,
     borderWidth: 2,
-    borderColor: colors.line,
+    borderColor: c.border,
     borderRadius: radius.card,
     paddingVertical: space.md,
     paddingHorizontal: space.lg,
-    backgroundColor: colors.white,
+    backgroundColor: c.surface,
   },
-  pillOn: { borderColor: colors.ink, backgroundColor: colors.sand },
+  pillOn: { borderColor: c.strong, backgroundColor: c.subtle },
   tags: { flexDirection: "row", gap: space.sm },
   notes: { gap: space.xs, paddingVertical: space.xs },
-  track: { height: 8, backgroundColor: colors.sand, borderRadius: radius.pill, overflow: "hidden" },
-  fill: { height: 8, backgroundColor: colors.turf },
+  track: { height: 8, backgroundColor: c.subtle, borderRadius: radius.pill, overflow: "hidden" },
+  fill: { height: 8, backgroundColor: c.turf },
   download: {
     minHeight: 52,
     flexDirection: "row",
     gap: space.sm,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.turf,
+    backgroundColor: c.turf,
     borderRadius: radius.control,
     marginTop: space.sm,
   },
-  error: { backgroundColor: colors.white, borderLeftWidth: 4, borderLeftColor: colors.tape, padding: space.md },
+  error: { backgroundColor: c.surface, borderLeftWidth: 4, borderLeftColor: c.tape, padding: space.md },
 });
