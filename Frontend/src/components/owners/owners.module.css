@@ -94,12 +94,12 @@
   display: grid;
   gap: 2px;
   min-width: 230px;
-  padding: 14px 18px 14px 20px;
+  padding: 14px 18px;
   border-radius: 4px;
   background: var(--flood);
   color: var(--night);
   box-shadow: 0 10px 30px rgb(0 0 0 / 0.35);
-  border-left: 6px solid var(--flood-dark);
+  border: 2px solid var(--flood-dark);
 }
 
 .ticketCourt {
@@ -313,7 +313,7 @@
   padding: 0 16px 0 12px;
   border-radius: 999px;
   border: 2px solid var(--line);
-  background: #fff;
+  background: var(--surface);
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
@@ -333,11 +333,11 @@
 
 .sportOn {
   border-color: var(--turf);
-  background: #e6f2ea;
+  background: var(--turf-tint);
 }
 
 .sports[aria-invalid="true"] .sportChoice {
-  border-color: #c2410c;
+  border-color: var(--danger);
 }
 
 .form .courts {

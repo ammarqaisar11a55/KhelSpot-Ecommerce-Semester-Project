@@ -225,13 +225,13 @@ export function SlotPicker({ venueId }: { venueId: string }) {
                     <span className={ui.muted}>
                       {formatHour(start + i)} · {band?.label}
                     </span>
-                    <span className={ui.mono}>{band ? formatRupees(band.price) : "–"}</span>
+                    <span className={ui.mono}>{band ? formatRupees(band.price) : "No rate"}</span>
                   </div>
                 );
               })}
               <div className={s.summaryTotal}>
                 <span>Total</span>
-                <span className={s.total}>{total !== null ? formatRupees(total) : "–"}</span>
+                <span className={s.total}>{total !== null ? formatRupees(total) : "Not set"}</span>
               </div>
               <p className={s.policy}>{deadlineText(date, start, venue.cancellation)}</p>
               {checkoutHref && (

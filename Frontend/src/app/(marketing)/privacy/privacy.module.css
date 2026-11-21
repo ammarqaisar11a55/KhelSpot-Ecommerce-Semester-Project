@@ -1,6 +1,6 @@
 .page {
-  background: var(--chalk, #f3f2ec);
-  color: var(--ink, #111513);
+  background: var(--chalk);
+  color: var(--night);
 }
 
 .body {
@@ -12,7 +12,7 @@
   font: 700 12px/1.3 var(--font-archivo), sans-serif;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--slate, #59625d);
+  color: var(--ink-2);
   margin: 0 0 12px;
 }
 
@@ -45,5 +45,5 @@
 }
 
 .body a {
-  color: var(--turf, #1f7a4d);
+  color: var(--turf);
 }

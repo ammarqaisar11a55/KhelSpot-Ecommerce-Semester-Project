@@ -304,7 +304,7 @@
 
 .boardPaid {
   background: var(--turf);
-  border-color: #33b273;
+  border-color: var(--turf-bright);
   color: var(--chalk);
 }
 
@@ -318,14 +318,14 @@
 /* Played: steps back but stays readable */
 .boardPaid.boardPlayed {
   background: var(--night-line);
-  border-color: #3d5c4d;
+  border-color: var(--turf-line-dark);
   color: var(--muted-dark);
 }
 
 .boardCollect.boardPlayed {
-  background: #4a4220;
-  border-color: #6e6024;
-  color: #f2e2a2;
+  background: var(--warn-dark);
+  border-color: var(--warn-dark-line);
+  color: var(--warn-dark-ink);
 }
 
 .boardName {
@@ -403,7 +403,7 @@
 
 .keyBoardPaid {
   background: var(--turf);
-  border-color: #33b273;
+  border-color: var(--turf-bright);
 }
 
 .keyBoardCollect {
@@ -529,6 +529,13 @@
   margin: 0;
 }
 
+/* "All bookings" style links in a card header: a full 44px row to hit, not 22px of text. */
+.cardHead > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
 .linkBtn {
   border: 0;
   background: none;
@@ -561,7 +568,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  border-top: 1px dashed #e7e2d4;
+  border-top: 1px dashed var(--sand-2);
   pointer-events: none;
 }
 
@@ -582,7 +589,6 @@
   border: 0;
   background: none;
   padding: 0 2px;
-  cursor: default;
   position: relative;
   z-index: 1;
 }
@@ -599,14 +605,12 @@
   background: var(--night);
 }
 
-.barHit:hover .bar,
-.barHit:focus-visible .bar {
-  background: var(--turf-dark);
+.barOn .bar {
+  background: var(--deep-turf);
 }
 
-.barHit:hover .barToday,
-.barHit:focus-visible .barToday {
-  background: #000;
+.bars:focus-visible {
+  outline-offset: 6px;
 }
 
 .axis {
@@ -640,6 +644,18 @@
   white-space: nowrap;
   pointer-events: none;
   z-index: 3;
+}
+
+/* Edge days: keep the tooltip inside the card instead of centring it off-screen. */
+.tooltipStart {
+  left: 0;
+  transform: none;
+}
+
+.tooltipEnd {
+  left: auto;
+  right: 0;
+  transform: none;
 }
 
 .chartTable {
@@ -726,7 +742,7 @@
 /* Tables */
 .tableWrap {
   overflow-x: auto;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
 }
@@ -747,7 +763,7 @@
   color: var(--ink-2);
   padding: 12px 14px;
   border-bottom: 1px solid var(--line);
-  background: #faf8f2;
+  background: var(--surface-sunk);
   white-space: nowrap;
 }
 
@@ -762,7 +778,7 @@
 }
 
 .table tbody tr:hover {
-  background: #faf8f2;
+  background: var(--surface-sunk);
 }
 
 .num {
@@ -805,7 +821,7 @@
   display: inline-flex;
   border: 1px solid var(--line);
   border-radius: 4px;
-  background: #fff;
+  background: var(--surface);
   overflow: hidden;
 }
 
@@ -832,7 +848,7 @@
 }
 
 .calStep button:disabled {
-  color: #9aa09a;
+  color: var(--ink-3);
   cursor: default;
 }
 
@@ -860,7 +876,7 @@
   min-height: 42px;
   border-radius: 4px;
   border: 2px solid var(--line);
-  background: #fff;
+  background: var(--surface);
   color: var(--ink-2);
   font: 500 14px var(--body);
   padding: 0 10px;
@@ -895,20 +911,20 @@
 }
 
 .keyPaid {
-  background: #e6f2ea;
-  border-color: #b9d8c6;
+  background: var(--turf-tint);
+  border-color: var(--turf-line);
 }
 
 .keyCollect {
-  background: #f2fad0;
-  border-color: #c9e35a;
+  background: var(--flood-tint);
+  border-color: var(--flood-line);
 }
 
 /* Grid */
 .calWrap {
   overflow: auto;
   max-height: min(72vh, 760px);
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overscroll-behavior: contain;
@@ -924,7 +940,7 @@
 .calCourt {
   position: sticky;
   top: 0;
-  background: #fff;
+  background: var(--surface);
   border-bottom: 1px solid var(--line);
   z-index: 6;
 }
@@ -938,7 +954,7 @@
   padding: 12px 14px 12px;
   display: grid;
   gap: 2px;
-  border-left: 1px solid #efebe0;
+  border-left: 1px solid var(--sand-2);
 }
 
 .calCourtName {
@@ -971,22 +987,22 @@
   position: sticky;
   left: 0;
   z-index: 5;
-  background: #fff;
+  background: var(--surface);
   padding: 6px 10px 0 0;
   text-align: right;
   font: 500 12px var(--mono);
   color: var(--ink-2);
-  border-top: 1px solid #efebe0;
+  border-top: 1px solid var(--sand-2);
   font-variant-numeric: tabular-nums;
 }
 
 .calRowLine {
-  border-top: 1px solid #efebe0;
+  border-top: 1px solid var(--sand-2);
   pointer-events: none;
 }
 
 .calColLine {
-  border-left: 1px solid #efebe0;
+  border-left: 1px solid var(--sand-2);
   pointer-events: none;
 }
 
@@ -1014,7 +1030,7 @@
 
 .calSlot:hover,
 .calSlot:focus-visible {
-  background: #eef6f1;
+  background: var(--turf-tint);
 }
 
 .calSlot:hover span,
@@ -1041,15 +1057,15 @@
 }
 
 .calBlockPaid {
-  background: #e6f2ea;
-  border-color: #b9d8c6;
-  color: #0c3d26;
+  background: var(--turf-tint);
+  border-color: var(--turf-line);
+  color: var(--turf-ink);
 }
 
 .calBlockDue {
-  background: #f2fad0;
-  border-color: #c9e35a;
-  color: #34400a;
+  background: var(--flood-tint);
+  border-color: var(--flood-line);
+  color: var(--flood-ink);
 }
 
 .calBlock:hover {
@@ -1064,8 +1080,8 @@
 }
 
 .calBlockPlayed .calCollect {
-  background: #eef3d8;
-  color: #34400a;
+  background: var(--flood-tint);
+  color: var(--flood-ink);
 }
 
 .calBlockName {
@@ -1190,7 +1206,7 @@
   border-radius: 4px;
   overflow: hidden;
   gap: 2px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .stripRun {
@@ -1209,8 +1225,8 @@
 }
 
 .stripProblem {
-  color: #8a2a0c;
-  background-color: #fbe4dc;
+  color: var(--danger-strong);
+  background-color: var(--danger-tint);
   background-image: repeating-linear-gradient(135deg, rgb(163 51 15 / 0.22) 0 2px, transparent 2px 7px);
 }
 
@@ -1260,7 +1276,7 @@
 .stripIssues {
   margin: -6px 0 16px;
   padding-left: 18px;
-  color: #a3330f;
+  color: var(--danger);
   font-size: 14px;
   font-weight: 600;
 }
@@ -1360,9 +1376,9 @@
 }
 
 .checkRow input {
-  width: 18px;
-  height: 18px;
-  margin-top: 3px;
+  width: 24px;
+  height: 24px;
+  margin-top: 0;
   accent-color: var(--turf);
   flex: none;
 }
@@ -1373,8 +1389,8 @@
 }
 
 .problems {
-  border: 1px solid #efc2b5;
-  background: #fdf1ec;
+  border: 1px solid var(--danger-line);
+  background: var(--danger-tint);
   border-radius: var(--radius);
   padding: 18px 20px;
 }
@@ -1382,7 +1398,7 @@
 .problems ul {
   margin: 0;
   padding-left: 18px;
-  color: #a3330f;
+  color: var(--danger);
   font-weight: 600;
   font-size: 14px;
 }
@@ -1394,7 +1410,7 @@
 
 /* What players see: set like the venue page */
 .preview {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 20px;
@@ -1509,7 +1525,7 @@
 .dropZone:hover,
 .dropZoneOn {
   border-color: var(--turf);
-  background: #eef6f1;
+  background: var(--turf-tint);
 }
 
 .profileFields {
@@ -1540,7 +1556,7 @@
   padding: 0 14px;
   border-radius: 999px;
   border: 2px solid var(--line);
-  background: #fff;
+  background: var(--surface);
   color: var(--ink-2);
   font: 600 14px var(--body);
   cursor: pointer;
@@ -1552,12 +1568,20 @@
 
 .facilityOn {
   border-color: var(--turf);
-  background: #e6f2ea;
-  color: #0c3d26;
+  background: var(--turf-tint);
+  color: var(--turf-ink);
 }
 
 .facilityOn::before {
-  content: "✓ ";
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+  vertical-align: -2px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
 .customFacility {
@@ -1590,7 +1614,7 @@
 
 /* The live preview, built like the public venue page */
 .profilePreview {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;

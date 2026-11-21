@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Select } from "@/components/ui/Select";
 import ui from "@/components/ui/ui.module.css";
 import { cx } from "@/lib/format";
 import { CITIES, SPORTS, SPORT_LABEL, type Sport } from "@/lib/domain/types";
@@ -221,14 +222,16 @@ export function OwnerSignup() {
                 onChange={(event) => set("area", event.target.value)}
               />
             </label>
-            <label className={ui.field}>
+            <div className={ui.field}>
               <span>City</span>
-              <select className={ui.select} name="city" value={details.city} onChange={(event) => set("city", event.target.value)}>
-                {CITIES.map((city) => (
-                  <option key={city}>{city}</option>
-                ))}
-              </select>
-            </label>
+              <Select
+                label="City"
+                name="city"
+                value={details.city}
+                onChange={(city) => set("city", city)}
+                options={CITIES.map((city) => ({ value: city, label: city }))}
+              />
+            </div>
           </div>
           <p className={ui.hint} style={{ marginTop: -8 }}>
             KhelSpot is taking bookings in Lahore first.

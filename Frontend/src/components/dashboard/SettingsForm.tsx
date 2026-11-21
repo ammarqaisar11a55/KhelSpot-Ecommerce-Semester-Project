@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Select } from "@/components/ui/Select";
 import ui from "@/components/ui/ui.module.css";
 import { venueSports } from "@/lib/catalog/venues";
 import { describePolicy, formatRupees } from "@/lib/domain/pricing";
@@ -136,27 +137,24 @@ export function SettingsForm() {
               </span>
             </div>
             <div className={d.formRow}>
-              <label className={ui.field}>
+              <div className={ui.field}>
                 <span>Opens</span>
-                <select className={ui.select} value={draft.openHour} onChange={(e) => update({ openHour: Number(e.target.value) })}>
-                  {HOURS.slice(0, -1).map((h) => (
-                    <option key={h} value={h}>
-                      {formatHour(h)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className={ui.field}>
+                <Select
+                  label="Opens"
+                  value={draft.openHour}
+                  onChange={(h) => update({ openHour: h })}
+                  options={HOURS.slice(0, -1).map((h) => ({ value: h, label: formatHour(h) }))}
+                />
+              </div>
+              <div className={ui.field}>
                 <span>Closes</span>
-                <select className={ui.select} value={draft.closeHour} onChange={(e) => update({ closeHour: Number(e.target.value) })}>
-                  {HOURS.slice(1).map((h) => (
-                    <option key={h} value={h}>
-                      {formatHour(h)}
-                      {h >= 24 ? " (next day)" : ""}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                <Select
+                  label="Closes"
+                  value={draft.closeHour}
+                  onChange={(h) => update({ closeHour: h })}
+                  options={HOURS.slice(1).map((h) => ({ value: h, label: `${formatHour(h)}${h >= 24 ? " (next day)" : ""}` }))}
+                />
+              </div>
             </div>
           </section>
 
@@ -206,32 +204,20 @@ export function SettingsForm() {
                             />
                           </td>
                           <td>
-                            <select
-                              className={ui.select}
-                              aria-label={`${b.label || "Rate"} starts`}
+                            <Select
+                              label={`${b.label || "Rate"} starts`}
                               value={b.from}
-                              onChange={(e) => setBand(sport, i, { from: Number(e.target.value) })}
-                            >
-                              {HOURS.map((h) => (
-                                <option key={h} value={h}>
-                                  {formatHour(h)}
-                                </option>
-                              ))}
-                            </select>
+                              onChange={(h) => setBand(sport, i, { from: h })}
+                              options={HOURS.map((h) => ({ value: h, label: formatHour(h) }))}
+                            />
                           </td>
                           <td>
-                            <select
-                              className={ui.select}
-                              aria-label={`${b.label || "Rate"} ends`}
+                            <Select
+                              label={`${b.label || "Rate"} ends`}
                               value={b.to}
-                              onChange={(e) => setBand(sport, i, { to: Number(e.target.value) })}
-                            >
-                              {HOURS.map((h) => (
-                                <option key={h} value={h}>
-                                  {formatHour(h)}
-                                </option>
-                              ))}
-                            </select>
+                              onChange={(h) => setBand(sport, i, { to: h })}
+                              options={HOURS.map((h) => ({ value: h, label: formatHour(h) }))}
+                            />
                           </td>
                           <td>
                             <span className={d.priceField}>
@@ -277,34 +263,24 @@ export function SettingsForm() {
               Cancellation and payment
             </h2>
             <div className={d.formRow}>
-              <label className={ui.field}>
+              <div className={ui.field}>
                 <span>Free cancellation until</span>
-                <select
-                  className={ui.select}
+                <Select
+                  label="Free cancellation until"
                   value={draft.cancellation.freeUntilHours}
-                  onChange={(e) => update({ cancellation: { ...draft.cancellation, freeUntilHours: Number(e.target.value) } })}
-                >
-                  {[2, 4, 6, 12, 24, 48].map((h) => (
-                    <option key={h} value={h}>
-                      {h} hours before
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className={ui.field}>
+                  onChange={(h) => update({ cancellation: { ...draft.cancellation, freeUntilHours: h } })}
+                  options={[2, 4, 6, 12, 24, 48].map((h) => ({ value: h, label: `${h} hours before` }))}
+                />
+              </div>
+              <div className={ui.field}>
                 <span>Refund after that</span>
-                <select
-                  className={ui.select}
+                <Select
+                  label="Refund after that"
                   value={draft.cancellation.lateRefundPercent}
-                  onChange={(e) => update({ cancellation: { ...draft.cancellation, lateRefundPercent: Number(e.target.value) } })}
-                >
-                  {[0, 25, 50, 75].map((p) => (
-                    <option key={p} value={p}>
-                      {p}%
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  onChange={(p) => update({ cancellation: { ...draft.cancellation, lateRefundPercent: p } })}
+                  options={[0, 25, 50, 75].map((p) => ({ value: p, label: `${p}%` }))}
+                />
+              </div>
             </div>
             <label className={d.checkRow}>
               <input type="checkbox" checked={draft.payAtVenue} onChange={(e) => update({ payAtVenue: e.target.checked })} />

@@ -1,6 +1,18 @@
 {
   "version": 1,
   "skills": {
+    "a11y-audit": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/a11y-audit/SKILL.md",
+      "computedHash": "6e4ba0f4a03cf90a129b2d921302be5e2b79d2f415c0028499f4279caa195e99"
+    },
+    "apply-aesthetic": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/apply-aesthetic/SKILL.md",
+      "computedHash": "ad7bac1f3d68c08fe02e3af4c8d1d74a0c81394388fac353ae96adf62b2f86cc"
+    },
     "aso": {
       "source": "arnabbagxd/brand-building-skills",
       "sourceType": "github",
@@ -109,11 +121,23 @@
       "skillPath": "skills/brand-voice/SKILL.md",
       "computedHash": "c04b1875dd7c3669834bccc68a0c7523468dd62166d2b3289fc8bc3d6035a656"
     },
+    "brandkit": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/brandkit/SKILL.md",
+      "computedHash": "f7ab5b76e40ef679cd5b37783c98aaeb30c05c915f045a0627288124935c1dbd"
+    },
     "competitor-branding": {
       "source": "arnabbagxd/brand-building-skills",
       "sourceType": "github",
       "skillPath": "skills/competitor-branding/SKILL.md",
       "computedHash": "8410f7b961549ca7e8fab91247ddbd5a667bdfbd9829c863ffa981293ba2bbcc"
+    },
+    "critique": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/critique/SKILL.md",
+      "computedHash": "7963837b2b889f6309bc7f3a07d3f80d8cbf613054c9b46484fbb4324f7864e5"
     },
     "d2c-marketing": {
       "source": "arnabbagxd/brand-building-skills",
@@ -121,17 +145,95 @@
       "skillPath": "skills/d2c-marketing/SKILL.md",
       "computedHash": "949ddab5e890044d9a1ddca69b62ed73609ce7784735a6ebd2172fb6f95553e8"
     },
+    "data-dashboard": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/data-dashboard/SKILL.md",
+      "computedHash": "28aa5976a53074536d4a92f7ce70cc459d9f6e96733e060bd1e4474db88d089a"
+    },
+    "design-code": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/design-code/SKILL.md",
+      "computedHash": "1e37fa8d71989ebe1f711f20b3a3ad314abc91fa17a090e95f9edf147892d657"
+    },
+    "design-component": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/design-component/SKILL.md",
+      "computedHash": "b16b2e18e576f5b43c550c4408f6e1889e2ba3b478aa0daf6e518b825dcc9749"
+    },
+    "design-doctrine": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/design-doctrine/SKILL.md",
+      "computedHash": "14d9c660a2f6979343cd556b3aab23e11bf36d6eefa66dd468ab6f6217a823ef"
+    },
+    "design-qa": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/design-qa/SKILL.md",
+      "computedHash": "bbb4741af939c88ef338cce4f08c9a95c725e042e225047472881cdfaf8eb9a0"
+    },
+    "design-review": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/design-review/SKILL.md",
+      "computedHash": "eb235bc95c1cfae17d8a957a23bccdfe2728d3cf826aff1e11550e1ae5abca3e"
+    },
+    "design-screen": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/design-screen/SKILL.md",
+      "computedHash": "688180ecad76eadd573ebb03a7e637ef44620b76ad2a85a66e5152875402e9e7"
+    },
+    "design-tokens": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/design-tokens/SKILL.md",
+      "computedHash": "1b9f68f565446ee43342e5b077c0b336673829f0bf1da19b12eb79a1b19b991e"
+    },
     "email-marketing": {
       "source": "arnabbagxd/brand-building-skills",
       "sourceType": "github",
       "skillPath": "skills/email-marketing/SKILL.md",
       "computedHash": "d79751c066156fffe38574738b0db6433f2d9ffe6b1dfd25ee2ddb12bb478c22"
     },
+    "figma-integration": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/figma-integration/SKILL.md",
+      "computedHash": "c081c0bb45adb02c64a64ed761b43c641663bc5b2083f4e01977b391cfd405ed"
+    },
+    "gate": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/gate/SKILL.md",
+      "computedHash": "c424a0d9f6908b3ecb020c02767d8f1b1ce96ebb9dd9e8195d59a5c458f3f954"
+    },
     "google-ads": {
       "source": "arnabbagxd/brand-building-skills",
       "sourceType": "github",
       "skillPath": "skills/google-ads/SKILL.md",
       "computedHash": "06f5464b0ba70cdc5ac31cf8c3b7ef7bae9344e33fe2e0df79e6da016c5cf9ee"
+    },
+    "governance": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/governance/SKILL.md",
+      "computedHash": "bb2cb8ef88894a34251501692a6e90bf1e9d6a8a771322d637bf11c9ebfe8752"
+    },
+    "grill-me": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/grill-me/SKILL.md",
+      "computedHash": "c8d0ae70b10cb6e2911f38473220bc503f32c56178ead06c1c3bf3bf3486abf2"
+    },
+    "image-to-code": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/image-to-code/SKILL.md",
+      "computedHash": "8ad2f4e306ab33e9bd2e0494bb0621c963f5624a32a21a30150b9d2effcab80f"
     },
     "influencer-marketing": {
       "source": "arnabbagxd/brand-building-skills",
@@ -145,11 +247,35 @@
       "skillPath": "skills/meta-ads/SKILL.md",
       "computedHash": "c20e1e1cd0ad2ed13d4eda85c93d5b5611f7e72de059285c2181a2ea4cd56dcc"
     },
+    "migrate-design-system": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/migrate-design-system/SKILL.md",
+      "computedHash": "c50e3dc2a8e8dc19e47edd6cd1864121a445a2e9dd11abdcf9027d3feb5d9fe8"
+    },
+    "observe": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/observe/SKILL.md",
+      "computedHash": "0c03c0c1dcbefc7591e577a6c2ff1ad26a184c94b9f182ea92fcf5cb5c46dad2"
+    },
+    "performance": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/performance/SKILL.md",
+      "computedHash": "e1e4dd03dc893b954a138bec31799961aaefad46c6e23acd7a466a0caaaaf8ad"
+    },
     "personal-brand": {
       "source": "arnabbagxd/brand-building-skills",
       "sourceType": "github",
       "skillPath": "skills/personal-brand/SKILL.md",
       "computedHash": "b9c8d535aa3faa02d3ac20b69df6f63bf190687ffce90d5ac0f205230a365a8e"
+    },
+    "prototype": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/prototype/SKILL.md",
+      "computedHash": "7769770c4d76b2c88cbabc4713dc5c907cae938ef02c56bb4e42c6d753f77501"
     },
     "rebranding": {
       "source": "arnabbagxd/brand-building-skills",
@@ -157,17 +283,47 @@
       "skillPath": "skills/rebranding/SKILL.md",
       "computedHash": "59fe2350a117cea153f1e557f269134571e72e46ee5e68aaa4ae41f7635f0f7f"
     },
+    "redesign": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/redesign/SKILL.md",
+      "computedHash": "3377db74f2ded8a8d8aafb94cff857ece9efb056252c7fef07db0e2e13ad4bad"
+    },
+    "scaffold-project": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/scaffold-project/SKILL.md",
+      "computedHash": "5c64f50c346e18652ee1b6e3f0d3a27d8e4e5b6f9a95da24d08053fc49c4d440"
+    },
+    "ship": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/ship/SKILL.md",
+      "computedHash": "a9e75c04662a49161a26fabba4f7dfe0deba918465df4a0d2cf945a4affb5568"
+    },
     "target-audience": {
       "source": "arnabbagxd/brand-building-skills",
       "sourceType": "github",
       "skillPath": "skills/target-audience/SKILL.md",
       "computedHash": "5955947e128eb6bc8654081c2a53106118474b042d7dca0e124d75b071d07acb"
     },
+    "token-build": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/token-build/SKILL.md",
+      "computedHash": "12e83d6fb4f08fa52e250d0cff928eb84bf67f6ef44fdb69631c19448c119923"
+    },
     "ugc-strategy": {
       "source": "arnabbagxd/brand-building-skills",
       "sourceType": "github",
       "skillPath": "skills/ugc-strategy/SKILL.md",
       "computedHash": "8bd7708deab9ef8c03a3afe9db73ee5ad095dd526b8f138e51f90ffcf7c75b08"
+    },
+    "ux-writing": {
+      "source": "plugin87/ux-ui-agent-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/ux-writing/SKILL.md",
+      "computedHash": "41ac26fe3ca319822f302c355e6c4a5b96f3c002c3498b3a7de53493eeb32a31"
     },
     "whatsapp-marketing": {
       "source": "arnabbagxd/brand-building-skills",

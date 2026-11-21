@@ -57,7 +57,7 @@
 }
 
 .pickerBtn:hover {
-  color: #e4fa7a;
+  color: var(--flood);
   border-bottom-color: var(--chalk);
 }
 
@@ -133,7 +133,7 @@
 
 .pickerOptionDim .pickerLabel,
 .pickerOptionDim .pickerMeta {
-  color: #7a827c;
+  color: var(--ink-3);
 }
 
 .pickerTick svg {
@@ -216,7 +216,7 @@
 }
 
 .search input::placeholder {
-  color: #7d8f85;
+  color: var(--ink-3);
 }
 
 .search input:focus-visible {
@@ -250,7 +250,7 @@
 .card {
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
@@ -374,7 +374,7 @@
   border-radius: 4px;
   text-decoration: none;
   color: var(--night);
-  background: #fff;
+  background: var(--surface);
   transition: border-color 0.12s, background-color 0.12s;
 }
 
@@ -392,7 +392,7 @@
 
 .time:hover {
   border-color: var(--turf);
-  background: #eef6f1;
+  background: var(--turf-tint);
 }
 
 .more {

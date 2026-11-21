@@ -19,6 +19,34 @@
   --muted-dark: #a9b0ab;
   --error-on-dark: #ff9c82;
 
+  /* Semantic layer: every stylesheet uses these instead of raw hex, so one edit here
+     restyles the whole site (one theme, one source of truth). */
+  --surface: #fcfbf7;        /* cards, inputs, panels on Chalk: warm, never pure white */
+  --surface-sunk: #faf8f2;   /* zebra rows, quiet wells */
+  --sand-2: #efebe0;         /* hairlines inside a surface */
+  --ink-3: #7a827c;          /* disabled and past items only (not for readable text) */
+  --scrim: var(--night);     /* dialog and lightbox backdrops */
+
+  --turf-tint: #e6f2ea;      /* confirmed / selected fills */
+  --turf-tint-2: #dcefe3;
+  --turf-line: #b9d8c6;
+  --turf-ink: var(--deep-turf); /* text on Turf tints */
+  --turf-bright: #33b273;    /* Turf accents on dark surfaces */
+  --turf-line-dark: #3d5c4d;
+
+  --flood-tint: #f2fad0;     /* open / offer fills */
+  --flood-line: #c9e35a;
+  --flood-ink: #34400a;      /* text on Floodlight tints */
+
+  --warn-dark: #4a4220;      /* unpaid holds on dark calendars */
+  --warn-dark-line: #6e6024;
+  --warn-dark-ink: #f2e2a2;
+
+  --danger: #a3330f;         /* destructive actions and errors (Tape, darkened for text) */
+  --danger-strong: #8a2a0c;
+  --danger-tint: #fbe4dc;
+  --danger-line: #efc2b5;
+
   /* Brand kit v1.0: Big Shoulders for headlines, prices, scores and times (always uppercase);
      Archivo for body copy, UI labels, tables and messages. --mono is kept as the name for
      time/price figures so existing rules keep working. */
@@ -187,7 +215,7 @@ p {
   width: 100%;
 }
 
-:is(a, button, summary, input, select):focus-visible {
+:is(a, button, summary, input, select, textarea, [tabindex]:not([tabindex="-1"]), [role="option"], [role="button"], [role="tab"], [role="switch"], [role="checkbox"], [role="radio"]):focus-visible {
   outline: 3px solid var(--flood);
   outline-offset: 2px;
 }

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { StatusBadge, bookingState } from "@/components/player/StatusBadge";
+import { Select } from "@/components/ui/Select";
 import ui from "@/components/ui/ui.module.css";
 import { formatPhone } from "@/lib/format";
 import { formatRupees } from "@/lib/domain/pricing";
@@ -66,26 +67,24 @@ export function BookingsTable() {
       </div>
 
       <div className={d.toolbar}>
-        <label className={ui.field}>
+        <div className={ui.field}>
           <span>Period</span>
-          <select className={ui.select} value={range} onChange={(e) => setRange(e.target.value as RangeKey)}>
-            {Object.entries(RANGES).map(([k, v]) => (
-              <option key={k} value={k}>
-                {v.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className={ui.field}>
+          <Select<RangeKey>
+            label="Period"
+            value={range}
+            onChange={setRange}
+            options={(Object.keys(RANGES) as RangeKey[]).map((k) => ({ value: k, label: RANGES[k].label }))}
+          />
+        </div>
+        <div className={ui.field}>
           <span>Status</span>
-          <select className={ui.select} value={status} onChange={(e) => setStatus(e.target.value as StatusKey)}>
-            {Object.entries(STATUSES).map(([k, v]) => (
-              <option key={k} value={k}>
-                {v}
-              </option>
-            ))}
-          </select>
-        </label>
+          <Select<StatusKey>
+            label="Status"
+            value={status}
+            onChange={setStatus}
+            options={(Object.keys(STATUSES) as StatusKey[]).map((k) => ({ value: k, label: STATUSES[k] }))}
+          />
+        </div>
         <label className={ui.field} style={{ flex: "1 1 220px" }}>
           <span>Search</span>
           <input

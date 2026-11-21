@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { Modal } from "@/components/ui/Modal";
+import { Select } from "@/components/ui/Select";
 import ui from "@/components/ui/ui.module.css";
 import { PK_MOBILE, normalisePhone } from "@/lib/format";
 import { formatRupees, priceFor } from "@/lib/domain/pricing";
@@ -72,42 +73,29 @@ function AddBookingForm({ preset, venue, onDone }: { preset: AddBookingPreset; v
   return (
     <form noValidate onSubmit={onSubmit} style={{ display: "grid", gap: 14 }}>
       <div className={d.formRow}>
-        <label className={ui.field}>
+        <div className={ui.field}>
           <span>Court</span>
-          <select className={ui.select} value={courtId} onChange={(e) => setCourtId(e.target.value)}>
-            {venue.courts.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </label>
+          <Select label="Court" value={courtId} onChange={setCourtId} options={venue.courts.map((c) => ({ value: c.id, label: c.name }))} />
+        </div>
         <label className={ui.field}>
           <span>Day</span>
           <input className={ui.input} type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
         </label>
       </div>
       <div className={d.formRow}>
-        <label className={ui.field}>
+        <div className={ui.field}>
           <span>Start</span>
-          <select className={ui.select} value={start} onChange={(e) => setStart(Number(e.target.value))}>
-            {startOptions.map((h) => (
-              <option key={h} value={h}>
-                {formatHour(h)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className={ui.field}>
+          <Select label="Start" value={start} onChange={setStart} options={startOptions.map((h) => ({ value: h, label: formatHour(h) }))} />
+        </div>
+        <div className={ui.field}>
           <span>Length</span>
-          <select className={ui.select} value={hours} onChange={(e) => setHours(Number(e.target.value))}>
-            {[1, 2, 3].map((h) => (
-              <option key={h} value={h}>
-                {h} {h === 1 ? "hour" : "hours"}
-              </option>
-            ))}
-          </select>
-        </label>
+          <Select
+            label="Length"
+            value={hours}
+            onChange={setHours}
+            options={[1, 2, 3].map((h) => ({ value: h, label: `${h} ${h === 1 ? "hour" : "hours"}` }))}
+          />
+        </div>
       </div>
       <div className={d.formRow}>
         <label className={ui.field}>
@@ -119,19 +107,18 @@ function AddBookingForm({ preset, venue, onDone }: { preset: AddBookingPreset; v
           <input className={ui.input} name="phone" type="tel" inputMode="tel" placeholder="03XX XXXXXXX" required />
         </label>
       </div>
-      <label className={ui.field}>
+      <div className={ui.field}>
         <span>Payment</span>
-        <select className={ui.select} value={payment} onChange={(e) => setPayment(e.target.value as PaymentMethod)}>
-          {PAYMENT_METHODS.map((m) => (
-            <option key={m} value={m}>
-              {m === "cash" ? "Cash at the counter" : `${PAYMENT_LABEL[m]} (already paid)`}
-            </option>
-          ))}
-        </select>
-      </label>
+        <Select
+          label="Payment"
+          value={payment}
+          onChange={setPayment}
+          options={PAYMENT_METHODS.map((m) => ({ value: m, label: m === "cash" ? "Cash at the counter" : `${PAYMENT_LABEL[m]} (already paid)` }))}
+        />
+      </div>
       {payment === "cash" && (
         <label style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <input type="checkbox" checked={paidNow} onChange={(e) => setPaidNow(e.target.checked)} style={{ width: 18, height: 18 }} />
+          <input type="checkbox" checked={paidNow} onChange={(e) => setPaidNow(e.target.checked)} style={{ width: 24, height: 24, accentColor: "var(--turf)" }} />
           Cash already received
         </label>
       )}

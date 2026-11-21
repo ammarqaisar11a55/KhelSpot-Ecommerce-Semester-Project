@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Select } from "@/components/ui/Select";
 import ui from "@/components/ui/ui.module.css";
 import { formatPhone } from "@/lib/format";
 import { formatRupees } from "@/lib/domain/pricing";
@@ -78,14 +79,19 @@ export function Customers() {
           <span>Search</span>
           <input className={ui.input} type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Name or phone" />
         </label>
-        <label className={ui.field}>
+        <div className={ui.field}>
           <span>Sort by</span>
-          <select className={ui.select} value={sort} onChange={(e) => setSort(e.target.value as SortKey)}>
-            <option value="bookings">Most games</option>
-            <option value="spent">Most spent</option>
-            <option value="recent">Most recent visit</option>
-          </select>
-        </label>
+          <Select<SortKey>
+            label="Sort by"
+            value={sort}
+            onChange={setSort}
+            options={[
+              { value: "bookings", label: "Most games" },
+              { value: "spent", label: "Most spent" },
+              { value: "recent", label: "Most recent visit" },
+            ]}
+          />
+        </div>
       </div>
 
       {rows.length ? (
@@ -121,9 +127,9 @@ export function Customers() {
                     <td className={d.num}>{r.bookings}</td>
                     <td className={d.num}>{r.hours}</td>
                     <td className={d.num}>{formatRupees(r.spent)}</td>
-                    <td>{fav ? SPORT_LABEL[fav] : "–"}</td>
-                    <td>{r.lastVisit ? formatDay(r.lastVisit) : "–"}</td>
-                    <td>{r.nextVisit ? formatDay(r.nextVisit) : "–"}</td>
+                    <td>{fav ? SPORT_LABEL[fav] : "None yet"}</td>
+                    <td>{r.lastVisit ? formatDay(r.lastVisit) : "Not yet"}</td>
+                    <td>{r.nextVisit ? formatDay(r.nextVisit) : "None booked"}</td>
                   </tr>
                 );
               })}
