@@ -41,7 +41,7 @@ export function BoardHeader({ children }: { children?: ReactNode }) {
   return (
     <section className={v.band}>
       <div className="wrap">
-        <h1 className={v.title}>Free courts in Lahore</h1>
+        <h1 className={v.title}>Free courts near you</h1>
         {children ?? <p className={v.sentence}>Padel, futsal, indoor cricket and badminton, with the times still open tonight.</p>}
       </div>
     </section>

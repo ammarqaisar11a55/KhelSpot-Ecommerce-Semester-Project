@@ -4,8 +4,8 @@ import { BoardHeader, VenueBrowser } from "@/components/player/VenueBrowser";
 import { BlockSkeleton } from "@/components/ui/Skeletons";
 
 export const metadata: Metadata = {
-  title: "Free courts in Lahore",
-  description: "Padel, futsal, indoor cricket and badminton courts in Lahore with the times still open tonight.",
+  title: "Free courts near you",
+  description: "Padel, futsal, indoor cricket and badminton courts near you, with the times still open tonight.",
 };
 
 export default function VenuesPage() {
