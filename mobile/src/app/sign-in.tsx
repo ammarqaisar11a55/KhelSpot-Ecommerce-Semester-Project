@@ -58,7 +58,8 @@ export default function SignIn() {
         return;
       }
       signedIn(r.token, r.user);
-      router.back();
+      if (router.canGoBack()) router.back();
+      else router.replace("/");
     } catch (e) {
       setError(e instanceof ApiError ? e : new ApiError("UNKNOWN", "Couldn't check the code. Try again."));
     } finally {
@@ -74,7 +75,7 @@ export default function SignIn() {
           Venue accounts are set up by KhelSpot with the number the venue gave us. If this is your venue&apos;s number,
           contact KhelSpot to add it. You&apos;re signed in as a player in the meantime.
         </Text>
-        <Button kind="outline" label="Done" onPress={() => router.back()} />
+        <Button kind="outline" label="Done" onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))} />
       </View>
     );
   }

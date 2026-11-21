@@ -17,11 +17,13 @@ interface PlayerState {
   profile: Customer | null;
   /** WhatsApp booking updates: only sent with this tick (needed before any template is sent). */
   whatsappOk: boolean;
+  /** "Game in 2 hours" notifications; on unless the player turns them off in Account. */
+  remindersOn: boolean;
   bookings: SavedBooking[];
 }
 
 const KEY = "player";
-const EMPTY: PlayerState = { profile: null, whatsappOk: false, bookings: [] };
+const EMPTY: PlayerState = { profile: null, whatsappOk: false, remindersOn: true, bookings: [] };
 
 let state: PlayerState = { ...EMPTY, ...(readJson<Partial<PlayerState>>(KEY) ?? {}) };
 const listeners = new Set<() => void>();
@@ -45,11 +47,18 @@ export function usePlayer(): PlayerState {
 
 export function rememberBooking(b: SavedBooking, profile: Customer, whatsappOk: boolean) {
   set({
+    ...state,
     profile,
     whatsappOk,
     bookings: [b, ...state.bookings.filter((x) => x.ref !== b.ref)].slice(0, 100),
   });
 }
+
+export function setRemindersOn(on: boolean) {
+  set({ ...state, remindersOn: on });
+}
+
+export const remindersEnabled = () => state.remindersOn;
 
 export function forgetBooking(ref: string) {
   set({ ...state, bookings: state.bookings.filter((b) => b.ref !== ref) });

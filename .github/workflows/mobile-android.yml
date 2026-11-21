@@ -37,6 +37,10 @@ jobs:
       APP_VARIANT: internal
       BUILD_NUMBER: ${{ github.run_number }}
       GIT_COMMIT: ${{ github.sha }}
+      # Live Server and website the app talks to (Settings > Secrets and variables >
+      # Actions > Variables). Unset: the app asks for an address in Account > Server connection.
+      EXPO_PUBLIC_API_URL: ${{ vars.KHELSPOT_API_URL }}
+      EXPO_PUBLIC_WEB_URL: ${{ vars.KHELSPOT_WEB_URL }}
     steps:
       - uses: actions/checkout@v4
         with:

@@ -93,6 +93,7 @@ export default function CourtsScreen() {
   const days = Array.from({ length: 7 }, (_, i) => addDays(today, i));
   const [date, setDate] = useState(today);
   const [sport, setSport] = useState<SportFilter>("all");
+  const [area, setArea] = useState("all");
 
   const venues = useQuery("venues", () => api.venues());
   const avail = useQuery(venues.data ? `avail|${date}|${venues.data.map((v) => v.slug).join(",")}` : null, async () => {
@@ -107,7 +108,10 @@ export default function CourtsScreen() {
     return Object.fromEntries(list.map((v, i) => [v.id, results[i].status === "fulfilled" ? results[i].value : undefined]));
   });
 
-  const shown = (venues.data ?? []).filter((v) => sport === "all" || v.courts.some((c) => c.sport === sport));
+  const areas = [...new Set((venues.data ?? []).map((v) => v.area))].sort();
+  const shown = (venues.data ?? []).filter(
+    (v) => (sport === "all" || v.courts.some((c) => c.sport === sport)) && (area === "all" || v.area === area),
+  );
   const refresh = () => {
     venues.refresh();
     avail.refresh();
@@ -116,6 +120,9 @@ export default function CourtsScreen() {
   return (
     <Screen kicker="Aaj raat khelna hai?" title={"Free courts\nin Lahore"} refreshing={venues.refreshing || avail.refreshing} onRefresh={refresh}>
       <Pills label="Sport" options={SPORT_OPTIONS} value={sport} onChange={setSport} />
+      {areas.length > 1 ? (
+        <Pills label="Area" options={[{ id: "all", label: "All areas" }, ...areas.map((a) => ({ id: a, label: a }))]} value={area} onChange={setArea} />
+      ) : null}
       <Pills
         label="Day"
         options={days.map((d, i) => ({ id: d, label: i < 2 ? relativeDay(d, today) : `${weekdayShort(d)} ${dayOfMonth(d)}` }))}
@@ -131,8 +138,8 @@ export default function CourtsScreen() {
           <VenueCardSkeleton />
         </>
       ) : shown.length === 0 ? (
-        <Empty title={`No ${sport === "all" ? "" : SPORT_LABEL[sport as Sport].toLowerCase() + " "}courts listed yet`}>
-          <Text style={[text.body, styles.slate]}>More Lahore venues are joining. Try another sport.</Text>
+        <Empty title={`No ${sport === "all" ? "" : SPORT_LABEL[sport as Sport].toLowerCase() + " "}courts${area === "all" ? "" : ` in ${area}`} yet`}>
+          <Text style={[text.body, styles.slate]}>More Lahore venues are joining. Try another sport or area.</Text>
         </Empty>
       ) : (
         shown.map((v) => <VenueCard key={v.id} venue={v} av={avail.data?.[v.id]} sport={sport} date={date} />)

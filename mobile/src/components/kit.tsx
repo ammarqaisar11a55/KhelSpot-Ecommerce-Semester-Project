@@ -8,6 +8,7 @@ import { photoUrl, useConnection } from "@/api/connection";
 import { router } from "expo-router";
 import { PressableScale } from "./motion";
 import { Button } from "./ui";
+import { BUNDLED_VENUE_PHOTOS } from "./venuePhotos";
 import { radius, space, text, useStyles, usePalette, type Palette } from "@/theme";
 
 /** Horizontal row of pill filters. The selected pill is Ink with Chalk text; Floodlight stays for open slots. */
@@ -100,8 +101,9 @@ export function VenuePhoto({ src, alt, height, area }: { src?: string; alt?: str
   const c = usePalette();
   const styles = useStyles(makeStyles);
   const conn = useConnection();
-  const uri = photoUrl(src, conn);
-  if (!uri) {
+  const bundled = src ? BUNDLED_VENUE_PHOTOS[src] : undefined;
+  const uri = bundled ? null : photoUrl(src, conn);
+  if (!bundled && !uri) {
     return (
       <View style={[styles.noPhoto, { height }]}>
         {area ? <Text style={[text.label, { color: c.floodlight }]}>{area}</Text> : null}
@@ -110,7 +112,7 @@ export function VenuePhoto({ src, alt, height, area }: { src?: string; alt?: str
   }
   return (
     <Image
-      source={{ uri }}
+      source={bundled ?? { uri: uri! }}
       style={{ height, width: "100%", backgroundColor: c.deepTurf }}
       contentFit="cover"
       transition={150}

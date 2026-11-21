@@ -1,8 +1,9 @@
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Linking, ScrollView, Share, StyleSheet, Text, View } from "react-native";
+import * as CalendarLegacy from "expo-calendar/legacy";
+import { Linking, Platform, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { formatRupees, refundLine, refundQuote } from "@shared/domain/pricing";
-import { formatDateTime, formatWhen, isPast } from "@shared/domain/time";
+import { formatDateTime, formatWhen, isPast, slotStart } from "@shared/domain/time";
 import { PAYMENT_LABEL } from "@shared/domain/types";
 import { ApiError, api } from "@/api/client";
 import { invalidateQueries, useQuery } from "@/api/useQuery";
@@ -131,6 +132,22 @@ export default function Booked() {
           }
         />
       </View>
+      {!cancelled && !finished && Platform.OS !== "web" ? (
+        <Button
+          kind="outline"
+          label="Add to calendar"
+          onPress={() =>
+            // The phone's own "new event" screen: no calendar permission needed.
+            CalendarLegacy.createEventInCalendarAsync({
+              title: `${court?.name ?? "Court"} at ${v.name}`,
+              startDate: slotStart(b.date, b.start),
+              endDate: slotStart(b.date, b.start + b.hours),
+              location: v.address,
+              notes: `KhelSpot booking ${b.ref}. ${refundLine(b.date, b.start, v.cancellation)}`,
+            }).catch(() => {})
+          }
+        />
+      ) : null}
 
       {!cancelled && !pending && !finished && quote.canCancel ? (
         confirming ? (

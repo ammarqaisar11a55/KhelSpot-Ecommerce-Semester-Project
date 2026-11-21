@@ -6,7 +6,7 @@ import * as SplashScreen from "expo-splash-screen";
 import * as SystemUI from "expo-system-ui";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { configureNotifications } from "@/lib/reminders";
+import { configureNotifications, useReminderTaps } from "@/lib/reminders";
 import { usePalette } from "@/theme";
 import { RoleProvider } from "@/role/RoleProvider";
 import { UpdaterProvider } from "@/updater/UpdaterProvider";
@@ -29,6 +29,8 @@ export default function RootLayout() {
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
   }, [ready]);
+
+  useReminderTaps(ready);
 
   // Root view behind screens and the keyboard follows the theme too.
   useEffect(() => {
@@ -64,6 +66,7 @@ export default function RootLayout() {
             <Stack.Screen name="checkout" options={{ title: "Checkout" }} />
             <Stack.Screen name="booked/[ref]" options={{ title: "Booking" }} />
             <Stack.Screen name="sign-in" options={{ title: "Sign in", presentation: "modal", animation: "slide_from_bottom" }} />
+            <Stack.Screen name="profile" options={{ title: "Profile" }} />
             <Stack.Screen name="manage/booking/[ref]" options={{ title: "Booking" }} />
             <Stack.Screen name="manage/walk-in" options={{ title: "Add a walk-in" }} />
             <Stack.Screen name="payment-return" options={{ headerShown: false }} />

@@ -1,13 +1,16 @@
 import { router } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import { useState, type ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { LogoMark } from "@/components/brand";
 import { ChevronIcon } from "@/components/icons";
 import { Pills } from "@/components/kit";
+import { haptic } from "@/components/motion";
 import { Screen, Tag } from "@/components/ui";
 import { auth } from "@/api/client";
 import { useConnection } from "@/api/connection";
 import { signedOut, useSession } from "@/auth/session";
+import { setRemindersOn, usePlayer } from "@/player/store";
 import { homeFor, useRole, type Role } from "@/role/RoleProvider";
 import { radius, space, text, useStyles, usePalette, type Palette, setThemePreference, useThemePreference } from "@/theme";
 import { canSelfUpdate, installed, updaterConfig } from "@/updater/config";
@@ -33,6 +36,30 @@ function Row({ title, detail, right, onPress }: { title: string; detail?: string
   );
 }
 
+function ToggleRow({ title, detail, value, onChange }: { title: string; detail?: string; value: boolean; onChange: (v: boolean) => void }) {
+  const c = usePalette();
+  const styles = useStyles(makeStyles);
+  return (
+    <Pressable
+      accessibilityRole="switch"
+      accessibilityState={{ checked: value }}
+      onPress={() => {
+        haptic.select();
+        onChange(!value);
+      }}
+      style={({ pressed }) => [styles.row, pressed && { backgroundColor: c.subtle }]}
+    >
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text style={[text.bodyStrong, styles.ink]}>{title}</Text>
+        {detail ? <Text style={[text.body, styles.slate, styles.small]}>{detail}</Text> : null}
+      </View>
+      <View style={[styles.track, value && { backgroundColor: c.turf }]}>
+        <View style={[styles.knob, value && { transform: [{ translateX: 20 }] }]} />
+      </View>
+    </Pressable>
+  );
+}
+
 /** Account tab for both sides of the app. */
 export function AccountScreen({ role }: { role: Role }) {
   const c = usePalette();
@@ -42,6 +69,7 @@ export function AccountScreen({ role }: { role: Role }) {
   const conn = useConnection();
   const themePref = useThemePreference();
   const { user } = useSession();
+  const player = usePlayer();
   const [signingOut, setSigningOut] = useState(false);
   const signOut = async () => {
     setSigningOut(true);
@@ -74,6 +102,15 @@ export function AccountScreen({ role }: { role: Role }) {
             onPress={() => router.push({ pathname: "/sign-in", params: role === "owner" ? { role: "owner" } : {} })}
           />
         )}
+        {user ? <Row title="Profile" detail={user.name ? `Name: ${user.name}` : "Add your name"} onPress={() => router.push("/profile")} /> : null}
+        {role === "player" ? (
+          <ToggleRow
+            title="Game reminders"
+            detail="A notification 2 hours before a court you booked"
+            value={player.remindersOn}
+            onChange={setRemindersOn}
+          />
+        ) : null}
         <Row
           title="App updates"
           detail={
@@ -89,6 +126,9 @@ export function AccountScreen({ role }: { role: Role }) {
           detail={conn.apiUrl ?? "Not set"}
           onPress={() => router.push("/connection")}
         />
+        {conn.webUrl ? (
+          <Row title="Privacy policy" detail="What KhelSpot keeps and why" onPress={() => WebBrowser.openBrowserAsync(`${conn.webUrl}/privacy`)} />
+        ) : null}
         <Row
           title={role === "owner" ? "Book a court instead" : "I run a venue"}
           detail={role === "owner" ? "Switch to the player side of the app" : "Switch to the venue owner side of the app"}
@@ -146,4 +186,6 @@ const makeStyles = (c: Palette) =>
     borderBottomColor: c.border,
   },
   about: { flexDirection: "row", gap: space.md, alignItems: "center", paddingTop: space.sm },
+  track: { width: 48, height: 28, borderRadius: 14, backgroundColor: c.border, padding: 3 },
+  knob: { width: 22, height: 22, borderRadius: 11, backgroundColor: "#FFFFFF" },
 });

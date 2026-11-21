@@ -2,7 +2,7 @@
 
 KhelSpot app for players and venue owners, Lahore launch. Players get the same booking flow as the web app; owners get the web dashboard's daily tools, in brand kit v1.0, with a built-in updater that pulls new test builds straight from this GitHub repo.
 
-Status: phases 0–4 built in the app and on the Server, tested against a local Server. Done: browse, book, cancel with refund, "Game in 2 hours" reminder, phone sign-in, owner Today / Calendar / Bookings / walk-ins / mark paid / cancel / venue rates editor, online payment through a hosted checkout (test provider), light and dark themes, highest refresh rate. Waiting on accounts the user must open: an SMS provider for real sign-in codes, JazzCash / Easypaisa / card merchant accounts, a deployed Server, and a Google Play developer account.
+Status: the app is feature-complete for v1 and tested against a local Server: player browse, area/sport/day filters, book, pay (test checkout), cancel with refund, add to calendar, game reminders (tap opens the booking, can be turned off), phone sign-in and profile; owner Today, Calendar, Bookings, walk-ins, mark paid, venue rates; light/dark themes; GitHub updater. Launch venue photos ship in the app. Waiting on accounts outside the app: an SMS provider (real sign-in codes), JazzCash/Easypaisa/card merchant accounts, Firebase for owner push alerts, the deployed Server URL (set KHELSPOT_API_URL in GitHub Actions variables), and a Google Play developer account.
 
 ---
 
