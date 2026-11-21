@@ -215,7 +215,10 @@ p {
   width: 100%;
 }
 
-:is(a, button, summary, input, select, textarea, [tabindex]:not([tabindex="-1"]), [role="option"], [role="button"], [role="tab"], [role="switch"], [role="checkbox"], [role="radio"]):focus-visible {
+/* Native controls keep the original weight; the :where() list adds custom widgets at
+   class weight, so a component that draws its own focus (e.g. the venue search) still wins. */
+:is(a, button, summary, input, select, textarea):focus-visible,
+:where([tabindex]:not([tabindex="-1"]), [role="option"], [role="button"], [role="tab"], [role="switch"], [role="checkbox"], [role="radio"]):focus-visible {
   outline: 3px solid var(--flood);
   outline-offset: 2px;
 }
