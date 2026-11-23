@@ -265,6 +265,52 @@
   .promise, .promise:nth-child(even) { padding: 24px 0; border-left: 0; }
 }
 
+/* Voices: quote wall (components/landing/QuoteWall.tsx). Continues the Chalk of Promises. */
+.quotes { padding: 0 0 96px; }
+.quotes__head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 32px; }
+.quotes__note { margin-top: 14px; font-size: 14px; color: var(--ink-2); }
+.quotes__pause {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--night);
+  background: transparent; color: var(--night); cursor: pointer;
+  transition: background-color .15s, color .15s, transform .15s;
+}
+.quotes__pause svg { width: 16px; height: 16px; fill: currentColor; }
+.quotes__pause:hover { background: var(--night); color: var(--chalk); }
+.quotes__pause:active { transform: scale(.96); }
+.quotes__pause[aria-pressed="true"] { background: var(--night); color: var(--flood); }
+.quotes__wall {
+  display: grid; gap: 16px; height: 560px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+}
+.quoteCol { height: 100%; overflow: hidden; border-radius: 8px; }
+.quoteCol--still { overflow-y: auto; padding: 24px 0; }
+.quoteCol__track { will-change: transform; }
+.quoteCol--still .quoteCol__track { will-change: auto; }
+.quoteCol__copy { display: flex; flex-direction: column; gap: 16px; padding-bottom: 16px; }
+.quoteCard {
+  position: relative; margin: 0; padding: 20px; border-radius: 8px;
+  background: var(--surface); border: 1px solid var(--line);
+  transition: border-color .2s ease-out;
+}
+.quoteCard:hover { border-color: var(--night); }
+.quoteCard__mark { position: absolute; top: 16px; right: 16px; width: 22px; height: 22px; fill: var(--sand); }
+.quoteCard blockquote { margin: 0; padding-right: 28px; font-size: 15px; line-height: 1.6; color: var(--ink-2); text-wrap: pretty; }
+.quoteCard mark { background: var(--flood-tint); color: var(--night); font-weight: 600; padding: 0 2px; border-radius: 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.quoteCard figcaption { margin-top: 16px; display: flex; align-items: center; gap: 12px; }
+.quoteAvatar { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; font: 700 12px/1 var(--body); letter-spacing: .02em; }
+.quoteAvatar--turf { background: var(--turf-tint); color: var(--turf-ink); }
+.quoteAvatar--flood { background: var(--flood-tint); color: var(--flood-ink); }
+.quoteAvatar--sand { background: var(--sand-2); color: var(--night); }
+.quoteCard__who { min-width: 0; display: grid; }
+.quoteCard__name { font-weight: 700; font-size: 15px; color: var(--night); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.quoteCard__role { font-size: 13px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 760px) {
+  .quotes { padding-bottom: 64px; }
+  .quotes__wall { height: 480px; }
+}
+
 /* Owners: the brand-kit venue-owner flyer on an Ink closing section. The flyer keeps its
    Turf header (Turf leads; Turf on Ink is what gives the card its shape). */
 .owners { background: var(--night); color: var(--chalk); padding: 96px 0; }

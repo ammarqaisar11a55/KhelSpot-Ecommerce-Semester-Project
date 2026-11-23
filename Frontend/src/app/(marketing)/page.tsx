@@ -9,6 +9,7 @@ import { SiteFooter } from "@/components/landing/SiteFooter";
 import { SiteHeader } from "@/components/landing/SiteHeader";
 import { Sports } from "@/components/landing/Sports";
 import { Venues } from "@/components/landing/Venues";
+import { Voices } from "@/components/landing/Voices";
 
 export default function LandingPage() {
   return (
@@ -22,6 +23,7 @@ export default function LandingPage() {
         <Sports />
         <Demand />
         <Promises />
+        <Voices />
         <Venues />
         <Faq />
       </main>
