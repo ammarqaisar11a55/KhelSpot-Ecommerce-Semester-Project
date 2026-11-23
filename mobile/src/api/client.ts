@@ -129,7 +129,7 @@ export const api = {
 // ---------- sign-in (phone OTP) ----------
 
 export const auth = {
-  /** Sends the code. `devCode` comes back only from a local Server with OTP_DEV_ECHO=1. */
+  /** Sends the code. `devCode` comes back from a local or demo Server (OTP_DEV_ECHO), which sends no SMS. */
   requestCode: (phone: string) =>
     request<{ devCode?: string } | null>("/auth/otp", { method: "POST", body: { phone } }).then((r) => r ?? {}),
   verify: (phone: string, code: string) =>

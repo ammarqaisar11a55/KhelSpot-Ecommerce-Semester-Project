@@ -123,7 +123,9 @@ export default function SignIn() {
               onSubmitEditing={verify}
             />
             {devCode ? (
-              <Text style={[text.body, styles.slate, { fontSize: 14 }]}>Local test server code: {devCode}</Text>
+              <Text style={[text.body, styles.slate, { fontSize: 14 }]}>
+                Demo server, so no SMS is sent. Your code is {devCode}.
+              </Text>
             ) : null}
           </View>
         )}

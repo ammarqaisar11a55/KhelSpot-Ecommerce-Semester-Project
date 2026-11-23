@@ -2,5 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "npm ci",
-  "buildCommand": "DATABASE_URL=${DATABASE_URL:-postgresql://build@localhost:5432/build} prisma generate && node scripts/vercel-build.mjs"
+  "buildCommand": "DATABASE_URL=${DATABASE_URL:-postgresql://build@localhost:5432/build} prisma generate && node scripts/vercel-build.mjs",
+  "regions": [
+    "hnd1"
+  ]
 }

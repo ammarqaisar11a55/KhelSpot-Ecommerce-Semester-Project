@@ -12,7 +12,7 @@ import { createSmsProvider, type SmsProvider } from "./services/sms.ts";
 
 export interface AppSettings {
   otpSecret: string;
-  /** Return { devCode } from POST /auth/otp (never in production). */
+  /** Return { devCode } from POST /auth/otp (in production only on a demo deployment). */
   otpDevEcho: boolean;
   /** Allowed payment return URLs: scheme prefixes ("khelspot://") or origins ("http://localhost:3000"). */
   paymentReturnAllow: string[];

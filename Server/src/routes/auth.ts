@@ -14,7 +14,7 @@ export async function authRoutes(app: FastifyInstance, deps: Deps) {
   app.post("/auth/otp", async (req, reply) => {
     const { phone } = parse(otpRequest, req.body);
     const code = await sendOtp(db, sms, settings.otpSecret, phone, now());
-    // Local development only (OTP_DEV_ECHO=1, never in production): hand the code back.
+    // Development, or a demo deployment (OTP_DEV_ECHO=1 plus ALLOW_DEMO_OTP=1): hand the code back.
     if (settings.otpDevEcho) return reply.code(200).send({ devCode: code });
     return reply.code(204).send();
   });

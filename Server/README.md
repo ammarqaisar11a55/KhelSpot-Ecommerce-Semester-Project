@@ -36,7 +36,7 @@ All responses are JSON (except the test payment page). Errors look like `{ "erro
 
 | Method and path | Notes |
 |---|---|
-| `POST /auth/otp` | `{ phone }`. Sends a 6-digit code: 204. With `OTP_DEV_ECHO=1` outside production: 200 `{ devCode }`. More than 3 codes to one number in 10 minutes: 429 `TOO_MANY` |
+| `POST /auth/otp` | `{ phone }`. Sends a 6-digit code: 204. With `OTP_DEV_ECHO=1` outside production, or on a demo deployment that also sets `ALLOW_DEMO_OTP=1`: 200 `{ devCode }`. More than 3 codes to one number in 10 minutes: 429 `TOO_MANY` |
 | `POST /auth/verify` | `{ phone, code }` -> `{ token, user }`. Wrong: 400 `CODE_WRONG` (message says tries left). Expired, replaced or 5 wrong tries: 400 `CODE_EXPIRED` |
 | `POST /auth/logout` | Ends this token's session: 204 |
 | `GET /me` | `{ user }`: `{ phone, name, ownerOf: [{ venueId, slug, name }] }`. No valid token: 401 `UNAUTHENTICATED` |

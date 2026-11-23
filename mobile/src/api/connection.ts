@@ -2,8 +2,8 @@
 //
 // Order: the address saved in Account › Server connection, then the build's
 // EXPO_PUBLIC_API_URL / EXPO_PUBLIC_WEB_URL, then (in development) the computer
-// running Metro on port 4000 / 3000. Until the Server is deployed, internal builds
-// point at your laptop's Wi-Fi address from Account › Server connection.
+// running Metro on port 4000 / 3000. CI builds get EXPO_PUBLIC_API_URL from the
+// KHELSPOT_API_URL repository variable: the demo Server at https://khelspot-server.vercel.app.
 
 import Constants from "expo-constants";
 import { useSyncExternalStore } from "react";

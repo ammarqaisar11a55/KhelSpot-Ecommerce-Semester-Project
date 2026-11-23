@@ -17,7 +17,8 @@ const list = (raw: string | undefined, fallback: string) =>
     .map((s) => s.trim())
     .filter(Boolean);
 
-const isProduction = process.env.NODE_ENV === "production";
+// Vercel does not always set NODE_ENV for functions, so its own production flag counts too.
+const isProduction = process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production";
 
 export const config = {
   get databaseUrl() {
@@ -37,8 +38,8 @@ export const config = {
     if (isProduction) throw new Error("Set OTP_SECRET in production.");
     return "khelspot-dev-otp-secret";
   },
-  /** Return { devCode } from POST /auth/otp. Never in production. */
-  otpDevEcho: !isProduction && process.env.OTP_DEV_ECHO === "1",
+  /** Return { devCode } from POST /auth/otp. In production only with ALLOW_DEMO_OTP=1 (demo deployments, no SMS). */
+  otpDevEcho: process.env.OTP_DEV_ECHO === "1" && (!isProduction || process.env.ALLOW_DEMO_OTP === "1"),
   smsProvider: process.env.SMS_PROVIDER ?? "console",
 
   /** "test" outside production; production needs a real provider (or the explicit demo flag below). */
