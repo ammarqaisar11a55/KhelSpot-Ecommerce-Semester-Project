@@ -4,12 +4,13 @@ import { useState, type ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { LogoMark } from "@/components/brand";
 import { ChevronIcon } from "@/components/icons";
-import { Pills } from "@/components/kit";
+import { ErrorState, Pills } from "@/components/kit";
 import { haptic } from "@/components/motion";
 import { Screen, Tag } from "@/components/ui";
-import { auth } from "@/api/client";
+import { ApiError, auth } from "@/api/client";
 import { useConnection } from "@/api/connection";
 import { signedOut, useSession } from "@/auth/session";
+import { enterOwnerDemo, isDemoOwner, leaveOwnerDemo } from "@/owner/demo";
 import { setRemindersOn, usePlayer } from "@/player/store";
 import { homeFor, useRole, type Role } from "@/role/RoleProvider";
 import { radius, space, text, useStyles, usePalette, type Palette, setThemePreference, useThemePreference } from "@/theme";
@@ -85,6 +86,31 @@ export function AccountScreen({ role }: { role: Role }) {
     router.replace(homeFor(other));
   };
 
+  // Presentation switch: owner dashboard with sample bookings, and back to the player side.
+  const [demoBusy, setDemoBusy] = useState(false);
+  const [demoError, setDemoError] = useState<ApiError | null>(null);
+  const demoOn = role === "owner" && isDemoOwner(user);
+  const toggleDemo = async (on: boolean) => {
+    if (demoBusy) return;
+    setDemoBusy(true);
+    setDemoError(null);
+    try {
+      if (on) {
+        await enterOwnerDemo();
+        setRole("owner");
+        router.replace("/owner");
+      } else {
+        await leaveOwnerDemo();
+        setRole("player");
+        router.replace("/player");
+      }
+    } catch (e) {
+      setDemoError(e instanceof ApiError ? e : new ApiError("UNKNOWN", "Couldn't open the demo. Try again."));
+    } finally {
+      setDemoBusy(false);
+    }
+  };
+
   return (
     <Screen title="Account">
       <View style={styles.group}>
@@ -134,6 +160,27 @@ export function AccountScreen({ role }: { role: Role }) {
           detail={role === "owner" ? "Switch to the player side of the app" : "Switch to the venue owner side of the app"}
           onPress={switchRole}
         />
+      </View>
+
+      <View style={{ gap: space.sm }}>
+        <Text style={[text.subhead, { color: c.text }]}>Demo</Text>
+        <View style={styles.group}>
+          <ToggleRow
+            title="Venue owner demo"
+            detail={
+              demoBusy
+                ? demoOn
+                  ? "Closing the demo…"
+                  : "Opening the demo…"
+                : demoOn
+                  ? "On: Night Owl Arena's dashboard with sample bookings. Turn off to go back to booking courts."
+                  : "Opens a venue owner's dashboard filled with sample bookings. No sign-in needed."
+            }
+            value={demoOn}
+            onChange={(on) => void toggleDemo(on)}
+          />
+        </View>
+        {demoError ? <ErrorState error={demoError} /> : null}
       </View>
 
       <View style={{ gap: space.sm }}>

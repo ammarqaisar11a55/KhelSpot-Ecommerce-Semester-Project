@@ -277,6 +277,12 @@
       "skillPath": ".claude/skills/prototype/SKILL.md",
       "computedHash": "7769770c4d76b2c88cbabc4713dc5c907cae938ef02c56bb4e42c6d753f77501"
     },
+    "react-native-animations": {
+      "source": "pluginagentmarketplace/custom-plugin-react-native",
+      "sourceType": "github",
+      "skillPath": "skills/react-native-animations/SKILL.md",
+      "computedHash": "3b336655ba72cc1593fb5124f2e02c19a4e19fe3aaa43d3ce245e719f1c8a33e"
+    },
     "rebranding": {
       "source": "arnabbagxd/brand-building-skills",
       "sourceType": "github",

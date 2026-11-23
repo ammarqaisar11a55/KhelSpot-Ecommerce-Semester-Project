@@ -3,9 +3,13 @@
 //   screen shows instantly on the next (stale-while-revalidate);
 // - when a filter or day changes, the previous results stay up until the new
 //   ones arrive, instead of flashing a skeleton;
-// - screens can prime the cache for the screen the player is about to open.
+// - screens can prime the cache for the screen the player is about to open;
+// - what loaded last is saved on the phone, so with no internet (or on the next
+//   launch) screens still show it, then refresh once the server answers again.
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { getSession, subscribeSession } from "@/auth/session";
+import { readJson, writeJson } from "@/lib/storage";
 import { ApiError } from "./client";
 import { getConnection, useConnection } from "./connection";
 
@@ -14,10 +18,57 @@ interface Entry {
   data?: unknown;
   error?: ApiError;
   at: number;
+  /** When `data` last came from the server (kept through failed refreshes). */
+  loadedAt?: number;
   pending?: boolean;
 }
 
 const cache = new Map<string, Entry>();
+
+// ---------- saved on the phone ----------
+
+const STORE = "query-cache";
+const MAX_SAVED = 80;
+/** Owner screens hold customers' names and numbers: kept only while that owner is signed in. */
+const isPrivate = (k: string) => k.includes("|owner-");
+
+type Saved = Record<string, { data: unknown; loadedAt: number }>;
+
+// Restored as already stale, so screens show it at once and refresh straight away.
+for (const [k, v] of Object.entries(readJson<Saved>(STORE) ?? {})) {
+  if (v && v.data !== undefined && (!isPrivate(k) || getSession().token)) cache.set(k, { data: v.data, at: 0, loadedAt: v.loadedAt });
+}
+
+let saveTimer: ReturnType<typeof setTimeout> | undefined;
+function persist() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    const rows = [...cache.entries()]
+      .filter(([, e]) => e.data !== undefined && e.loadedAt)
+      .sort((a, b) => b[1].loadedAt! - a[1].loadedAt!)
+      .slice(0, MAX_SAVED);
+    writeJson(STORE, Object.fromEntries(rows.map(([k, e]) => [k, { data: e.data, loadedAt: e.loadedAt! }])));
+  }, 400);
+}
+
+// Signing out, or another account signing in, drops the previous owner's data.
+let sessionToken = getSession().token;
+subscribeSession(() => {
+  const token = getSession().token;
+  if (token === sessionToken) return;
+  sessionToken = token;
+  let dropped = false;
+  for (const k of [...cache.keys()]) {
+    if (isPrivate(k)) {
+      cache.delete(k);
+      dropped = true;
+    }
+  }
+  if (dropped) {
+    persist();
+    notify();
+  }
+});
 const inflight = new Map<string, Promise<unknown>>();
 const listeners = new Set<() => void>();
 
@@ -47,6 +98,12 @@ export function primeQuery<T>(key: string, data: T) {
   }
 }
 
+/** Mark everything stale so open screens fetch again, e.g. after coming back online. */
+export function retryAllQueries() {
+  for (const [k, e] of cache) if (!e.pending) cache.set(k, { ...e, at: 0, error: undefined });
+  notify();
+}
+
 /** Drop cached data so the next screen that needs it fetches again (after a change). */
 export function invalidateQueries(prefix: string) {
   const base = fullKey(getConnection().apiUrl, prefix);
@@ -61,12 +118,15 @@ function run<T>(k: string, fn: () => Promise<T>): Promise<T> {
   notify();
   const p = fn()
     .then((data) => {
-      cache.set(k, { data, at: Date.now() });
+      const now = Date.now();
+      cache.set(k, { data, at: now, loadedAt: now });
+      persist();
       return data;
     })
     .catch((e: unknown) => {
       const error = e instanceof ApiError ? e : new ApiError("UNKNOWN", "Something went wrong. Try again.");
-      cache.set(k, { data: cache.get(k)?.data, error, at: Date.now() });
+      const prev = cache.get(k);
+      cache.set(k, { data: prev?.data, loadedAt: prev?.loadedAt, error, at: Date.now() });
       throw error;
     })
     .finally(() => {
@@ -84,6 +144,8 @@ export interface Query<T> {
   loading: boolean;
   /** Showing previous or cached data while newer data loads. */
   updating: boolean;
+  /** Showing saved data because the latest refresh failed; when it was loaded. */
+  staleSince: number | undefined;
   refreshing: boolean;
   refresh: () => void;
 }
@@ -128,6 +190,7 @@ export function useQuery<T>(key: string | null, fn: () => Promise<T>): Query<T> 
     error: data === undefined && !busy ? entry?.error : undefined,
     loading: k !== null && visible === undefined && !entry?.error,
     updating: busy && visible !== undefined,
+    staleSince: data !== undefined && entry?.error ? entry.loadedAt : undefined,
     refreshing,
     refresh,
   };

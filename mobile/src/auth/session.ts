@@ -78,6 +78,14 @@ export function signedOut() {
   set({ token: null, user: null });
 }
 
+/** Runs `l` after every sign-in, sign-out or user update. Returns an unsubscribe. */
+export function subscribeSession(l: () => void): () => void {
+  listeners.add(l);
+  return () => listeners.delete(l);
+}
+
+export const getSession = (): State => state;
+
 export function useSession(): State {
   return useSyncExternalStore(
     (l) => {

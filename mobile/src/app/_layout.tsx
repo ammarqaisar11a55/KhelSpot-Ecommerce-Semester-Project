@@ -4,14 +4,17 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as SystemUI from "expo-system-ui";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { LaunchIntro } from "@/components/LaunchIntro";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import { configureNotifications, useReminderTaps } from "@/lib/reminders";
 import { usePalette } from "@/theme";
 import { RoleProvider } from "@/role/RoleProvider";
 import { UpdaterProvider } from "@/updater/UpdaterProvider";
 
 // Keep the Ink splash up until the brand fonts are ready, so text never flashes in a system face.
+// LaunchIntro then takes over on the same frame and hides it.
 SplashScreen.preventAutoHideAsync();
 configureNotifications();
 
@@ -25,10 +28,8 @@ export default function RootLayout() {
     Archivo_700Bold,
   });
   const ready = loaded || !!error;
-
-  useEffect(() => {
-    if (ready) SplashScreen.hideAsync();
-  }, [ready]);
+  // Once per cold start: this layout mounts once per process.
+  const [intro, setIntro] = useState(true);
 
   useReminderTaps(ready);
 
@@ -71,6 +72,8 @@ export default function RootLayout() {
             <Stack.Screen name="manage/walk-in" options={{ title: "Add a walk-in" }} />
             <Stack.Screen name="payment-return" options={{ headerShown: false }} />
           </Stack>
+          <OfflineBanner />
+          {intro ? <LaunchIntro onDone={() => setIntro(false)} /> : null}
         </UpdaterProvider>
       </RoleProvider>
     </SafeAreaProvider>

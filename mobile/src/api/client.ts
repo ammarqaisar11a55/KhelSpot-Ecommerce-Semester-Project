@@ -10,6 +10,7 @@ import type {
   Venue,
 } from "@shared/domain/types";
 import { getToken, signedOut, type User } from "@/auth/session";
+import { useSyncExternalStore } from "react";
 import { getConnection } from "./connection";
 
 export type SlotStatus = "free" | "booked" | "past" | "no-rate";
@@ -46,6 +47,27 @@ export class ApiError extends Error {
 
 const TIMEOUT_MS = 12_000;
 
+// ---------- reachability ----------
+// false after a request couldn't reach the server (no internet, server down); true again
+// after any answer. Screens keep showing saved data meanwhile (see useQuery).
+let reachable = true;
+const reachListeners = new Set<() => void>();
+function setReachable(v: boolean) {
+  if (reachable === v) return;
+  reachable = v;
+  reachListeners.forEach((l) => l());
+}
+export function useReachable(): boolean {
+  return useSyncExternalStore(
+    (l) => {
+      reachListeners.add(l);
+      return () => reachListeners.delete(l);
+    },
+    () => reachable,
+    () => reachable,
+  );
+}
+
 type Method = "GET" | "POST" | "PUT" | "PATCH";
 
 async function request<T>(path: string, init?: { method?: Method; body?: unknown }): Promise<T> {
@@ -68,10 +90,12 @@ async function request<T>(path: string, init?: { method?: Method; body?: unknown
       signal: controller.signal,
     });
   } catch {
+    setReachable(false);
     throw new ApiError("OFFLINE", `Can't reach the KhelSpot server at ${apiUrl}. Check your connection and try again.`);
   } finally {
     clearTimeout(timer);
   }
+  setReachable(true);
   if (res.status === 204) return null as T;
   let json: unknown = null;
   try {
