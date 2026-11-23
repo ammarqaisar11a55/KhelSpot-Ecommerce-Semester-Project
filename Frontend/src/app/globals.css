@@ -249,3 +249,148 @@ p {
   font-style: normal;
   color: var(--flood);
 }
+
+/* Opening animation (components/LaunchIntro.tsx), on the same timeline as the Android app.
+   Transform and opacity only. Plays once per browser session. */
+.intro {
+  --w: min(260px, 64vw);
+  --h: calc(var(--w) * 208 / 690);
+  --r: calc(var(--w) * 0.0572);
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background: var(--night);
+  cursor: pointer;
+  animation: intro-veil 420ms cubic-bezier(0.33, 1, 0.68, 1) 1.55s forwards;
+}
+html[data-intro="seen"] .intro {
+  display: none;
+}
+.intro__group {
+  position: relative;
+  animation:
+    intro-in 360ms cubic-bezier(0.33, 1, 0.68, 1) both,
+    intro-lift 420ms cubic-bezier(0.32, 0, 0.67, 0) 1.42s forwards;
+}
+.intro__logo {
+  position: relative;
+  width: var(--w);
+  height: var(--h);
+}
+.intro__logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.intro__dot,
+.intro__glow,
+.intro__ring {
+  position: absolute;
+  left: calc(var(--w) * 0.7833 - var(--r));
+  top: calc(var(--h) * 0.4976 - var(--r));
+  width: calc(var(--r) * 2);
+  height: calc(var(--r) * 2);
+  border-radius: 50%;
+}
+.intro__dot {
+  background: var(--flood);
+  animation: intro-pop 560ms cubic-bezier(0.33, 1, 0.68, 1) 0.5s both;
+}
+.intro__glow {
+  background: var(--flood);
+  opacity: 0;
+  animation: intro-glow 950ms cubic-bezier(0.5, 1, 0.89, 1) 0.5s forwards;
+}
+.intro__ring {
+  border: 2px solid var(--flood);
+  opacity: 0;
+  animation: intro-ring 1000ms cubic-bezier(0.5, 1, 0.89, 1) 0.64s forwards;
+}
+.intro__below {
+  position: absolute;
+  top: calc(100% + 22px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  white-space: nowrap;
+}
+.intro__line {
+  width: 72px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--flood);
+  transform: scaleX(0);
+  animation: intro-line 560ms cubic-bezier(0.16, 1, 0.3, 1) 0.76s forwards;
+}
+.intro__tag {
+  font: 700 12px/1 var(--body);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted-dark);
+  opacity: 0;
+  animation: intro-tag 460ms cubic-bezier(0.33, 1, 0.68, 1) 0.9s forwards;
+}
+.intro--skip {
+  animation: intro-veil-skip 240ms ease-out forwards;
+}
+.intro--skip .intro__group {
+  animation: intro-lift 200ms ease-in forwards;
+}
+@keyframes intro-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes intro-lift {
+  to { opacity: 0; transform: translateY(-14px) scale(0.95); }
+}
+@keyframes intro-pop {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.24); }
+  55% { transform: scale(0.95); }
+  75% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+@keyframes intro-glow {
+  from { opacity: 0.42; transform: scale(1); }
+  to { opacity: 0; transform: scale(2.8); }
+}
+@keyframes intro-ring {
+  from { opacity: 0.75; transform: scale(1); }
+  to { opacity: 0; transform: scale(4.2); }
+}
+@keyframes intro-line {
+  to { transform: scaleX(1); }
+}
+@keyframes intro-tag {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes intro-veil {
+  to { opacity: 0; visibility: hidden; }
+}
+@keyframes intro-veil-skip {
+  to { opacity: 0; visibility: hidden; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro {
+    animation: intro-veil 250ms ease-out 0.3s forwards;
+  }
+  .intro__group,
+  .intro__dot,
+  .intro__glow,
+  .intro__ring,
+  .intro__line,
+  .intro__tag {
+    animation: none;
+  }
+  .intro__line {
+    transform: none;
+  }
+  .intro__tag {
+    opacity: 1;
+  }
+}

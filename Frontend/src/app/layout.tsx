@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Big_Shoulders } from "next/font/google";
+import { INTRO_SCRIPT, LaunchIntro } from "@/components/LaunchIntro";
 import "./globals.css";
 
 // Brand kit v1.0 type: Big Shoulders (display, uppercase) and Archivo (text).
@@ -34,11 +35,13 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${bigShoulders.variable} ${archivo.variable}`}
-    >
-      <body>{children}</body>
+    // data-intro is set by INTRO_SCRIPT before React hydrates, hence suppressHydrationWarning.
+    <html lang="en" className={`${bigShoulders.variable} ${archivo.variable}`} suppressHydrationWarning>
+      <body>
+        <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />
+        <LaunchIntro />
+        {children}
+      </body>
     </html>
   );
 }
